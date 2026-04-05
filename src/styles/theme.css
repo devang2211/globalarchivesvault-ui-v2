@@ -1,0 +1,62 @@
+:root {
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --background: oklch(100% 0 0);
+  --foreground: oklch(14% 0.02 260);
+
+  --border: oklch(95% 0.008 255);
+  --input: oklch(95% 0.008 255);
+
+  --ring: oklch(70% 0.03 256);
+
+  --muted: oklch(97% 0.004 247);
+  --muted-foreground: oklch(55% 0.02 257);
+
+  --primary: oklch(22% 0.04 265);
+  --primary-foreground: oklch(98% 0.002 247);
+
+  --destructive: oklch(60% 0.22 27);
+  --destructive-foreground: oklch(98% 0.002 247);
+}
+
+.font-inter {
+  --font-sans: "Inter", sans-serif;
+}
+
+.font-manrope {
+  --font-sans: "Manrope", sans-serif;
+}
+
+.font-system {
+  --font-sans: system-ui, -apple-system, sans-serif;
+}
+
+.dark {
+  --background: oklch(12.5% 0.02 260);
+  --foreground: oklch(96% 0.01 260);
+
+  --card: oklch(14% 0.02 260);
+  --card-foreground: oklch(96% 0.01 260);
+
+  --popover: oklch(14% 0.02 260);
+  --popover-foreground: oklch(96% 0.01 260);
+
+  --primary: oklch(92% 0.02 265);
+  --primary-foreground: oklch(20% 0.02 260);
+
+  --secondary: oklch(18% 0.01 260);
+  --secondary-foreground: oklch(96% 0.01 260);
+
+  --muted: oklch(18% 0.01 260);
+  --muted-foreground: oklch(65% 0.02 257);
+
+  --accent: oklch(18% 0.01 260);
+  --accent-foreground: oklch(96% 0.01 260);
+
+  --border: oklch(22% 0.01 260);
+  --input: oklch(22% 0.01 260);
+
+  --ring: oklch(70% 0.03 256);
+
+  --destructive: oklch(65% 0.22 27);
+  --destructive-foreground: oklch(12% 0.02 260);
+}

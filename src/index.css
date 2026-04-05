@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* @layer utilities {
+  .animate-in {
+    animation: fadeSlideIn 0.5s ease-out forwards;
+  }
+
+  .fade-in {
+    opacity: 0;
+  }
+
+  .slide-in-from-bottom-2 {
+    transform: translateY(8px);
+  }
+
+  @keyframes fadeSlideIn {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+} */
+
+@layer utilities {
+  .auth-enter {
+    opacity: 0;
+    transform: scale(0.995);
+    animation: authFade 220ms ease-out forwards;
+  }
+
+  @keyframes authFade {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/* html, body, input, button, textarea, select {
+  font-family: var(--font-sans) !important;
+} */
+
+/* 🔥 Autofill override (Chrome, Edge) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--background) inset !important;
+  -webkit-text-fill-color: var(--foreground) !important;
+  transition: background-color 9999s ease-in-out 0s;
+  border-color: var(--border) !important;
+}
+
+/* Hide browser password reveal (Edge, IE) */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+/* Hide Chrome autofill / credentials button */
+input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+}
+
+/* 🎯 Tailwind v4 theme tokens */
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+}
+
+@layer utilities {
+  .text-destructive {
+    color: var(--destructive);
+  }
+
+  .border-destructive {
+    border-color: var(--destructive);
+  }
+
+  .ring-destructive {
+    --tw-ring-color: var(--destructive);
+  }
+}
+
+/* 🌐 Base styles */
+/* body {
+  @apply bg-background text-foreground;
+} */
+
+/* 🎨 Font system (dynamic) */
+/* .font-inter {
+  font-family: "Inter", sans-serif;
+}
+
+.font-manrope {
+  font-family: "Manrope", sans-serif;
+}
+
+.font-system {
+  font-family: system-ui, -apple-system, sans-serif;
+} */
+
+/* * {
+  font-family: inherit;
+} */
+
+/* body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+} */
+
+img {
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* 🔥 Progress bar */
+/* #nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: color-mix(in oklch, var(--primary) 65%, white) !important;
+  height: 2px;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 8px var(--primary);
+  opacity: 0.6;
+}
+
+#nprogress .spinner {
+  display: none;
+} */
+
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: color-mix(in oklch, var(--primary) 65%, white);
+  height: 2px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+
+  /* ✨ smooth animation */
+  transition: all 0.3s ease;
+}
+
+#nprogress .peg {
+  box-shadow:
+    0 0 8px color-mix(in oklch, var(--primary) 60%, white),
+    0 0 16px color-mix(in oklch, var(--primary) 40%, transparent);
+  opacity: 0.4;
+}
+
+#nprogress .spinner {
+  display: none;
+}
+
+.dark #nprogress .bar {
+  background: color-mix(in oklch, var(--primary) 80%, black);
+}
+
+.dark #nprogress .peg {
+  box-shadow:
+    0 0 10px var(--primary),
+    0 0 20px color-mix(in oklch, var(--primary) 40%, transparent);
+}
+
+:root {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif;
+}
+
+.font-inter {
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+.font-manrope {
+  --font-sans: "Manrope", system-ui, sans-serif;
+}
+
+.font-system {
+  --font-sans: system-ui, -apple-system, sans-serif;
+}

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <link rel="preload"
+    href="/node_modules/.pnpm/@fontsource+manrope@5.2.8/node_modules/@fontsource/manrope/files/manrope-latin-400-normal.woff2"
+    as="font" type="font/woff2" crossorigin />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Archives Vault</title>
+  <script>
+    (function () {
+      try {
+        const font = localStorage.getItem("font") || "inter";
+        document.documentElement.classList.add("font-" + font);
+      } catch (e) { }
+    })();
+  </script>
+  <!-- <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap" rel="stylesheet"> -->
+</head>
+
+<body className="font-sans antialiased">
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>
