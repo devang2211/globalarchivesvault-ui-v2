@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Eye, EyeOff, LogIn, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { loginSchema, type LoginFormValues } from "../schema/loginSchema"
+import { loginSchema, type LoginFormValues } from "../schema/login.schema"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,7 +27,7 @@ export const LoginForm = ({ onSubmit, loading }: Props) => {
     return (
 
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" autoComplete="off">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" autoComplete="off" noValidate>
             <fieldset
                 disabled={loading}
                 className={`space-y-5 transition-opacity`}
@@ -106,7 +106,7 @@ export const LoginForm = ({ onSubmit, loading }: Props) => {
                         {loading ? "Signing in..." : "Sign In"}
                     </>
                 </Button>
-                <p className="text-[11px] leading-4 text-muted-foreground text-center">
+                {/* <p className="text-[11px] leading-4 text-muted-foreground text-center">
                     By clicking sign in, you agree to our{" "}
                     <a
                         href="#"
@@ -121,7 +121,7 @@ export const LoginForm = ({ onSubmit, loading }: Props) => {
                     >
                         Privacy Policy
                     </a>.
-                </p>
+                </p> */}
             </fieldset>
         </form>
 

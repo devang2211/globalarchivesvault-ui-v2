@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Reference repos (DO NOT COMMIT)
+shadcn-admin/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
