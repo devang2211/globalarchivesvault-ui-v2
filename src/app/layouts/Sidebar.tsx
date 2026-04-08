@@ -110,22 +110,21 @@ export const Sidebar = ({
   ]
 
   return (
-    <aside
-      className={cn(
-        "flex flex-col rounded-xl border border-border bg-background shadow-sm",
-        "transition-all duration-200 ease-out",
+<aside
+  className={cn(
+    "flex flex-col bg-background transition-transform duration-300 ease-in-out",
 
-        // desktop
-        "lg:static lg:translate-x-0",
-        isCollapsed ? "lg:w-[72px]" : "lg:w-64",
+    // ✅ DESKTOP
+    "lg:static lg:translate-x-0",
+    isCollapsed ? "lg:w-[72px]" : "lg:w-64",
 
-        // mobile drawer
-        "fixed top-3 left-3 bottom-3 z-50 w-64",
+    // ✅ MOBILE (FULL SCREEN DRAWER)
+    "fixed inset-y-0 left-0 z-50 w-72",
 
-        // visibility
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}
-    >
+    // 👇 CONTROL VISIBILITY
+    isOpen ? "translate-x-0" : "-translate-x-full"
+  )}
+>
       {/* Header */}
       <div className="flex items-center px-3 py-3">
         <div

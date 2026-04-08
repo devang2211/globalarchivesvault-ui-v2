@@ -13,3 +13,7 @@ export const login = async (data: LoginRequest) => {
     throw new Error(message)
   }
 }
+
+export const signOut = async () => {
+  await api.post("/api/auth/sign-out")
+}

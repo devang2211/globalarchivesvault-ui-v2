@@ -1,161 +1,131 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
-import { LogOut, Sun, Moon, Laptop } from "lucide-react"
-import { useTheme } from "@/app/providers/ThemeProvider"
+import { Check, LogOut, User } from "lucide-react"
 import { usePreferences } from "@/app/providers/PreferencesProvider"
-import { Check } from "lucide-react"
+import { setFont } from "@/lib/font"
+import { cn } from "@/lib/utils"
+import { useSignOut } from "@/features/auth/hooks/useSignOut"
+import { toast } from "sonner"
+import { useNavigate } from "@tanstack/react-router"
 
 export const UserMenu = () => {
-    const { setTheme } = useTheme()
+  const { preferences, updatePreference } = usePreferences()
+  const signOutMutation = useSignOut()
+  const navigate = useNavigate()
 
-    const handleLogout = () => {
-        localStorage.removeItem("token")
-        window.location.href = "/sign-in"
-    }
+  return (
+    <DropdownMenu.Root>
+      {/* TRIGGER */}
+      <DropdownMenu.Trigger asChild>
+        <button
+          className="
+            h-8 w-8 rounded-full bg-muted flex items-center justify-center
+            cursor-pointer
+            hover:bg-muted/80
+            active:scale-95
+            transition
+            outline-none
+            focus-visible:ring-2 focus-visible:ring-ring/40
+          "
+        >
+          G
+        </button>
+      </DropdownMenu.Trigger>
 
-    const { preferences, update } = usePreferences()
+      {/* CONTENT */}
+      <DropdownMenu.Content
+        align="end"
+        sideOffset={8}
+        className="
+          z-50 w-56 rounded-md border border-border bg-background shadow-md
+          p-1
+          animate-in fade-in zoom-in-95
+          data-[state=open]:animate-in data-[state=closed]:animate-out
+        "
+      >
+        {/* PROFILE */}
+        <div className="px-3 py-2 text-sm">
+          <p className="font-medium">Gaurav Patel</p>
+          <p className="text-xs text-muted-foreground truncate">
+            gaurav@email.com
+          </p>
+        </div>
 
-    return (
-        <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
-<button
-  className="
-    h-8 w-8 rounded-full
-    bg-muted
-    text-sm font-medium
-    flex items-center justify-center
-    hover:bg-muted/80
-    transition-colors
-  "
->
-  G
-</button>
-            </DropdownMenu.Trigger>
+        <DropdownMenu.Separator className="my-1 h-px bg-border" />
 
-            <DropdownMenu.Content
-                align="end"
-                side="bottom"
-                sideOffset={8}
-                className="
-    w-56
-    rounded-lg
-    border border-border
-    bg-background
-    p-1
-    shadow-md
-    animate-in fade-in-80 zoom-in-95
-    data-[side=bottom]:slide-in-from-top-1
-    data-[side=top]:slide-in-from-bottom-1
-  "
-            >
-                {/* User Info */}
-                <div className="px-2 py-2 text-sm">
-                    <div className="font-medium">Gaurav Patel</div>
-                    <div className="text-muted-foreground text-xs">
-                        gaurav@example.com
-                    </div>
-                </div>
+        {/* PROFILE LINK */}
+        <DropdownMenu.Item className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer outline-none focus:outline-none focus:bg-muted data-[highlighted]:bg-muted data-[highlighted]:text-foreground">
+          <User className="h-4 w-4" />
+          Profile
+        </DropdownMenu.Item>
 
-                <DropdownMenu.Separator className="my-1 h-px bg-border/60" />
+        <DropdownMenu.Separator className="my-1 h-px bg-border" />
 
-                {/* Theme */}
-                <DropdownMenu.Label className="px-2 pt-3 pb-1 text-xs font-medium text-muted-foreground">
-                    Theme
-                </DropdownMenu.Label>
+        {/* THEME */}
+        <div className="px-3 py-1 text-xs text-muted-foreground uppercase tracking-wide">
+          Theme
+        </div>
 
-                <DropdownMenu.RadioGroup
-                    value={preferences.theme}
-                    onValueChange={(value) => update({ theme: value as any })}
-                >
-                    {[
-                        { label: "Light", value: "light" },
-                        { label: "Dark", value: "dark" },
-                        { label: "System", value: "system" },
-                    ].map((item) => (
-                        <DropdownMenu.RadioItem
-                            key={item.value}
-                            value={item.value}
-                            className="
-  flex items-center justify-between
-  px-2 py-1.5
-  text-sm
-  rounded-md
-  cursor-pointer
-  outline-none
-  hover:bg-muted
-  focus:bg-muted
-  transition-colors
-"
-                        >
-                            <span>{item.label}</span>
+        {["light", "dark", "system"].map((theme) => (
+          <DropdownMenu.Item
+            key={theme}
+            onSelect={(e) => { e.preventDefault(); updatePreference("theme", theme) }}
+            className="flex items-center justify-between px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer  outline-none focus:outline-none focus:bg-muted data-[highlighted]:bg-muted data-[highlighted]:text-foreground"
+          >
+            <span className="capitalize">{theme}</span>
 
-                            {preferences.theme === item.value && (
-                                <Check className="h-4 w-4 text-muted-foreground" />
-                            )}
-                        </DropdownMenu.RadioItem>
-                    ))}
-                </DropdownMenu.RadioGroup>
+            {preferences.theme === theme && (
+              <Check className="h-4 w-4" />
+            )}
+          </DropdownMenu.Item>
+        ))}
 
-                <DropdownMenu.Separator className="my-1 h-px bg-border/60" />
+        <DropdownMenu.Separator className="my-1 h-px bg-border" />
 
-                {/* FONT */}
-                <DropdownMenu.Label className="px-2 pt-3 pb-1 text-xs font-medium text-muted-foreground">
-                    Font
-                </DropdownMenu.Label>
+        {/* FONT */}
+        <div className="px-3 py-1 text-xs text-muted-foreground uppercase tracking-wide">
+          Font
+        </div>
 
-                <DropdownMenu.RadioGroup
-                    value={preferences.font}
-                    onValueChange={(value) => update({ font: value as any })}
-                >
-                    {[
-                        { label: "Inter", value: "inter" },
-                        { label: "Manrope", value: "manrope" },
-                        { label: "System", value: "system" },
-                    ].map((item) => (
-                        <DropdownMenu.RadioItem
-                            key={item.value}
-                            value={item.value}
-                            className="
-  flex items-center justify-between
-  px-2 py-1.5
-  text-sm
-  rounded-md
-  cursor-pointer
-  outline-none
-  hover:bg-muted
-  focus:bg-muted
-  transition-colors
-"
-                        >
-                            <span>{item.label}</span>
+        {["inter", "manrope", "system"].map((font) => (
+          <DropdownMenu.Item
+            key={font}
+            onSelect={(e) => { e.preventDefault(); updatePreference("font", font) }}
+            className="flex items-center justify-between px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer  outline-none focus:outline-none focus:bg-muted data-[highlighted]:bg-muted data-[highlighted]:text-foreground"
+          >
+            <span className="capitalize">{font}</span>
 
-                            {preferences.font === item.value && (
-                                <Check className="h-4 w-4 text-muted-foreground" />
-                            )}
-                        </DropdownMenu.RadioItem>
-                    ))}
-                </DropdownMenu.RadioGroup>
+            {preferences.font === font && (
+              <Check className="h-4 w-4" />
+            )}
+          </DropdownMenu.Item>
+        ))}
 
-                <DropdownMenu.Separator className="my-1 h-px bg-border/60" />
+        <DropdownMenu.Separator className="my-1 h-px bg-border" />
 
-                {/* Logout */}
-                <DropdownMenu.Item
-                    onClick={handleLogout}
-                    className="
-  flex items-center justify-between
-  px-2 py-1.5
-  text-sm
-  rounded-md
-  cursor-pointer
-  outline-none
-  hover:bg-muted
-  focus:bg-muted
-  transition-colors
-"
-                >
-                    <LogOut className="h-4 w-4" />
-                    Logout
-                </DropdownMenu.Item>
-            </DropdownMenu.Content>
-        </DropdownMenu.Root>
-    )
+        {/* LOGOUT */}
+        <DropdownMenu.Item disabled={signOutMutation.isPending}
+          onSelect={async () => {
+            const toastId = toast.loading("Signing out...")
+            try {
+              await signOutMutation.mutateAsync()
+              toast.success("Signed out successfully", { id: toastId })
+            } catch {
+              // even if API fails → continue logout
+              toast.error("Sign out failed", { id: toastId })
+            }
+
+            localStorage.removeItem("token")
+            localStorage.removeItem("email")
+
+            navigate({ to: "/sign-in" })
+          }}
+          className="flex items-center gap-2 px-3 py-2 text-sm rounded-md text-destructive hover:bg-muted cursor-pointer  outline-none focus:outline-none focus:bg-muted data-[highlighted]:bg-muted data-[highlighted]:text-foreground"
+        >
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </DropdownMenu.Item>
+
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+  )
 }

@@ -1,133 +1,121 @@
-// import { createContext, useContext, useEffect, useState } from "react"
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react"
 
-// type FontType = "inter" | "manrope" | "system"
+import type { Preferences } from "@/shared/types/preferences.types"
+import { setFont } from "@/lib/font"
 
-// type PreferencesContextType = {
-//   font: FontType
-//   setFont: (font: FontType) => void
-// }
-
-// const PreferencesContext = createContext<PreferencesContextType | null>(null)
-
-// export const PreferencesProvider = ({ children }: { children: React.ReactNode }) => {
-//   const [font, setFont] = useState<FontType>("inter")
-
-//   useEffect(() => {
-//     const saved = localStorage.getItem("font") as FontType
-//     if (saved) setFont(saved)
-//   }, [])
-
-//   useEffect(() => {
-//     localStorage.setItem("font", font)
-//   }, [font])
-
-//   return (
-//     <PreferencesContext.Provider value={{ font, setFont }}>
-//       <div className={`font-${font}`}>
-//         {children}
-//       </div>
-//     </PreferencesContext.Provider>
-//   )
-// }
-
-// export const usePreferences = () => {
-//   const ctx = useContext(PreferencesContext)
-//   if (!ctx) throw new Error("usePreferences must be used within PreferencesProvider")
-//   return ctx
-// }
-
-
-import { createContext, useContext, useEffect, useState } from "react"
-import { getPreferences, updatePreferences, type Preferences } from "@/shared/api/preferences.api"
-
-type ContextType = {
-  preferences: Preferences
-  update: (data: Partial<Preferences>) => void
+/* =========================================
+   Default Preferences
+========================================= */
+const defaultPreferences: Preferences = {
+  theme: "light",
+  sidebar: "default",
+  layout: "default",
+  direction: "ltr",
+  font: "inter",
 }
 
-const PreferencesContext = createContext<ContextType | null>(null)
+/* =========================================
+   Context
+========================================= */
+type PreferencesContextType = {
+  preferences: Preferences
+  updatePreference: (key: keyof Preferences, value: any) => void
+}
 
-export const PreferencesProvider = ({ children }: { children: React.ReactNode }) => {
-  const [preferences, setPreferences] = useState<Preferences>({
-    theme: "system",
-    font: "inter",
-    density: "comfortable",
+const PreferencesContext = createContext<PreferencesContextType | null>(null)
+
+/* =========================================
+   Provider
+========================================= */
+export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
+  /* =========================================
+     State
+  ========================================= */
+  const [preferences, setPreferences] = useState<Preferences>(() => {
+    try {
+      const saved = localStorage.getItem("preferences")
+      return saved ? JSON.parse(saved) : defaultPreferences
+    } catch {
+      return defaultPreferences
+    }
   })
 
-  const apply = (prefs: Preferences) => {
+  /* =========================================
+     Update Function
+  ========================================= */
+  const updatePreference = (key: keyof Preferences, value: any) => {
+    setPreferences((prev) => ({
+      ...prev,
+      [key]: value,
+    }))
+  }
+
+  /* =========================================
+     Apply Theme
+  ========================================= */
+  useEffect(() => {
     const root = document.documentElement
 
-    // THEME
     root.classList.remove("light", "dark")
-    if (prefs.theme === "system") {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-      root.classList.add(prefersDark ? "dark" : "light")
+
+    if (preferences.theme === "dark") {
+      root.classList.add("dark")
+    } else if (preferences.theme === "light") {
+      root.classList.add("light")
     } else {
-      root.classList.add(prefs.theme!)
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+      root.classList.add(isDark ? "dark" : "light")
     }
+  }, [preferences.theme])
 
-    // FONT
-    root.classList.remove("font-inter", "font-manrope", "font-system")
-    root.classList.add(`font-${prefs.font}`)
-
-    // DENSITY
-    root.classList.remove("density-compact", "density-comfortable")
-    root.classList.add(`density-${prefs.density}`)
-  }
-
-  const update = async (data: Partial<Preferences>) => {
-    const updated = { ...preferences, ...data }
-
-    // apply immediately
-    setPreferences(updated)
-    apply(updated)
-
-    // persist local
-    localStorage.setItem("preferences", JSON.stringify(updated))
-
-    // sync API (non-blocking)
-    try {
-      await updatePreferences(data)
-    } catch {}
-  }
+  /* =========================================
+     Apply Direction
+  ========================================= */
+  useEffect(() => {
+    document.documentElement.dir = preferences.direction
+  }, [preferences.direction])
 
   useEffect(() => {
-    const init = async () => {
-      const token = localStorage.getItem("token")
+  setFont(preferences.font)
+}, [preferences.font])
 
-      if (token) {
-        try {
-          const apiPrefs = await getPreferences()
-          if (apiPrefs) {
-            setPreferences(apiPrefs)
-            apply(apiPrefs)
-            return
-          }
-        } catch {}
-      }
+  /* =========================================
+     Persist to localStorage
+  ========================================= */
+  useEffect(() => {
+    localStorage.setItem("preferences", JSON.stringify(preferences))
+  }, [preferences])
 
-      const local = localStorage.getItem("preferences")
-      if (local) {
-        const parsed = JSON.parse(local)
-        setPreferences(parsed)
-        apply(parsed)
-      } else {
-        apply(preferences)
-      }
-    }
-
-    init()
-  }, [])
-
+  /* =========================================
+     Provider
+  ========================================= */
   return (
-    <PreferencesContext.Provider value={{ preferences, update }}>
+    <PreferencesContext.Provider
+      value={{
+        preferences,
+        updatePreference,
+      }}
+    >
       {children}
     </PreferencesContext.Provider>
   )
 }
 
+/* =========================================
+   Hook
+========================================= */
 export const usePreferences = () => {
-  const ctx = useContext(PreferencesContext)
-  if (!ctx) throw new Error("usePreferences must be used inside PreferencesProvider")
-  return ctx
+  const context = useContext(PreferencesContext)
+
+  if (!context) {
+    throw new Error("usePreferences must be used within PreferencesProvider")
+  }
+
+  return context
 }

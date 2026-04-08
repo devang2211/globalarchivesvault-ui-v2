@@ -30,8 +30,8 @@ export default function SignInPage() {
         return
       }
 
-      localStorage.setItem("token", res.accessToken || "")
-      localStorage.setItem("email", data.email)
+      localStorage.setItem("token", res.data?.token || "")
+      localStorage.setItem("email", res.data?.email || "")
 
       toast.dismiss(toastId)
 
