@@ -4,7 +4,8 @@
   html {
     font-family: var(--font-sans);
     font-synthesis: none;
-    text-rendering: optimizeLegibility;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   body {
@@ -201,6 +202,10 @@ img {
   box-shadow:
     0 0 10px var(--primary),
     0 0 20px color-mix(in oklch, var(--primary) 40%, transparent);
+}
+
+[data-radix-popper-content-wrapper] {
+  z-index: 50;
 }
 
 :root {

@@ -24,17 +24,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { routeTree } from "./routeTree.gen"
 import { Toaster } from "sonner"   // ✅ ADD THIS
 import { PreferencesProvider } from "@/app/providers/PreferencesProvider"
+import { LayoutProvider } from "@/app/providers/LayoutProvider"
+import { ThemeProvider } from "@/app/providers/ThemeProvider"
 import { initFont } from "@/lib/font"
 import { setFont } from "@/lib/font"
-
 import NProgress from "nprogress"
-
 ;(window as any).NProgress = NProgress
-
-
 import "nprogress/nprogress.css"
 import "./index.css"
 import "./styles/theme.css"
+
 
 
 initFont()
@@ -62,7 +61,11 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <PreferencesProvider>   {/* ✅ ADD HERE */}
-        <RouterProvider router={router} />
+<ThemeProvider>
+  <LayoutProvider>
+    <RouterProvider router={router} />
+  </LayoutProvider>
+</ThemeProvider>
         <Toaster richColors position="bottom-right" />
       </PreferencesProvider>
     </QueryClientProvider>

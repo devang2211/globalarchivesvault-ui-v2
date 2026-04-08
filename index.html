@@ -17,6 +17,17 @@
       } catch (e) { }
     })();
   </script>
+  <script>
+  const theme = localStorage.getItem("theme")
+  const root = document.documentElement
+
+  if (theme === "dark") root.classList.add("dark")
+  else if (theme === "light") root.classList.add("light")
+  else {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+    root.classList.add(prefersDark ? "dark" : "light")
+  }
+</script>
   <!-- <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap" rel="stylesheet"> -->
 </head>
 
