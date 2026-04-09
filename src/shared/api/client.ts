@@ -1,5 +1,5 @@
 import axios from "axios"
-import { startProgress, stopProgress } from "@/lib/progress"
+import { startApiProgress, stopApiProgress } from "@/lib/progress"
 import { clearAuth, getToken } from "@/shared/lib/auth"
 import { toast } from "sonner"
 
@@ -12,7 +12,7 @@ const api = axios.create({
 
 // Optional: attach token automatically later
 api.interceptors.request.use((config) => {
-  startProgress()
+  startApiProgress()
 
   const token = getToken()
 
@@ -26,11 +26,11 @@ api.interceptors.request.use((config) => {
 // RESPONSE
 api.interceptors.response.use(
   (response) => {
-    stopProgress()
+    stopApiProgress()
     return response
   },
   (error) => {
-    stopProgress()
+    stopApiProgress()
     return Promise.reject(error)
   }
 )

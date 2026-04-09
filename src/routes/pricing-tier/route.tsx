@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { AppLayout } from "@/app/layouts/AppLayout"
 
-export const Route = createFileRoute("/tier-permissions")({
+export const Route = createFileRoute("/pricing-tier")({
   component: AppLayout, // ✅ NO children
 })

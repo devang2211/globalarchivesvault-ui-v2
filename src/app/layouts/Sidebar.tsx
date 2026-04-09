@@ -13,6 +13,9 @@ import {
 import { useRouterState, Link } from "@tanstack/react-router"
 import * as Tooltip from "@radix-ui/react-tooltip"
 import { useState, useEffect } from "react"
+import { getUser } from "@/shared/lib/auth"
+import { getInitials } from "@/lib/avatar"
+import { formatUserType } from "@/lib/format"
 
 type Props = {
   isOpen: boolean
@@ -28,10 +31,12 @@ type NavItem =
       title: string
       url: string
       icon?: any
+      roles?: string[]
+      tems?: NavItem[]
     }
   | {
       title: string
-      items: { title: string; url: string }[]
+      items: { title: string; url: string; roles?: string[] }[]
     }
 
 type NavGroup = {
@@ -43,8 +48,7 @@ type NavGroup = {
 
 const iconMap: Record<string, any> = {
   Dashboard: LayoutDashboard,
-  "SA - Administration": Settings,
-  "CA - Administration": Users,
+  "Administration": Users,
   "Records Configuration": Database,
   "Records Management": FileText,
   Compliance: ShieldCheck,
@@ -105,25 +109,19 @@ export const Sidebar = ({
       title: "Pages",
       items: [
         {
-          title: "SA - Administration",
+          title: "Administration",
           items: [
-            { title: "Pricing Tier Configuration", url: "/tier-permissions/configure" },
-            { title: "Client Onboarding", url: "/client-onboarding" },
-            { title: "Role Management", url: "/roles" },
-            { title: "Users Management", url: "/users" },
-          ],
-        },
-        {
-          title: "CA - Administration",
-          items: [
-            { title: "Organization Configuration", url: "/organization" },
-            { title: "Users Management", url: "/ca-users" },
+            { title: "Pricing Tier Configuration", url: "/pricing-tier/configure", roles: ["SuperAdmin"] },
+            { title: "Client Onboarding", url: "/client-onboarding", roles: ["SuperAdmin"] },
+            { title: "Role Management", url: "/roles", roles: ["SuperAdmin"] },
+            { title: "Organization Configuration", url: "/organization", roles: ["ClientAdmin"] },
+            { title: "Users Management", url: "/users", roles: ["SuperAdmin", "ClientAdmin"] },
           ],
         },
         {
           title: "Records Configuration",
           items: [
-            { title: "Taxonomy", url: "/taxonomy" },
+            { title: "Taxonomy", url: "/taxonomy",  },
             { title: "Metadata", url: "/metadata" },
             { title: "Metadata Groups", url: "/metadata-groups" },
             { title: "Document Types", url: "/document-types" },
@@ -152,6 +150,36 @@ export const Sidebar = ({
       ],
     },
   ]
+debugger;
+  const user = getUser()
+
+const filterItems = (items: NavItem[]): NavItem[] => {
+  return items
+    .map((item) => ({
+      ...item,
+      items: item.items ? filterItems(item.items) : undefined,
+    }))
+    .filter((item) => {
+      if ("roles" in item && item.roles && !item.roles.includes(user?.userType)) {
+        return false
+      }
+
+      if ("items" in item && item.items && item.items.length === 0) {
+        return false
+      }
+
+      return true
+    })
+}
+
+const filteredNavGroups = navGroups
+  .map((group) => ({
+    ...group,
+    items: filterItems(group.items),
+  }))
+  .filter((group) => group.items.length > 0)
+
+
 
   return (
     <>
@@ -183,14 +211,26 @@ className={cn(
 )}
       >
         {/* HEADER */}
-        <div className="h-14 flex items-center px-4 text-sm font-semibold tracking-tight">
-          {!isCollapsed && "Global Archives"}
-        </div>
+<div
+  className={cn(
+    "flex items-center px-3 py-3",
+    isCollapsed && "justify-center"
+  )}
+>
+  <img
+    src="/logo.svg"
+    alt="Global Archives"
+    className={cn(
+      "transition-all duration-200 object-contain",
+      isCollapsed ? "h-8 w-8" : "h-8 w-auto"
+    )}
+  />
+</div>
 
         {/* NAV */}
         <div className="flex-1 overflow-y-auto px-2 py-3 space-y-4">
 
-          {navGroups.map(group => (
+          {filteredNavGroups.map(group => (
             <div key={group.title}>
 
               {!isCollapsed && (
@@ -292,7 +332,7 @@ className={cn(
                         >
                           <div className="space-y-1 py-1">
 
-                            {item.items.map(sub => {
+                            {item.items?.map(sub => {
                               const isActive = pathname === sub.url
 
                               return (
@@ -325,6 +365,43 @@ className={cn(
           ))}
 
         </div>
+
+        {/* FOOTER */}
+        <div className="mt-auto border-t border-border p-3">
+  <button
+    className="
+      w-full flex items-center gap-2
+      rounded-md p-2
+      hover:bg-muted
+      transition
+      cursor-pointer
+    "
+  >
+    {/* Avatar */}
+    <div className="
+      h-8 w-8 rounded-full
+      bg-primary/10 text-primary
+      flex items-center justify-center
+      text-xs font-medium
+      shrink-0
+    ">
+      {getInitials(user?.name)}
+    </div>
+
+    {/* Text (hidden when collapsed) */}
+    {!isCollapsed && (
+      <div className="flex flex-col text-left overflow-hidden">
+        <span className="text-sm font-medium truncate">
+          {user?.name}
+        </span>
+        <span className="text-xs text-muted-foreground truncate">
+          {formatUserType(user?.userType)}
+        </span>
+      </div>
+    )}
+  </button>
+</div>
+
       </aside>
     </>
   )

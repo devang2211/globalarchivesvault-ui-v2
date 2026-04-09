@@ -7,6 +7,10 @@ import { useSignOut } from "@/features/auth/hooks/useSignOut"
 import { toast } from "sonner"
 import { useNavigate } from "@tanstack/react-router"
 import { clearAuth } from "@/shared/lib/auth"
+import { getUser } from "@/shared/lib/auth"
+import { getInitials } from "@/lib/avatar"
+
+const user = getUser()
 
 export const UserMenu = () => {
   const { preferences, updatePreference } = usePreferences()
@@ -28,7 +32,7 @@ export const UserMenu = () => {
             focus-visible:ring-2 focus-visible:ring-ring/40
           "
         >
-          G
+          {getInitials(user?.name)}
         </button>
       </DropdownMenu.Trigger>
 
@@ -45,9 +49,9 @@ export const UserMenu = () => {
       >
         {/* PROFILE */}
         <div className="px-3 py-2 text-sm">
-          <p className="font-medium">Gaurav Patel</p>
+          <p className="font-medium">{user?.name}</p>
           <p className="text-xs text-muted-foreground truncate">
-            gaurav@email.com
+            {user?.email}
           </p>
         </div>
 
@@ -119,7 +123,18 @@ export const UserMenu = () => {
 
             navigate({ to: "/sign-in" })
           }}
-          className="flex items-center gap-2 px-3 py-2 text-sm rounded-md text-destructive hover:bg-muted cursor-pointer  outline-none focus:outline-none focus:bg-muted data-[highlighted]:bg-muted data-[highlighted]:text-foreground"
+            className="
+    flex items-center gap-2 px-3 py-2 text-sm rounded-md
+    text-destructive
+    cursor-pointer
+    transition
+
+    hover:bg-destructive/10
+    active:bg-destructive/20
+
+    focus:outline-none
+    data-[highlighted]:bg-destructive/10
+  "
         >
           <LogOut className="h-4 w-4" />
           Sign out

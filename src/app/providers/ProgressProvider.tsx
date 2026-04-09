@@ -1,26 +1,6 @@
-// import { useEffect } from "react"
-// import { useRouterState } from "@tanstack/react-router"
-// import { startProgress, stopProgress } from "@/lib/progress"
-
-// export const ProgressProvider = ({ children }: { children: React.ReactNode }) => {
-//   const navigation = useRouterState({
-//     select: (state) => state.status,
-//   })
-
-//   useEffect(() => {
-//     if (navigation === "pending") {
-//       startProgress()
-//     } else {
-//       stopProgress()
-//     }
-//   }, [navigation])
-
-//   return <>{children}</>
-// }
-
 import { useEffect } from "react"
 import { useRouter } from "@tanstack/react-router"
-import { startProgress, stopProgress } from "@/lib/progress"
+import { startRouteProgress, stopRouteProgress } from "@/lib/progress"
 
 export const ProgressProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
@@ -28,11 +8,11 @@ export const ProgressProvider = ({ children }: { children: React.ReactNode }) =>
   // ✅ ROUTER EVENTS
   useEffect(() => {
     const unsubStart = router.subscribe("onBeforeLoad", () => {
-      startProgress()
+      startRouteProgress()
     })
 
     const unsubEnd = router.subscribe("onResolved", () => {
-      stopProgress()
+      stopRouteProgress()
     })
 
     return () => {
@@ -41,16 +21,31 @@ export const ProgressProvider = ({ children }: { children: React.ReactNode }) =>
     }
   }, [router])
 
-  // ✅ INITIAL LOAD (THIS FIXES YOUR ISSUE)
+    // ✅ Initial page load (F5 fix)
   useEffect(() => {
-    startProgress()
+    startRouteProgress()
 
-    const t = setTimeout(() => {
-      stopProgress()
-    }, 300)
+    const handleLoad = () => {
+      stopRouteProgress()
+    }
 
-    return () => clearTimeout(t)
+    window.addEventListener("load", handleLoad)
+
+    return () => {
+      window.removeEventListener("load", handleLoad)
+    }
   }, [])
+
+  // ✅ INITIAL LOAD (THIS FIXES YOUR ISSUE)
+  // useEffect(() => {
+  //   startProgress()
+
+  //   const t = setTimeout(() => {
+  //     stopProgress()
+  //   }, 300)
+
+  //   return () => clearTimeout(t)
+  // }, [])
 
   return <>{children}</>
 }

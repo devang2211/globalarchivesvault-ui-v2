@@ -10,12 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignInRouteImport } from './routes/sign-in'
-import { Route as TierPermissionsRouteRouteImport } from './routes/tier-permissions/route'
+import { Route as PricingTierRouteRouteImport } from './routes/pricing-tier/route'
 import { Route as ErrorsRouteRouteImport } from './routes/errors/route'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as TierPermissionsConfigureRouteImport } from './routes/tier-permissions/configure'
+import { Route as PricingTierConfigureRouteImport } from './routes/pricing-tier/configure'
 import { Route as ErrorsNotFoundRouteImport } from './routes/errors/not-found'
 import { Route as ErrorsForbiddenRouteImport } from './routes/errors/forbidden'
 
@@ -24,9 +24,9 @@ const SignInRoute = SignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TierPermissionsRouteRoute = TierPermissionsRouteRouteImport.update({
-  id: '/tier-permissions',
-  path: '/tier-permissions',
+const PricingTierRouteRoute = PricingTierRouteRouteImport.update({
+  id: '/pricing-tier',
+  path: '/pricing-tier',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ErrorsRouteRoute = ErrorsRouteRouteImport.update({
@@ -49,12 +49,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
-const TierPermissionsConfigureRoute =
-  TierPermissionsConfigureRouteImport.update({
-    id: '/configure',
-    path: '/configure',
-    getParentRoute: () => TierPermissionsRouteRoute,
-  } as any)
+const PricingTierConfigureRoute = PricingTierConfigureRouteImport.update({
+  id: '/configure',
+  path: '/configure',
+  getParentRoute: () => PricingTierRouteRoute,
+} as any)
 const ErrorsNotFoundRoute = ErrorsNotFoundRouteImport.update({
   id: '/not-found',
   path: '/not-found',
@@ -70,21 +69,21 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/errors': typeof ErrorsRouteRouteWithChildren
-  '/tier-permissions': typeof TierPermissionsRouteRouteWithChildren
+  '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/errors/forbidden': typeof ErrorsForbiddenRoute
   '/errors/not-found': typeof ErrorsNotFoundRoute
-  '/tier-permissions/configure': typeof TierPermissionsConfigureRoute
+  '/pricing-tier/configure': typeof PricingTierConfigureRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/errors': typeof ErrorsRouteRouteWithChildren
-  '/tier-permissions': typeof TierPermissionsRouteRouteWithChildren
+  '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/errors/forbidden': typeof ErrorsForbiddenRoute
   '/errors/not-found': typeof ErrorsNotFoundRoute
-  '/tier-permissions/configure': typeof TierPermissionsConfigureRoute
+  '/pricing-tier/configure': typeof PricingTierConfigureRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -92,11 +91,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/errors': typeof ErrorsRouteRouteWithChildren
-  '/tier-permissions': typeof TierPermissionsRouteRouteWithChildren
+  '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/errors/forbidden': typeof ErrorsForbiddenRoute
   '/errors/not-found': typeof ErrorsNotFoundRoute
-  '/tier-permissions/configure': typeof TierPermissionsConfigureRoute
+  '/pricing-tier/configure': typeof PricingTierConfigureRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
@@ -105,32 +104,32 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/errors'
-    | '/tier-permissions'
+    | '/pricing-tier'
     | '/sign-in'
     | '/errors/forbidden'
     | '/errors/not-found'
-    | '/tier-permissions/configure'
+    | '/pricing-tier/configure'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/errors'
-    | '/tier-permissions'
+    | '/pricing-tier'
     | '/sign-in'
     | '/errors/forbidden'
     | '/errors/not-found'
-    | '/tier-permissions/configure'
+    | '/pricing-tier/configure'
     | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
     | '/errors'
-    | '/tier-permissions'
+    | '/pricing-tier'
     | '/sign-in'
     | '/errors/forbidden'
     | '/errors/not-found'
-    | '/tier-permissions/configure'
+    | '/pricing-tier/configure'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
@@ -138,7 +137,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   ErrorsRouteRoute: typeof ErrorsRouteRouteWithChildren
-  TierPermissionsRouteRoute: typeof TierPermissionsRouteRouteWithChildren
+  PricingTierRouteRoute: typeof PricingTierRouteRouteWithChildren
   SignInRoute: typeof SignInRoute
 }
 
@@ -151,11 +150,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tier-permissions': {
-      id: '/tier-permissions'
-      path: '/tier-permissions'
-      fullPath: '/tier-permissions'
-      preLoaderRoute: typeof TierPermissionsRouteRouteImport
+    '/pricing-tier': {
+      id: '/pricing-tier'
+      path: '/pricing-tier'
+      fullPath: '/pricing-tier'
+      preLoaderRoute: typeof PricingTierRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/errors': {
@@ -186,12 +185,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/tier-permissions/configure': {
-      id: '/tier-permissions/configure'
+    '/pricing-tier/configure': {
+      id: '/pricing-tier/configure'
       path: '/configure'
-      fullPath: '/tier-permissions/configure'
-      preLoaderRoute: typeof TierPermissionsConfigureRouteImport
-      parentRoute: typeof TierPermissionsRouteRoute
+      fullPath: '/pricing-tier/configure'
+      preLoaderRoute: typeof PricingTierConfigureRouteImport
+      parentRoute: typeof PricingTierRouteRoute
     }
     '/errors/not-found': {
       id: '/errors/not-found'
@@ -236,22 +235,22 @@ const ErrorsRouteRouteWithChildren = ErrorsRouteRoute._addFileChildren(
   ErrorsRouteRouteChildren,
 )
 
-interface TierPermissionsRouteRouteChildren {
-  TierPermissionsConfigureRoute: typeof TierPermissionsConfigureRoute
+interface PricingTierRouteRouteChildren {
+  PricingTierConfigureRoute: typeof PricingTierConfigureRoute
 }
 
-const TierPermissionsRouteRouteChildren: TierPermissionsRouteRouteChildren = {
-  TierPermissionsConfigureRoute: TierPermissionsConfigureRoute,
+const PricingTierRouteRouteChildren: PricingTierRouteRouteChildren = {
+  PricingTierConfigureRoute: PricingTierConfigureRoute,
 }
 
-const TierPermissionsRouteRouteWithChildren =
-  TierPermissionsRouteRoute._addFileChildren(TierPermissionsRouteRouteChildren)
+const PricingTierRouteRouteWithChildren =
+  PricingTierRouteRoute._addFileChildren(PricingTierRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   ErrorsRouteRoute: ErrorsRouteRouteWithChildren,
-  TierPermissionsRouteRoute: TierPermissionsRouteRouteWithChildren,
+  PricingTierRouteRoute: PricingTierRouteRouteWithChildren,
   SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport

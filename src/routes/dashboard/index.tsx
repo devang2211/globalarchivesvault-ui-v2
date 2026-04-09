@@ -7,7 +7,7 @@ export const Route = createFileRoute("/dashboard/")({
     const token = getToken()
 
     if (!token) {
-      throw redirect({ to: "/sign-in" }) // ✅ CORRECT PLACE
+      throw redirect({ to: "/sign-in" })
     }
   },
   component: DashboardPage,

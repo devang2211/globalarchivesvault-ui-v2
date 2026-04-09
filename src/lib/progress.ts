@@ -1,13 +1,16 @@
 // import NProgress from "nprogress"
 
-// let requestCount = 0
+// let timeout: any
 // let startTime = 0
-// let startTimeout: any
+// let requestCount = 0
+// let isStarted = false
 
 // NProgress.configure({
 //   showSpinner: false,
-//   minimum: 0.15,
+//   minimum: 0.08,
 //   trickleSpeed: 120,
+//   easing: "ease",
+//   speed: 500,
 // })
 
 // export const startProgress = () => {
@@ -15,11 +18,13 @@
 
 //   if (requestCount === 1) {
 //     startTime = Date.now()
+//     isStarted = false
 
-//     // 👇 delay start to avoid flicker on fast requests
-//     startTimeout = setTimeout(() => {
+//     // 🔥 shorter delay + safe start
+//     timeout = setTimeout(() => {
 //       NProgress.start()
-//     }, 120)
+//       isStarted = true
+//     }, 80) // 👈 reduced from 120
 //   }
 // }
 
@@ -27,56 +32,93 @@
 //   requestCount = Math.max(requestCount - 1, 0)
 
 //   if (requestCount === 0) {
-//     clearTimeout(startTimeout) // 👈 VERY IMPORTANT
+//     clearTimeout(timeout)
+
+//     const finish = () => {
+//       NProgress.done()
+//       isStarted = false
+//     }
+
+//     // 🔥 if never started → don't flash it
+//     if (!isStarted) {
+//       return
+//     }
 
 //     const elapsed = Date.now() - startTime
-//     const minDuration = 400
+//     const minDuration = 300 // 👈 reduced from 400
 //     const remaining = minDuration - elapsed
 
-//     setTimeout(() => {
-//       NProgress.done()
-//     }, remaining > 0 ? remaining : 0)
+//     setTimeout(finish, remaining > 0 ? remaining : 0)
 //   }
 // }
 
 import NProgress from "nprogress"
 
-let timeout: any
+let routeCount = 0
+let apiCount = 0
+
 let startTime = 0
-let requestCount = 0
+let isStarted = false
+let apiTimeout: any
 
 NProgress.configure({
   showSpinner: false,
-  minimum: 0.08,          // slower start (less jumpy)
+  minimum: 0.08,
   trickleSpeed: 120,
-  easing: "ease",         // smoother animation
-  speed: 500,             // slower = premium feel
+  easing: "ease",
+  speed: 500,
 })
 
-export const startProgress = () => {
-  requestCount++
+/* =========================
+   ROUTE PROGRESS (instant)
+========================= */
+export const startRouteProgress = () => {
+  routeCount++
 
-  if (requestCount === 1) {
+  if (!isStarted) {
     startTime = Date.now()
-
-    timeout = setTimeout(() => {
-      NProgress.start()
-    }, 120) // prevent flicker
+    NProgress.start()
+    isStarted = true
   }
 }
 
-export const stopProgress = () => {
-  requestCount = Math.max(requestCount - 1, 0)
+export const stopRouteProgress = () => {
+  routeCount = Math.max(routeCount - 1, 0)
+  tryStop()
+}
 
-  if (requestCount === 0) {
-    clearTimeout(timeout)
+/* =========================
+   API PROGRESS (delayed)
+========================= */
+export const startApiProgress = () => {
+  apiCount++
 
+  if (!isStarted && routeCount === 0) {
+    apiTimeout = setTimeout(() => {
+      startTime = Date.now()
+      NProgress.start()
+      isStarted = true
+    }, 80) // prevent flicker
+  }
+}
+
+export const stopApiProgress = () => {
+  apiCount = Math.max(apiCount - 1, 0)
+  clearTimeout(apiTimeout)
+  tryStop()
+}
+
+/* =========================
+   STOP LOGIC
+========================= */
+const tryStop = () => {
+  if (routeCount === 0 && apiCount === 0 && isStarted) {
     const elapsed = Date.now() - startTime
-    const minDuration = 400
-    const remaining = minDuration - elapsed
+    const delay = Math.max(0, 300 - elapsed)
 
     setTimeout(() => {
       NProgress.done()
-    }, remaining > 0 ? remaining : 0)
+      isStarted = false
+    }, delay)
   }
 }
