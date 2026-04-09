@@ -10,13 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as TierPermissionsRouteRouteImport } from './routes/tier-permissions/route'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as TierPermissionsConfigureRouteImport } from './routes/tier-permissions/configure'
 
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TierPermissionsRouteRoute = TierPermissionsRouteRouteImport.update({
+  id: '/tier-permissions',
+  path: '/tier-permissions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
@@ -34,36 +41,67 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const TierPermissionsConfigureRoute =
+  TierPermissionsConfigureRouteImport.update({
+    id: '/configure',
+    path: '/configure',
+    getParentRoute: () => TierPermissionsRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/tier-permissions': typeof TierPermissionsRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/tier-permissions/configure': typeof TierPermissionsConfigureRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/tier-permissions': typeof TierPermissionsRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/tier-permissions/configure': typeof TierPermissionsConfigureRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/tier-permissions': typeof TierPermissionsRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/tier-permissions/configure': typeof TierPermissionsConfigureRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/sign-in' | '/dashboard/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/tier-permissions'
+    | '/sign-in'
+    | '/tier-permissions/configure'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sign-in' | '/dashboard'
-  id: '__root__' | '/' | '/dashboard' | '/sign-in' | '/dashboard/'
+  to:
+    | '/'
+    | '/tier-permissions'
+    | '/sign-in'
+    | '/tier-permissions/configure'
+    | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/tier-permissions'
+    | '/sign-in'
+    | '/tier-permissions/configure'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  TierPermissionsRouteRoute: typeof TierPermissionsRouteRouteWithChildren
   SignInRoute: typeof SignInRoute
 }
 
@@ -74,6 +112,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tier-permissions': {
+      id: '/tier-permissions'
+      path: '/tier-permissions'
+      fullPath: '/tier-permissions'
+      preLoaderRoute: typeof TierPermissionsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -97,6 +142,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/tier-permissions/configure': {
+      id: '/tier-permissions/configure'
+      path: '/configure'
+      fullPath: '/tier-permissions/configure'
+      preLoaderRoute: typeof TierPermissionsConfigureRouteImport
+      parentRoute: typeof TierPermissionsRouteRoute
+    }
   }
 }
 
@@ -112,9 +164,21 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
   DashboardRouteRouteChildren,
 )
 
+interface TierPermissionsRouteRouteChildren {
+  TierPermissionsConfigureRoute: typeof TierPermissionsConfigureRoute
+}
+
+const TierPermissionsRouteRouteChildren: TierPermissionsRouteRouteChildren = {
+  TierPermissionsConfigureRoute: TierPermissionsConfigureRoute,
+}
+
+const TierPermissionsRouteRouteWithChildren =
+  TierPermissionsRouteRoute._addFileChildren(TierPermissionsRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  TierPermissionsRouteRoute: TierPermissionsRouteRouteWithChildren,
   SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport
