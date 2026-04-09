@@ -9,13 +9,13 @@ import "@fontsource/inter/600.css"
 // import "@fontsource/manrope"
 // import "@fontsource/inter"
 
-const savedFont = localStorage.getItem("font")
+// const savedFont = localStorage.getItem("font")
 
-if (savedFont) {
-  document.documentElement.classList.add(`font-${savedFont}`)
-} else {
-  document.documentElement.classList.add("font-inter") // default
-}
+// if (savedFont) {
+//   document.documentElement.classList.add(`font-${savedFont}`)
+// } else {
+//   document.documentElement.classList.add("font-inter") // default
+// }
 
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
@@ -25,8 +25,8 @@ import { routeTree } from "./routeTree.gen"
 import { Toaster } from "sonner"   // ✅ ADD THIS
 import { PreferencesProvider } from "@/app/providers/PreferencesProvider"
 import { LayoutProvider } from "@/app/providers/LayoutProvider"
-import { ThemeProvider } from "@/app/providers/ThemeProvider"
-import { initFont } from "@/lib/font"
+// import { ThemeProvider } from "@/app/providers/ThemeProvider"
+// import { initFont } from "@/lib/font"
 import { setFont } from "@/lib/font"
 import NProgress from "nprogress"
 ;(window as any).NProgress = NProgress
@@ -37,8 +37,9 @@ import { getToken } from "./shared/lib/auth"
 
 
 
-initFont()
-  ; (window as any).setFont = setFont
+// initFont()
+//   ; (window as any).setFont = setFont
+;(window as any).setFont = setFont
 
 const router = createRouter({
   routeTree,
@@ -69,11 +70,11 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <PreferencesProvider>   {/* ✅ ADD HERE */}
-<ThemeProvider>
+{/* <ThemeProvider> */}
   <LayoutProvider>
     <RouterProvider router={router} />
   </LayoutProvider>
-</ThemeProvider>
+{/* </ThemeProvider> */}
         <Toaster richColors position="bottom-right" />
       </PreferencesProvider>
     </QueryClientProvider>

@@ -194,7 +194,7 @@ className={cn(
             <div key={group.title}>
 
               {!isCollapsed && (
-                <div className="px-3 mb-2 text-[11px] font-semibold text-muted-foreground/90 uppercase tracking-wide">
+                <div className="px-3 mb-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
                   {group.title}
                 </div>
               )}
@@ -221,7 +221,7 @@ className={cn(
 
                           isActive
                             ? "text-foreground font-medium relative before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-4 before:w-[2px] before:bg-primary before:rounded"
-                            : "text-muted-foreground/90 hover:text-foreground hover:bg-muted/60"
+                            : "text-foreground/80 hover:text-foreground hover:bg-muted/60"
                         )}
                       >
                         {item.icon && (
@@ -260,7 +260,7 @@ className={cn(
                         className="
                           group w-full flex items-center justify-between
                           px-3 py-2 text-sm rounded-md
-                          text-muted-foreground/90
+                          text-foreground/80 font-medium
                           hover:text-foreground hover:bg-muted/50
                           transition-all duration-150 cursor-pointer
                         "
@@ -306,7 +306,7 @@ className={cn(
 
                                     isActive
                                       ? "text-foreground font-medium relative before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-4 before:w-[2px] before:bg-primary before:rounded"
-                                      : "text-muted-foreground/90 hover:bg-muted/50 hover:text-foreground"
+                                      : "text-foreground/70 hover:bg-muted/50 hover:text-foreground"
                                   )}
                                 >
                                   {sub.title}
