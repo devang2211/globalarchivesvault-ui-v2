@@ -27,12 +27,12 @@ export const Topbar = ({ onMenuClick, onCollapseToggle }: Props) => {
           </button>
 
           {/* Desktop collapse */}
-          <button
+          {/* <button
             onClick={onCollapseToggle}
             className="hidden lg:flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted cursor-pointer active:scale-95 transition"
           >
             <PanelLeft className="h-4 w-4" />
-          </button>
+          </button> */}
         </div>
 
         {/* RIGHT */}

@@ -5,12 +5,13 @@ import { AuthLayout } from "@/app/layouts/AuthLayout"
 
 import { useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
+import { setAuth } from "@/shared/lib/auth"
 
 export default function SignInPage() {
   const mutation = useLogin()
   const navigate = useNavigate()
 
-    const [ready, setReady] = useState(false)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 80)
@@ -24,14 +25,15 @@ export default function SignInPage() {
       const res = await mutation.mutateAsync(data)
 
       if (!res.success) {
-        debugger;
         toast.dismiss(toastId)
         toast.error(res.error?.message || "Invalid credentials")
         return
       }
 
-      localStorage.setItem("token", res.data?.token || "")
-      localStorage.setItem("email", res.data?.email || "")
+      if (!res?.data) {
+        throw new Error("Invalid sign-in response")
+      }
+      setAuth(res.data)
 
       toast.dismiss(toastId)
 

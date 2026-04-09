@@ -33,13 +33,21 @@ import NProgress from "nprogress"
 import "nprogress/nprogress.css"
 import "./index.css"
 import "./styles/theme.css"
+import { getToken } from "./shared/lib/auth"
 
 
 
 initFont()
   ; (window as any).setFont = setFont
 
-const router = createRouter({ routeTree })
+const router = createRouter({
+  routeTree,
+  context: {
+    auth: {
+      isAuthenticated: !!getToken(), // ✅ INITIAL AUTH STATE
+    },
+  },
+})
 
 // router.subscribe("onBeforeLoad", () => {
 //   startProgress()

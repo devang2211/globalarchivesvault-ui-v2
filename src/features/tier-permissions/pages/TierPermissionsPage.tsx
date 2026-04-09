@@ -120,7 +120,7 @@ export default function TierPermissionsPage() {
 
       {/* Header */}
       <div>
-        <h1 className="text-lg font-semibold">Tier Permissions</h1>
+        <h1 className="text-lg font-semibold">Pricing Tier Configuration</h1>
         <p className="text-sm text-muted-foreground">
           Configure access across Standard and Enterprise tiers
         </p>
@@ -209,13 +209,10 @@ export default function TierPermissionsPage() {
 
 <button
   onClick={save}
-  disabled={!isDirty || loading}
+  disabled={loading}
 className={cn(
   "px-6 py-2 rounded-md text-sm font-medium transition cursor-pointer",
-  "disabled:cursor-not-allowed disabled:opacity-60",
-  isDirty
-    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-    : "bg-muted text-muted-foreground"
+  "disabled:cursor-not-allowed disabled:opacity-60 bg-primary text-primary-foreground hover:bg-primary/90",
 )}
 >                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
   Save Changes
@@ -223,13 +220,13 @@ className={cn(
 
 <button
   onClick={() => setData(JSON.parse(initial))}
-  disabled={!isDirty || loading}
-  className={cn(
-    "px-5 py-2 rounded-md text-sm transition cursor-pointer",
-    "border border-border text-muted-foreground",
-    "hover:bg-muted hover:text-foreground",
-    "disabled:opacity-50 disabled:cursor-not-allowed"
-  )}
+  disabled={loading}
+className={cn(
+  "px-5 py-2 rounded-md text-sm font-medium transition cursor-pointer",
+  "border border-border bg-background",
+  "hover:bg-muted",
+  "disabled:opacity-50 disabled:cursor-not-allowed"
+)}
 >
   Cancel
 </button>
@@ -255,16 +252,18 @@ function Toggle({ active, onClick }: { active: boolean; onClick: () => void }) {
     <button
       onClick={onClick}
       className={cn(
-        "h-8 w-8 flex items-center justify-center rounded-md transition-all cursor-pointer",
+        "h-6 w-6 flex items-center justify-center rounded-md",
+        "border border-border/60 transition-all duration-150 cursor-pointer",
+
         active
-          ? "bg-primary text-white"
-          : "text-muted-foreground hover:bg-muted"
+          ? "bg-primary text-primary-foreground border-primary"
+          : "bg-background text-muted-foreground hover:bg-muted"
       )}
     >
       {active ? (
-        <Check className="h-4 w-4" />
+        <Check className="h-3.5 w-3.5" />
       ) : (
-        <X className="h-4 w-4 opacity-40" />
+        <X className="h-3.5 w-3.5 opacity-40" />
       )}
     </button>
   )

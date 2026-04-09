@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { useSignOut } from "@/features/auth/hooks/useSignOut"
 import { toast } from "sonner"
 import { useNavigate } from "@tanstack/react-router"
+import { clearAuth } from "@/shared/lib/auth"
 
 export const UserMenu = () => {
   const { preferences, updatePreference } = usePreferences()
@@ -114,8 +115,7 @@ export const UserMenu = () => {
               toast.error("Sign out failed", { id: toastId })
             }
 
-            localStorage.removeItem("token")
-            localStorage.removeItem("email")
+            clearAuth()
 
             navigate({ to: "/sign-in" })
           }}

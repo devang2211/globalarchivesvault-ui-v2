@@ -1,3 +1,5 @@
+import type { AuthData } from "@/shared/lib/auth"
+
 export type LoginRequest = {
   email: string
   password: string
@@ -8,17 +10,9 @@ export type ApiError = {
   message: string
 }
 
-export type LoginData = {
-  token: string
-  expiresAt: string
-  userId: number
-  name: string
-  email: string
-}
-
 export type LoginResponse = {
   success: boolean,
-  data: LoginData | null,
+  data: AuthData | null,
   traceId: string,
   error: ApiError | null
 }

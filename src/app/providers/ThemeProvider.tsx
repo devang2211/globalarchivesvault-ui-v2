@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { updatePreferences, getPreferences } from "@/shared/api/preferences.api"
+import { getToken } from "@/shared/lib/auth"
 
 type Theme = "light" | "dark" | "system"
 
@@ -41,7 +42,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
   const init = async () => {
-    const token = localStorage.getItem("token")
+    const token = getToken()
 
     // ✅ If logged in → fetch from API
     if (token) {

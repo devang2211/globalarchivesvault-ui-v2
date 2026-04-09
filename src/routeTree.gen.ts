@@ -11,10 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as TierPermissionsRouteRouteImport } from './routes/tier-permissions/route'
+import { Route as ErrorsRouteRouteImport } from './routes/errors/route'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as TierPermissionsConfigureRouteImport } from './routes/tier-permissions/configure'
+import { Route as ErrorsNotFoundRouteImport } from './routes/errors/not-found'
+import { Route as ErrorsForbiddenRouteImport } from './routes/errors/forbidden'
 
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
@@ -24,6 +27,11 @@ const SignInRoute = SignInRouteImport.update({
 const TierPermissionsRouteRoute = TierPermissionsRouteRouteImport.update({
   id: '/tier-permissions',
   path: '/tier-permissions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ErrorsRouteRoute = ErrorsRouteRouteImport.update({
+  id: '/errors',
+  path: '/errors',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
@@ -47,19 +55,35 @@ const TierPermissionsConfigureRoute =
     path: '/configure',
     getParentRoute: () => TierPermissionsRouteRoute,
   } as any)
+const ErrorsNotFoundRoute = ErrorsNotFoundRouteImport.update({
+  id: '/not-found',
+  path: '/not-found',
+  getParentRoute: () => ErrorsRouteRoute,
+} as any)
+const ErrorsForbiddenRoute = ErrorsForbiddenRouteImport.update({
+  id: '/forbidden',
+  path: '/forbidden',
+  getParentRoute: () => ErrorsRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/errors': typeof ErrorsRouteRouteWithChildren
   '/tier-permissions': typeof TierPermissionsRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/errors/forbidden': typeof ErrorsForbiddenRoute
+  '/errors/not-found': typeof ErrorsNotFoundRoute
   '/tier-permissions/configure': typeof TierPermissionsConfigureRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/errors': typeof ErrorsRouteRouteWithChildren
   '/tier-permissions': typeof TierPermissionsRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/errors/forbidden': typeof ErrorsForbiddenRoute
+  '/errors/not-found': typeof ErrorsNotFoundRoute
   '/tier-permissions/configure': typeof TierPermissionsConfigureRoute
   '/dashboard': typeof DashboardIndexRoute
 }
@@ -67,8 +91,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/errors': typeof ErrorsRouteRouteWithChildren
   '/tier-permissions': typeof TierPermissionsRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/errors/forbidden': typeof ErrorsForbiddenRoute
+  '/errors/not-found': typeof ErrorsNotFoundRoute
   '/tier-permissions/configure': typeof TierPermissionsConfigureRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
@@ -77,23 +104,32 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/errors'
     | '/tier-permissions'
     | '/sign-in'
+    | '/errors/forbidden'
+    | '/errors/not-found'
     | '/tier-permissions/configure'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/errors'
     | '/tier-permissions'
     | '/sign-in'
+    | '/errors/forbidden'
+    | '/errors/not-found'
     | '/tier-permissions/configure'
     | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/errors'
     | '/tier-permissions'
     | '/sign-in'
+    | '/errors/forbidden'
+    | '/errors/not-found'
     | '/tier-permissions/configure'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
@@ -101,6 +137,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  ErrorsRouteRoute: typeof ErrorsRouteRouteWithChildren
   TierPermissionsRouteRoute: typeof TierPermissionsRouteRouteWithChildren
   SignInRoute: typeof SignInRoute
 }
@@ -119,6 +156,13 @@ declare module '@tanstack/react-router' {
       path: '/tier-permissions'
       fullPath: '/tier-permissions'
       preLoaderRoute: typeof TierPermissionsRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/errors': {
+      id: '/errors'
+      path: '/errors'
+      fullPath: '/errors'
+      preLoaderRoute: typeof ErrorsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -149,6 +193,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TierPermissionsConfigureRouteImport
       parentRoute: typeof TierPermissionsRouteRoute
     }
+    '/errors/not-found': {
+      id: '/errors/not-found'
+      path: '/not-found'
+      fullPath: '/errors/not-found'
+      preLoaderRoute: typeof ErrorsNotFoundRouteImport
+      parentRoute: typeof ErrorsRouteRoute
+    }
+    '/errors/forbidden': {
+      id: '/errors/forbidden'
+      path: '/forbidden'
+      fullPath: '/errors/forbidden'
+      preLoaderRoute: typeof ErrorsForbiddenRouteImport
+      parentRoute: typeof ErrorsRouteRoute
+    }
   }
 }
 
@@ -162,6 +220,20 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
 
 const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
   DashboardRouteRouteChildren,
+)
+
+interface ErrorsRouteRouteChildren {
+  ErrorsForbiddenRoute: typeof ErrorsForbiddenRoute
+  ErrorsNotFoundRoute: typeof ErrorsNotFoundRoute
+}
+
+const ErrorsRouteRouteChildren: ErrorsRouteRouteChildren = {
+  ErrorsForbiddenRoute: ErrorsForbiddenRoute,
+  ErrorsNotFoundRoute: ErrorsNotFoundRoute,
+}
+
+const ErrorsRouteRouteWithChildren = ErrorsRouteRoute._addFileChildren(
+  ErrorsRouteRouteChildren,
 )
 
 interface TierPermissionsRouteRouteChildren {
@@ -178,6 +250,7 @@ const TierPermissionsRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  ErrorsRouteRoute: ErrorsRouteRouteWithChildren,
   TierPermissionsRouteRoute: TierPermissionsRouteRouteWithChildren,
   SignInRoute: SignInRoute,
 }
