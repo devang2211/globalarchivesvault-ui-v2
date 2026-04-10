@@ -32,11 +32,6 @@ export const hasRole = (roles: AuthData["userType"][]) => {
   return userType ? roles.includes(userType) : false
 }
 
-export const getUser = () => {
-  const data = localStorage.getItem("auth")
-  return data ? JSON.parse(data) : null
-}
-
 export const isSuperAdmin = () => getUserType() === "SuperAdmin"
 
 export const isClientAdmin = () => getUserType() === "ClientAdmin"

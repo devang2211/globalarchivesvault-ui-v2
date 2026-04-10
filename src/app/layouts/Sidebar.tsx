@@ -13,7 +13,7 @@ import {
 import { useRouterState, Link } from "@tanstack/react-router"
 import * as Tooltip from "@radix-ui/react-tooltip"
 import { useState, useEffect } from "react"
-import { getUser } from "@/shared/lib/auth"
+import { getAuth } from "@/shared/lib/auth"
 import { getInitials } from "@/lib/avatar"
 import { formatUserType } from "@/lib/format"
 
@@ -150,8 +150,7 @@ export const Sidebar = ({
       ],
     },
   ]
-debugger;
-  const user = getUser()
+  const user = getAuth()
 
 const filterItems = (items: NavItem[]): NavItem[] => {
   return items

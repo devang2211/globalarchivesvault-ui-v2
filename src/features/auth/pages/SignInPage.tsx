@@ -22,29 +22,13 @@ export default function SignInPage() {
     const toastId = toast.loading("Signing in...")
 
     try {
-      const res = await mutation.mutateAsync(data)
-
-      if (!res.success) {
-        toast.dismiss(toastId)
-        toast.error(res.error?.message || "Invalid credentials")
-        return
-      }
-
-      if (!res?.data) {
-        throw new Error("Invalid sign-in response")
-      }
-      setAuth(res.data)
-
+      const authData = await mutation.mutateAsync(data)
+      setAuth(authData)
       toast.dismiss(toastId)
-
       navigate({ to: "/dashboard" })
     } catch (error: any) {
       toast.dismiss(toastId)
-      // Network / server error
-      toast.error(
-        error.message ||
-        "Unable to connect to server"
-      )
+      toast.error(error.message || "Unable to connect to server")
     }
   }
 

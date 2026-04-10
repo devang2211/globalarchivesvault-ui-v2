@@ -1,10 +1,5 @@
 import api from "@/shared/api/client"
-
-export type Preferences = {
-  theme?: "light" | "dark" | "system"
-  font?: "inter" | "manrope" | "system"
-  density?: "comfortable" | "compact"
-}
+import type { Preferences } from "@/shared/types/preferences.types"
 
 export const getPreferences = async () => {
   const res = await api.get<Preferences>("/api/preferences")

@@ -6,11 +6,10 @@ import { cn } from "@/lib/utils"
 import { useSignOut } from "@/features/auth/hooks/useSignOut"
 import { toast } from "sonner"
 import { useNavigate } from "@tanstack/react-router"
-import { clearAuth } from "@/shared/lib/auth"
-import { getUser } from "@/shared/lib/auth"
+import { clearAuth, getAuth } from "@/shared/lib/auth"
 import { getInitials } from "@/lib/avatar"
 
-const user = getUser()
+const user = getAuth()
 
 export const UserMenu = () => {
   const { preferences, updatePreference } = usePreferences()
