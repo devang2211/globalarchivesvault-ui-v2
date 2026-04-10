@@ -13,11 +13,14 @@ import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as PricingTierRouteRouteImport } from './routes/pricing-tier/route'
 import { Route as ErrorsRouteRouteImport } from './routes/errors/route'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
+import { Route as ClientManagementRouteRouteImport } from './routes/client-management/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as ClientManagementIndexRouteImport } from './routes/client-management/index'
 import { Route as PricingTierConfigureRouteImport } from './routes/pricing-tier/configure'
 import { Route as ErrorsNotFoundRouteImport } from './routes/errors/not-found'
 import { Route as ErrorsForbiddenRouteImport } from './routes/errors/forbidden'
+import { Route as ClientManagementOnboardingRouteImport } from './routes/client-management/onboarding'
 
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
@@ -39,6 +42,11 @@ const DashboardRouteRoute = DashboardRouteRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClientManagementRouteRoute = ClientManagementRouteRouteImport.update({
+  id: '/client-management',
+  path: '/client-management',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -48,6 +56,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashboardRouteRoute,
+} as any)
+const ClientManagementIndexRoute = ClientManagementIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ClientManagementRouteRoute,
 } as any)
 const PricingTierConfigureRoute = PricingTierConfigureRouteImport.update({
   id: '/configure',
@@ -64,16 +77,25 @@ const ErrorsForbiddenRoute = ErrorsForbiddenRouteImport.update({
   path: '/forbidden',
   getParentRoute: () => ErrorsRouteRoute,
 } as any)
+const ClientManagementOnboardingRoute =
+  ClientManagementOnboardingRouteImport.update({
+    id: '/onboarding',
+    path: '/onboarding',
+    getParentRoute: () => ClientManagementRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/client-management': typeof ClientManagementRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/errors': typeof ErrorsRouteRouteWithChildren
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/client-management/onboarding': typeof ClientManagementOnboardingRoute
   '/errors/forbidden': typeof ErrorsForbiddenRoute
   '/errors/not-found': typeof ErrorsNotFoundRoute
   '/pricing-tier/configure': typeof PricingTierConfigureRoute
+  '/client-management/': typeof ClientManagementIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
@@ -81,34 +103,42 @@ export interface FileRoutesByTo {
   '/errors': typeof ErrorsRouteRouteWithChildren
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/client-management/onboarding': typeof ClientManagementOnboardingRoute
   '/errors/forbidden': typeof ErrorsForbiddenRoute
   '/errors/not-found': typeof ErrorsNotFoundRoute
   '/pricing-tier/configure': typeof PricingTierConfigureRoute
+  '/client-management': typeof ClientManagementIndexRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/client-management': typeof ClientManagementRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/errors': typeof ErrorsRouteRouteWithChildren
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/client-management/onboarding': typeof ClientManagementOnboardingRoute
   '/errors/forbidden': typeof ErrorsForbiddenRoute
   '/errors/not-found': typeof ErrorsNotFoundRoute
   '/pricing-tier/configure': typeof PricingTierConfigureRoute
+  '/client-management/': typeof ClientManagementIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/client-management'
     | '/dashboard'
     | '/errors'
     | '/pricing-tier'
     | '/sign-in'
+    | '/client-management/onboarding'
     | '/errors/forbidden'
     | '/errors/not-found'
     | '/pricing-tier/configure'
+    | '/client-management/'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -116,25 +146,31 @@ export interface FileRouteTypes {
     | '/errors'
     | '/pricing-tier'
     | '/sign-in'
+    | '/client-management/onboarding'
     | '/errors/forbidden'
     | '/errors/not-found'
     | '/pricing-tier/configure'
+    | '/client-management'
     | '/dashboard'
   id:
     | '__root__'
     | '/'
+    | '/client-management'
     | '/dashboard'
     | '/errors'
     | '/pricing-tier'
     | '/sign-in'
+    | '/client-management/onboarding'
     | '/errors/forbidden'
     | '/errors/not-found'
     | '/pricing-tier/configure'
+    | '/client-management/'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ClientManagementRouteRoute: typeof ClientManagementRouteRouteWithChildren
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   ErrorsRouteRoute: typeof ErrorsRouteRouteWithChildren
   PricingTierRouteRoute: typeof PricingTierRouteRouteWithChildren
@@ -171,6 +207,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/client-management': {
+      id: '/client-management'
+      path: '/client-management'
+      fullPath: '/client-management'
+      preLoaderRoute: typeof ClientManagementRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -184,6 +227,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
+    }
+    '/client-management/': {
+      id: '/client-management/'
+      path: '/'
+      fullPath: '/client-management/'
+      preLoaderRoute: typeof ClientManagementIndexRouteImport
+      parentRoute: typeof ClientManagementRouteRoute
     }
     '/pricing-tier/configure': {
       id: '/pricing-tier/configure'
@@ -206,8 +256,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ErrorsForbiddenRouteImport
       parentRoute: typeof ErrorsRouteRoute
     }
+    '/client-management/onboarding': {
+      id: '/client-management/onboarding'
+      path: '/onboarding'
+      fullPath: '/client-management/onboarding'
+      preLoaderRoute: typeof ClientManagementOnboardingRouteImport
+      parentRoute: typeof ClientManagementRouteRoute
+    }
   }
 }
+
+interface ClientManagementRouteRouteChildren {
+  ClientManagementOnboardingRoute: typeof ClientManagementOnboardingRoute
+  ClientManagementIndexRoute: typeof ClientManagementIndexRoute
+}
+
+const ClientManagementRouteRouteChildren: ClientManagementRouteRouteChildren = {
+  ClientManagementOnboardingRoute: ClientManagementOnboardingRoute,
+  ClientManagementIndexRoute: ClientManagementIndexRoute,
+}
+
+const ClientManagementRouteRouteWithChildren =
+  ClientManagementRouteRoute._addFileChildren(
+    ClientManagementRouteRouteChildren,
+  )
 
 interface DashboardRouteRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -248,6 +320,7 @@ const PricingTierRouteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ClientManagementRouteRoute: ClientManagementRouteRouteWithChildren,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   ErrorsRouteRoute: ErrorsRouteRouteWithChildren,
   PricingTierRouteRoute: PricingTierRouteRouteWithChildren,

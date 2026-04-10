@@ -112,7 +112,7 @@ export const Sidebar = ({
           title: "Administration",
           items: [
             { title: "Pricing Tier Configuration", url: "/pricing-tier/configure", roles: ["SuperAdmin"] },
-            { title: "Client Onboarding", url: "/client-onboarding", roles: ["SuperAdmin"] },
+            { title: "Client Management", url: "/client-management", roles: ["SuperAdmin"] },
             { title: "Role Management", url: "/roles", roles: ["SuperAdmin"] },
             { title: "Organization Configuration", url: "/organization", roles: ["ClientAdmin"] },
             { title: "Users Management", url: "/users", roles: ["SuperAdmin", "ClientAdmin"] },
