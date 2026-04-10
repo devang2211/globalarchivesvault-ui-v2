@@ -14,15 +14,31 @@ export const setAuth = (data: AuthData) => {
 }
 
 export const getAuth = (): AuthData | null => {
-  const raw = localStorage.getItem(AUTH_KEY)
-  return raw ? JSON.parse(raw) : null
+  try {
+    const raw = localStorage.getItem(AUTH_KEY)
+    if (!raw) return null
+    const data = JSON.parse(raw) as AuthData
+    if (data.expiresAt && new Date(data.expiresAt) <= new Date()) {
+      localStorage.removeItem(AUTH_KEY)
+      return null
+    }
+    return data
+  } catch {
+    localStorage.removeItem(AUTH_KEY)
+    return null
+  }
 }
 
 export const clearAuth = () => {
   localStorage.removeItem(AUTH_KEY)
 }
 
-// 🔥 helpers (no parsing everywhere)
+export const isTokenValid = (): boolean => {
+  const auth = getAuth()
+  if (!auth?.token || !auth?.expiresAt) return false
+  return new Date(auth.expiresAt) > new Date()
+}
+
 export const getToken = () => getAuth()?.token
 
 export const getUserType = () => getAuth()?.userType

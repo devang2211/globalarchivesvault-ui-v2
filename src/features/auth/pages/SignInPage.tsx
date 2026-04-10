@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react"
 import { useLogin } from "../hooks/useLogin"
 import { LoginForm } from "../components/LoginForm"
 import { AuthLayout } from "@/app/layouts/AuthLayout"
@@ -10,13 +9,6 @@ import { setAuth } from "@/shared/lib/auth"
 export default function SignInPage() {
   const mutation = useLogin()
   const navigate = useNavigate()
-
-  const [ready, setReady] = useState(false)
-
-  useEffect(() => {
-    const t = setTimeout(() => setReady(true), 80)
-    return () => clearTimeout(t)
-  }, [])
 
   const handleSubmit = async (data: any) => {
     const toastId = toast.loading("Signing in...")

@@ -27,22 +27,12 @@ export default function ForbiddenPage() {
         <div className="flex items-center justify-center gap-3 pt-2">
 
           <button
-            onClick={() => window.history.back()}
-                          className="
-                px-4 py-2 text-sm rounded-md border border-border
-                bg-background hover:bg-muted transition cursor-pointer
-              "
-          >
-            Go back
-          </button>
-
-          <button
             onClick={() => navigate({ to: "/dashboard" })}
-              className="
-                px-4 py-2 text-sm rounded-md
-                bg-primary text-primary-foreground
-                hover:bg-primary/90 transition cursor-pointer
-              "
+            className="
+              px-4 py-2 text-sm rounded-md
+              bg-primary text-primary-foreground
+              hover:bg-primary/90 transition cursor-pointer
+            "
           >
             Back to Dashboard
           </button>

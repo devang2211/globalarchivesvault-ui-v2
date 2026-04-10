@@ -1,17 +1,14 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import { Check, LogOut, User } from "lucide-react"
 import { usePreferences } from "@/app/providers/PreferencesProvider"
-import { setFont } from "@/lib/font"
-import { cn } from "@/lib/utils"
 import { useSignOut } from "@/features/auth/hooks/useSignOut"
 import { toast } from "sonner"
 import { useNavigate } from "@tanstack/react-router"
 import { clearAuth, getAuth } from "@/shared/lib/auth"
 import { getInitials } from "@/lib/avatar"
 
-const user = getAuth()
-
 export const UserMenu = () => {
+  const user = getAuth()
   const { preferences, updatePreference } = usePreferences()
   const signOutMutation = useSignOut()
   const navigate = useNavigate()

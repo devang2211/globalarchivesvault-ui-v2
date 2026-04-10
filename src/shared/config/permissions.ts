@@ -1,4 +1,20 @@
-const permissionConfig  = [
+export type PermissionItem = {
+  label: string
+  code: string
+}
+
+export type FeatureItem = {
+  id: string
+  label: string
+  permissions: PermissionItem[]
+}
+
+export type FeatureSection = {
+  section: string
+  items: FeatureItem[]
+}
+
+const permissionConfig: FeatureSection[] = [
   {
     section: "Administration",
     items: [

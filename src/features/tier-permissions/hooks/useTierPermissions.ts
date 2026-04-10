@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   getTiers,
   getPermissions,
@@ -6,6 +6,7 @@ import {
   saveTierPermissions,
 } from "../api/tier.api"
 import { toast } from "sonner"
+import type { FeatureSection } from "@/shared/config/permissions"
 
 type TierPermissionsState = Record<
   string,
@@ -15,13 +16,22 @@ type TierPermissionsState = Record<
   }
 >
 
-export const useTierPermissions = (features: any, createEmptyState: any) => {
-  const [data, setData] = useState<TierPermissionsState>(createEmptyState())
-  const [initial, setInitial] = useState("")
+type CreateEmptyState = () => TierPermissionsState
+
+export const useTierPermissions = (
+  features: FeatureSection[],
+  createEmptyState: CreateEmptyState
+) => {
+  const [data, setData] = useState<TierPermissionsState>(createEmptyState)
+  const [initial, setInitial] = useState<TierPermissionsState | null>(null)
   const [loading, setLoading] = useState(false)
 
   const [tierIds, setTierIds] = useState<{ standard?: number; enterprise?: number }>({})
   const [permissionMap, setPermissionMap] = useState<Map<string, number>>(new Map())
+
+  // Stable refs so the effect doesn't need to re-run when the caller re-renders
+  const featuresRef = useRef(features)
+  const createEmptyStateRef = useRef(createEmptyState)
 
   useEffect(() => {
     const load = async () => {
@@ -57,23 +67,19 @@ export const useTierPermissions = (features: any, createEmptyState: any) => {
         const stdCodes = getCodes(stdIds)
         const entCodes = getCodes(entIds)
 
-        const newState = createEmptyState()
+        const newState = createEmptyStateRef.current()
 
-        features.forEach((section: any) => {
-          section.items.forEach((feature: any) => {
-            const codes = feature.permissions.map((p: any) => p.code)
+        featuresRef.current.forEach(section => {
+          section.items.forEach(feature => {
+            const codes = feature.permissions.map(p => p.code)
 
-            newState[feature.id].standard = codes.filter((c: string) =>
-              stdCodes.includes(c)
-            )
-            newState[feature.id].enterprise = codes.filter((c: string) =>
-              entCodes.includes(c)
-            )
+            newState[feature.id].standard = codes.filter(c => stdCodes.includes(c))
+            newState[feature.id].enterprise = codes.filter(c => entCodes.includes(c))
           })
         })
 
         setData(newState)
-        setInitial(JSON.stringify(newState))
+        setInitial(newState)
       } catch (err) {
         console.error(err)
       }
@@ -86,28 +92,23 @@ export const useTierPermissions = (features: any, createEmptyState: any) => {
     if (!tierIds.standard || !tierIds.enterprise) return
 
     const toastId = toast.loading("Saving changes...")
-
     setLoading(true)
 
     try {
-      const mapCodesToIds = (codes: string[]) =>
-        codes.map(c => permissionMap.get(c)).filter(Boolean)
+      const mapCodesToIds = (codes: string[]): number[] =>
+        codes
+          .map(c => permissionMap.get(c))
+          .filter((id): id is number => id !== undefined)
 
-      const stdCodes = Object.values(data).flatMap((f: any) => f.standard)
-      const entCodes = Object.values(data).flatMap((f: any) => f.enterprise)
+      const stdCodes = Object.values(data).flatMap(f => f.standard)
+      const entCodes = Object.values(data).flatMap(f => f.enterprise)
 
       await Promise.all([
-        saveTierPermissions(
-          tierIds.standard,
-          mapCodesToIds([...new Set(stdCodes)]) as number[]
-        ),
-        saveTierPermissions(
-          tierIds.enterprise,
-          mapCodesToIds([...new Set(entCodes)]) as number[]
-        ),
+        saveTierPermissions(tierIds.standard, mapCodesToIds([...new Set(stdCodes)])),
+        saveTierPermissions(tierIds.enterprise, mapCodesToIds([...new Set(entCodes)])),
       ])
 
-      setInitial(JSON.stringify(data))
+      setInitial(data)
 
       toast.dismiss(toastId)
       toast.success("Permissions updated successfully")
@@ -119,11 +120,20 @@ export const useTierPermissions = (features: any, createEmptyState: any) => {
     }
   }
 
+  const reset = () => {
+    if (initial !== null) {
+      setData(initial)
+    }
+  }
+
+  const isDirty = initial !== null && JSON.stringify(data) !== JSON.stringify(initial)
+
   return {
     data,
     setData,
-    initial,
+    isDirty,
     loading,
     save,
+    reset,
   }
 }

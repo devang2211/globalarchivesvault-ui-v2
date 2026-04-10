@@ -1,8 +1,6 @@
 import { cn } from "@/lib/utils"
 import {
   LayoutDashboard,
-  Home,
-  Settings,
   ChevronDown,
   Users,
   Database,
@@ -154,18 +152,22 @@ export const Sidebar = ({
 
 const filterItems = (items: NavItem[]): NavItem[] => {
   return items
-    .map((item) => ({
-      ...item,
-      items: item.items ? filterItems(item.items) : undefined,
-    }))
+    .map((item): NavItem => {
+      if ("items" in item) {
+        return {
+          ...item,
+          items: filterItems(item.items) as { title: string; url: string; roles?: string[] }[],
+        }
+      }
+      return item
+    })
     .filter((item) => {
-      if ("roles" in item && item.roles && !item.roles.includes(user?.userType)) {
-        return false
+      if (!("items" in item) && item.roles) {
+        const userType = user?.userType
+        if (!userType || !item.roles.includes(userType)) return false
       }
 
-      if ("items" in item && item.items && item.items.length === 0) {
-        return false
-      }
+      if ("items" in item && item.items.length === 0) return false
 
       return true
     })
@@ -182,15 +184,6 @@ const filteredNavGroups = navGroups
 
   return (
     <>
-      {/* MOBILE OVERLAY */}
-{isOpen && (
-  <div
-    className="fixed inset-0 z-40 lg:hidden bg-black/40 transition-opacity duration-300"
-    style={{ animationDelay: "50ms" }}
-    onClick={() => setIsOpen(false)}
-  />
-)}
-
       <aside
 className={cn(
   "flex flex-col bg-background shadow-xl",

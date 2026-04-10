@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet, redirect } from "@tanstack/react-router"
 import { ProgressProvider } from "@/app/providers/ProgressProvider"
 import NotFoundPage from "@/features/errors/pages/NotFoundPage"
-import { getToken } from "@/shared/lib/auth"
+import { isTokenValid } from "@/shared/lib/auth"
 
 function RootLayout() {
   return (
@@ -18,12 +18,10 @@ export const Route = createRootRoute({
   notFoundComponent: NotFoundPage,
 
   beforeLoad: ({ location }) => {
-    const token = getToken() // ✅ CHECK AUTH TOKEN
-
     const isPublicRoute = publicRoutes.includes(location.pathname)
 
-    if (!token && !isPublicRoute) {
-      throw redirect({ to: "/sign-in" }) // ✅ GLOBAL GUARD
+    if (!isTokenValid() && !isPublicRoute) {
+      throw redirect({ to: "/sign-in" })
     }
   },
 })

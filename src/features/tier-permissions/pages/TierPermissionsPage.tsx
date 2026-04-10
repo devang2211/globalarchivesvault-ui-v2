@@ -1,8 +1,8 @@
-import { useMemo } from "react"
 import { cn } from "@/lib/utils"
-import { Check, X, Loader2 } from "lucide-react"
+import { Check, X } from "lucide-react"
 
 import { useTierPermissions } from "../hooks/useTierPermissions"
+import permissionConfig from "@/shared/config/permissions"
 
 /* ---------------------------------- */
 /* TYPES */
@@ -11,52 +11,10 @@ import { useTierPermissions } from "../hooks/useTierPermissions"
 type Tier = "standard" | "enterprise"
 
 /* ---------------------------------- */
-/* PERMISSIONS CONFIG (STATIC) */
+/* PERMISSIONS CONFIG */
 /* ---------------------------------- */
 
-const features = [
-  {
-    section: "Administration",
-    items: [
-      {
-        id: "user-management",
-        label: "User Management",
-        permissions: [
-          { label: "View", code: "USER_VIEW" },
-          { label: "Modify Platform Access", code: "USER_MODIFY_PLATFORM_PERMISSION_ACCESS" },
-          { label: "Modify Record Access", code: "USER_MODIFY_RECORD_TYPE_ACCESS" },
-          { label: "Save", code: "USER_SAVE" },
-        ],
-      },
-    ],
-  },
-  {
-    section: "Records Setup",
-    items: [
-      {
-        id: "record-type",
-        label: "Document Types",
-        permissions: [
-          { label: "View", code: "RECORD_TYPE_CONFIG_VIEW" },
-          { label: "Save", code: "RECORD_TYPE_CONFIG_SAVE" },
-        ],
-      },
-    ],
-  },
-  {
-    section: "Records",
-    items: [
-      {
-        id: "record-upload",
-        label: "Upload",
-        permissions: [
-          { label: "View", code: "RECORD_UPLOAD_VIEW" },
-          { label: "Save", code: "RECORD_UPLOAD_SAVE" },
-        ],
-      },
-    ],
-  },
-]
+const features = permissionConfig
 
 /* ---------------------------------- */
 /* STATE INIT */
@@ -85,15 +43,11 @@ export default function TierPermissionsPage() {
   const {
     data,
     setData,
-    initial,
+    isDirty,
     loading,
     save,
+    reset,
   } = useTierPermissions(features, createEmptyState)
-
-  const isDirty = useMemo(
-    () => JSON.stringify(data) !== initial,
-    [data, initial]
-  )
 
   const toggle = (featureId: string, tier: Tier, perm: string) => {
     setData(prev => {
@@ -177,18 +131,14 @@ export default function TierPermissionsPage() {
                           <div className="flex justify-center">
                             <Toggle
                               active={isStd}
-                              onClick={() =>
-                                toggle(feature.id, "standard", perm.code)
-                              }
+                              onClick={() => toggle(feature.id, "standard", perm.code)}
                             />
                           </div>
 
                           <div className="flex justify-center">
                             <Toggle
                               active={isEnt}
-                              onClick={() =>
-                                toggle(feature.id, "enterprise", perm.code)
-                              }
+                              onClick={() => toggle(feature.id, "enterprise", perm.code)}
                             />
                           </div>
                         </div>
@@ -207,29 +157,29 @@ export default function TierPermissionsPage() {
 
         <div className="flex items-center gap-3">
 
-<button
-  onClick={save}
-  disabled={loading}
-className={cn(
-  "px-6 py-2 rounded-md text-sm font-medium transition cursor-pointer",
-  "disabled:cursor-not-allowed disabled:opacity-60 bg-primary text-primary-foreground hover:bg-primary/90",
-)}
->                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-  Save Changes
-</button>
+          <button
+            onClick={save}
+            disabled={loading || !isDirty}
+            className={cn(
+              "px-6 py-2 rounded-md text-sm font-medium transition cursor-pointer",
+              "bg-primary text-primary-foreground hover:bg-primary/90",
+              "disabled:cursor-not-allowed disabled:opacity-60",
+            )}
+          >
+            Save Changes
+          </button>
 
-<button
-  onClick={() => setData(JSON.parse(initial))}
-  disabled={loading}
-className={cn(
-  "px-5 py-2 rounded-md text-sm font-medium transition cursor-pointer",
-  "border border-border bg-background",
-  "hover:bg-muted",
-  "disabled:opacity-50 disabled:cursor-not-allowed"
-)}
->
-  Cancel
-</button>
+          <button
+            onClick={reset}
+            disabled={loading || !isDirty}
+            className={cn(
+              "px-5 py-2 rounded-md text-sm font-medium transition cursor-pointer",
+              "border border-border bg-background hover:bg-muted",
+              "disabled:opacity-50 disabled:cursor-not-allowed",
+            )}
+          >
+            Cancel
+          </button>
 
         </div>
 
@@ -254,7 +204,6 @@ function Toggle({ active, onClick }: { active: boolean; onClick: () => void }) {
       className={cn(
         "h-6 w-6 flex items-center justify-center rounded-md",
         "border border-border/60 transition-all duration-150 cursor-pointer",
-
         active
           ? "bg-primary text-primary-foreground border-primary"
           : "bg-background text-muted-foreground hover:bg-muted"

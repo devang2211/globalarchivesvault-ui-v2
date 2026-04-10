@@ -2,20 +2,19 @@ import axios from "axios"
 import { startApiProgress, stopApiProgress } from "@/lib/progress"
 import { clearAuth, getToken } from "@/shared/lib/auth"
 import { toast } from "sonner"
+import { routerRef } from "./routerRef"
 
 const api = axios.create({
-  baseURL: "https://localhost:64318", // 🔁 change to your backend
+  baseURL: "https://localhost:64318",
   headers: {
     "Content-Type": "application/json",
   },
 })
 
-// Optional: attach token automatically later
 api.interceptors.request.use((config) => {
   startApiProgress()
 
   const token = getToken()
-
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
@@ -23,7 +22,8 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// RESPONSE
+let isRedirecting = false
+
 api.interceptors.response.use(
   (response) => {
     stopApiProgress()
@@ -31,34 +31,36 @@ api.interceptors.response.use(
   },
   (error) => {
     stopApiProgress()
-    return Promise.reject(error)
-  }
-)
 
-let isRedirecting = false // ✅ prevent multiple redirects
+    const status = error.response?.status
+    const isSignInCall = error.config?.url?.includes("/auth/sign-in")
 
-api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401 &&
-  !err.config.url.includes("/auth/sign-in")) {
+    if (status === 401 && !isSignInCall) {
       if (!isRedirecting) {
         isRedirecting = true
-
         clearAuth()
-
-        // Optional UX
         toast.error("Session expired. Please sign in again.")
 
-        // ✅ SPA-safe redirect
         setTimeout(() => {
           isRedirecting = false
-          window.location.replace("/sign-in")
+          if (routerRef.current) {
+            routerRef.current.navigate({ to: "/sign-in" })
+          } else {
+            window.location.replace("/sign-in")
+          }
         }, 300)
       }
     }
 
-    return Promise.reject(err)
+    if (status === 403 && !isSignInCall) {
+      if (routerRef.current) {
+        routerRef.current.navigate({ to: "/errors/forbidden" })
+      } else {
+        window.location.replace("/errors/forbidden")
+      }
+    }
+
+    return Promise.reject(error)
   }
 )
 

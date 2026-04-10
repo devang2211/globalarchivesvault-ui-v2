@@ -34,21 +34,20 @@ import "nprogress/nprogress.css"
 import "./index.css"
 import "./styles/theme.css"
 import { getToken } from "./shared/lib/auth"
+import { routerRef } from "./shared/api/routerRef"
 
-
-
-// initFont()
-//   ; (window as any).setFont = setFont
 ;(window as any).setFont = setFont
 
 const router = createRouter({
   routeTree,
   context: {
     auth: {
-      isAuthenticated: !!getToken(), // ✅ INITIAL AUTH STATE
+      isAuthenticated: !!getToken(),
     },
   },
 })
+
+routerRef.current = router
 
 // router.subscribe("onBeforeLoad", () => {
 //   startProgress()

@@ -1,33 +1,3 @@
-// import { createContext, useContext, useState } from "react"
-
-// type LayoutContextType = {
-//   collapsed: boolean
-//   setCollapsed: (v: boolean) => void
-//   mobileOpen: boolean
-//   setMobileOpen: (v: boolean) => void
-// }
-
-// const LayoutContext = createContext<LayoutContextType | null>(null)
-
-// export const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
-//   const [collapsed, setCollapsed] = useState(false)
-//   const [mobileOpen, setMobileOpen] = useState(false)
-
-//   return (
-//     <LayoutContext.Provider
-//       value={{ collapsed, setCollapsed, mobileOpen, setMobileOpen }}
-//     >
-//       {children}
-//     </LayoutContext.Provider>
-//   )
-// }
-
-// export const useLayout = () => {
-//   const ctx = useContext(LayoutContext)
-//   if (!ctx) throw new Error("useLayout must be used inside LayoutProvider")
-//   return ctx
-// }
-
 import { createContext, useContext, useEffect, useState } from "react"
 
 const LayoutContext = createContext<any>(null)
