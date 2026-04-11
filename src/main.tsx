@@ -23,17 +23,19 @@ import "@fontsource/inter/600.css"
 try {
   const saved = JSON.parse(localStorage.getItem("preferences") || "{}")
   const root = document.documentElement
-  if (saved.font) {
-    root.classList.remove("font-inter", "font-manrope", "font-system")
-    root.classList.add(`font-${saved.font}`)
-  }
-  if (saved.theme) {
-    root.classList.remove("light", "dark")
-    if (saved.theme === "system") {
-      root.classList.add(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-    } else {
-      root.classList.add(saved.theme)
-    }
+
+  // Font — fall back to "inter" to match defaultPreferences
+  const font = saved.font || "inter"
+  root.classList.remove("font-inter", "font-manrope", "font-system")
+  root.classList.add(`font-${font}`)
+
+  // Theme — fall back to "light" to match defaultPreferences
+  const theme = saved.theme || "light"
+  root.classList.remove("light", "dark")
+  if (theme === "system") {
+    root.classList.add(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+  } else {
+    root.classList.add(theme)
   }
 } catch {}
 
