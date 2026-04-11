@@ -34,8 +34,9 @@ api.interceptors.response.use(
 
     const status = error.response?.status
     const isSignInCall = error.config?.url?.includes("/auth/sign-in")
+    const isSignOutCall = error.config?.url?.includes("/auth/sign-out")
 
-    if (status === 401 && !isSignInCall) {
+    if (status === 401 && !isSignInCall && !isSignOutCall) {
       if (!isRedirecting) {
         isRedirecting = true
         clearAuth()
