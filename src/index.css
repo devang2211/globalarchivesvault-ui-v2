@@ -77,6 +77,7 @@
 
 [data-slot="sheet-overlay"][data-state="closed"] {
   animation: sheet-overlay-out 0.3s ease forwards;
+  pointer-events: none;
 }
 
 /* @layer utilities {
@@ -267,7 +268,7 @@ img {
 }
 
 [data-radix-popper-content-wrapper] {
-  z-index: 9999 !important;
+  z-index: 50;
 }
 
 /* :root {

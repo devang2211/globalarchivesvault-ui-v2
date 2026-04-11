@@ -1,19 +1,12 @@
 import { type SVGProps } from 'react'
 import { CircleCheck, RotateCcw } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { usePreferences } from '@/app/providers/PreferencesProvider'
+import { usePreferences, defaultPreferences } from '@/app/providers/PreferencesProvider'
+import { SidebarPreview, LayoutPreview } from '@/components/ui/preview-blocks'
 import { IconThemeSystem } from '@/assets/custom/icon-theme-system'
 import { IconThemeLight } from '@/assets/custom/icon-theme-light'
 import { IconThemeDark } from '@/assets/custom/icon-theme-dark'
 import { IconDir } from '@/assets/custom/icon-dir'
-
-const DEFAULTS = {
-  theme: 'light',
-  font: 'inter',
-  sidebar: 'default',
-  layout: 'default',
-  direction: 'ltr',
-}
 
 /* ---- Section Title ---- */
 function SectionTitle({
@@ -41,7 +34,7 @@ function SectionTitle({
   )
 }
 
-/* ---- Radio Option Item ---- */
+/* ---- Radio Option Item (SVG icon variant) ---- */
 function RadioOptionItem({
   label,
   checked,
@@ -89,13 +82,11 @@ function RadioOptionItem({
 
 /* ---- Font Option Item ---- */
 function FontOptionItem({
-  value,
   label,
   fontFamily,
   checked,
   onSelect,
 }: {
-  value: string
   label: string
   fontFamily: string
   checked: boolean
@@ -131,6 +122,43 @@ function FontOptionItem({
   )
 }
 
+/* ---- Preview Option Item (preview-block children variant) ---- */
+function PreviewOptionItem({
+  label,
+  checked,
+  onSelect,
+  children,
+}: {
+  label: string
+  checked: boolean
+  onSelect: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type='button'
+      onClick={onSelect}
+      className='w-full cursor-pointer outline-none transition duration-200 ease-in'
+    >
+      <div
+        className={cn(
+          'relative rounded-[6px] ring-[1px]',
+          checked ? 'shadow-2xl ring-primary' : 'ring-border'
+        )}
+      >
+        <CircleCheck
+          className={cn(
+            'absolute right-0 top-0 size-6 -translate-y-1/2 translate-x-1/2 fill-primary stroke-white',
+            !checked && 'hidden'
+          )}
+        />
+        {children}
+      </div>
+      <div className='mt-1 text-xs'>{label}</div>
+    </button>
+  )
+}
+
 /* ---- Main Component ---- */
 export const ThemeSettings = () => {
   const { preferences, updatePreference } = usePreferences()
@@ -142,8 +170,8 @@ export const ThemeSettings = () => {
       <div>
         <SectionTitle
           title='Theme'
-          showReset={preferences.theme !== DEFAULTS.theme}
-          onReset={() => updatePreference('theme', DEFAULTS.theme)}
+          showReset={preferences.theme !== defaultPreferences.theme}
+          onReset={() => updatePreference('theme', defaultPreferences.theme)}
         />
         <div className='grid w-full grid-cols-3 gap-4'>
           {[
@@ -167,8 +195,8 @@ export const ThemeSettings = () => {
       <div>
         <SectionTitle
           title='Font'
-          showReset={preferences.font !== DEFAULTS.font}
-          onReset={() => updatePreference('font', DEFAULTS.font)}
+          showReset={preferences.font !== defaultPreferences.font}
+          onReset={() => updatePreference('font', defaultPreferences.font)}
         />
         <div className='grid w-full grid-cols-3 gap-4'>
           {[
@@ -178,7 +206,6 @@ export const ThemeSettings = () => {
           ].map((item) => (
             <FontOptionItem
               key={item.value}
-              value={item.value}
               label={item.label}
               fontFamily={item.fontFamily}
               checked={preferences.font === item.value}
@@ -188,12 +215,62 @@ export const ThemeSettings = () => {
         </div>
       </div>
 
+      {/* SIDEBAR */}
+      {/* <div>
+        <SectionTitle
+          title='Sidebar'
+          showReset={preferences.sidebar !== defaultPreferences.sidebar}
+          onReset={() => updatePreference('sidebar', defaultPreferences.sidebar)}
+        />
+        <div className='grid w-full grid-cols-3 gap-4'>
+          {[
+            { value: 'default', label: 'Default' },
+            { value: 'inset', label: 'Inset' },
+            { value: 'floating', label: 'Floating' },
+          ].map((item) => (
+            <PreviewOptionItem
+              key={item.value}
+              label={item.label}
+              checked={preferences.sidebar === item.value}
+              onSelect={() => updatePreference('sidebar', item.value)}
+            >
+              <SidebarPreview type={item.value} />
+            </PreviewOptionItem>
+          ))}
+        </div>
+      </div> */}
+
+      {/* LAYOUT */}
+      {/* <div>
+        <SectionTitle
+          title='Layout'
+          showReset={preferences.layout !== defaultPreferences.layout}
+          onReset={() => updatePreference('layout', defaultPreferences.layout)}
+        />
+        <div className='grid w-full grid-cols-3 gap-4'>
+          {[
+            { value: 'default', label: 'Default' },
+            { value: 'compact', label: 'Compact' },
+            { value: 'full', label: 'Full' },
+          ].map((item) => (
+            <PreviewOptionItem
+              key={item.value}
+              label={item.label}
+              checked={preferences.layout === item.value}
+              onSelect={() => updatePreference('layout', item.value)}
+            >
+              <LayoutPreview type={item.value} />
+            </PreviewOptionItem>
+          ))}
+        </div>
+      </div> */}
+
       {/* DIRECTION */}
       <div>
         <SectionTitle
           title='Direction'
-          showReset={preferences.direction !== DEFAULTS.direction}
-          onReset={() => updatePreference('direction', DEFAULTS.direction)}
+          showReset={preferences.direction !== defaultPreferences.direction}
+          onReset={() => updatePreference('direction', defaultPreferences.direction)}
         />
         <div className='grid w-full grid-cols-3 gap-4'>
           {[

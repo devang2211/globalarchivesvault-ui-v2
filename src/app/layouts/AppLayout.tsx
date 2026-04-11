@@ -16,10 +16,16 @@ const saveCollapsed = (value: boolean) => {
   try { localStorage.setItem(SIDEBAR_KEY, String(value)) } catch {}
 }
 
+const MOBILE_MQ = "(max-width: 1023px)"
+
 export const AppLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [isCollapsed, setIsCollapsed] = useState(readStoredCollapsed)
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 1024)
+  // Initialise both states from the same media query to avoid a double-setState on mount.
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia(MOBILE_MQ).matches)
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const mobile = window.matchMedia(MOBILE_MQ).matches
+    return mobile ? true : readStoredCollapsed()
+  })
 
   const { preferences } = usePreferences()
 
@@ -28,19 +34,15 @@ export const AppLayout = () => {
   const isInset = sidebarVariant === "inset"
 
   useEffect(() => {
-    const media = window.matchMedia("(max-width: 1023px)")
+    const media = window.matchMedia(MOBILE_MQ)
 
-    const update = (e: MediaQueryList | MediaQueryListEvent) => {
+    // Only handle *changes* — initial state is already set correctly above.
+    const update = (e: MediaQueryListEvent) => {
       const mobile = e.matches
       setIsMobile(mobile)
-      if (mobile) {
-        setIsCollapsed(true)
-      } else {
-        setIsCollapsed(readStoredCollapsed())
-      }
+      setIsCollapsed(mobile ? true : readStoredCollapsed())
     }
 
-    update(media)
     media.addEventListener("change", update)
     return () => media.removeEventListener("change", update)
   }, [])
@@ -75,8 +77,11 @@ export const AppLayout = () => {
           <div className="w-px bg-border shrink-0" />
         )}
 
-        {/* Main area */}
-        <div className="flex-1 min-w-0 min-h-0 flex flex-col">
+        {/* Main area — mirror floating sidebar outer margins so the layout is symmetric */}
+        <div className={cn(
+          "flex-1 min-w-0 min-h-0 flex flex-col",
+          isFloating && "lg:my-2 lg:me-2"
+        )}>
           <Topbar
             isCollapsed={isCollapsed}
             onMenuClick={() => setIsSidebarOpen(true)}

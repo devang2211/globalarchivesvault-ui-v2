@@ -17,7 +17,9 @@ import "@fontsource/inter/600.css"
 //   document.documentElement.classList.add("font-inter") // default
 // }
 
-// Apply persisted preferences synchronously before first paint
+// Apply persisted preferences synchronously before first paint (FOUC prevention only).
+// This sets the initial class once — live OS-theme change listening is handled by
+// PreferencesProvider's useEffect once React mounts.
 try {
   const saved = JSON.parse(localStorage.getItem("preferences") || "{}")
   const root = document.documentElement
