@@ -23,6 +23,7 @@ api.interceptors.request.use((config) => {
 })
 
 let isRedirecting = false
+let isForbidding = false
 
 api.interceptors.response.use(
   (response) => {
@@ -58,10 +59,14 @@ api.interceptors.response.use(
     }
 
     if (status === 403 && !isSignInCall) {
-      if (routerRef.current) {
-        routerRef.current.navigate({ to: "/errors/forbidden" })
-      } else {
-        window.location.replace("/errors/forbidden")
+      if (!isForbidding) {
+        isForbidding = true
+        if (routerRef.current) {
+          routerRef.current.navigate({ to: "/errors/forbidden" })
+        } else {
+          window.location.replace("/errors/forbidden")
+        }
+        setTimeout(() => { isForbidding = false }, 300)
       }
     }
 

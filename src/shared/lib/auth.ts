@@ -18,7 +18,8 @@ export const getAuth = (): AuthData | null => {
     const raw = localStorage.getItem(AUTH_KEY)
     if (!raw) return null
     const data = JSON.parse(raw) as AuthData
-    if (data.expiresAt && new Date(data.expiresAt) <= new Date()) {
+    const expiry = new Date(data.expiresAt)
+    if (!data.expiresAt || isNaN(expiry.getTime()) || expiry <= new Date()) {
       localStorage.removeItem(AUTH_KEY)
       return null
     }
