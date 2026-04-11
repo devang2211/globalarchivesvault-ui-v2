@@ -18,6 +18,20 @@ type TierPermissionsState = Record<
 
 type CreateEmptyState = () => TierPermissionsState
 
+// Sort arrays before comparing so toggle-off → toggle-on doesn't produce a false dirty signal
+const sortedStateJson = (state: TierPermissionsState): string =>
+  JSON.stringify(
+    Object.fromEntries(
+      Object.entries(state).map(([k, v]) => [
+        k,
+        {
+          standard: [...v.standard].sort(),
+          enterprise: [...v.enterprise].sort(),
+        },
+      ])
+    )
+  )
+
 export const useTierPermissions = (
   features: FeatureSection[],
   createEmptyState: CreateEmptyState
@@ -35,20 +49,23 @@ export const useTierPermissions = (
 
   useEffect(() => {
     const load = async () => {
+      setLoading(true)
       try {
-        const tiers = await getTiers()
+        // Fetch tiers and permissions in parallel
+        const [tiers, permissions] = await Promise.all([getTiers(), getPermissions()])
 
         const standard = tiers.find(t => t.name.toLowerCase().includes("standard"))
         const enterprise = tiers.find(t => t.name.toLowerCase().includes("enterprise"))
 
-        if (!standard || !enterprise) return
+        if (!standard || !enterprise) {
+          toast.error("Could not find Standard or Enterprise tier. Please check your configuration.")
+          return
+        }
 
         setTierIds({
           standard: standard.id,
           enterprise: enterprise.id,
         })
-
-        const permissions = await getPermissions()
 
         const map = new Map<string, number>()
         permissions.forEach(p => map.set(p.code, p.id))
@@ -82,6 +99,9 @@ export const useTierPermissions = (
         setInitial(newState)
       } catch (err) {
         console.error(err)
+        toast.error("Failed to load tier permissions")
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -103,15 +123,28 @@ export const useTierPermissions = (
       const stdCodes = Object.values(data).flatMap(f => f.standard)
       const entCodes = Object.values(data).flatMap(f => f.enterprise)
 
-      await Promise.all([
+      const [stdResult, entResult] = await Promise.allSettled([
         saveTierPermissions(tierIds.standard, mapCodesToIds([...new Set(stdCodes)])),
         saveTierPermissions(tierIds.enterprise, mapCodesToIds([...new Set(entCodes)])),
       ])
 
-      setInitial(data)
-
       toast.dismiss(toastId)
-      toast.success("Permissions updated successfully")
+
+      const stdFailed = stdResult.status === "rejected"
+      const entFailed = entResult.status === "rejected"
+
+      if (stdFailed || entFailed) {
+        if (stdFailed && entFailed) {
+          toast.error("Failed to save changes for both tiers")
+        } else if (stdFailed) {
+          toast.error("Failed to save Standard tier — Enterprise was saved successfully")
+        } else {
+          toast.error("Failed to save Enterprise tier — Standard was saved successfully")
+        }
+      } else {
+        setInitial(data)
+        toast.success("Permissions updated successfully")
+      }
     } catch (err) {
       toast.dismiss(toastId)
       toast.error("Failed to save changes")
@@ -126,7 +159,7 @@ export const useTierPermissions = (
     }
   }
 
-  const isDirty = initial !== null && JSON.stringify(data) !== JSON.stringify(initial)
+  const isDirty = initial !== null && sortedStateJson(data) !== sortedStateJson(initial)
 
   return {
     data,

@@ -28,8 +28,9 @@ export const getTierPermissions = async (tierId: number) => {
 }
 
 export const saveTierPermissions = async (tierId: number, permissionIds: number[]) => {
-  return api.post("/api/tier-permissions/configure", {
+  const res = await api.post<ApiResponse<unknown>>("/api/tier-permissions/configure", {
     tierId,
     permissionIds,
   })
+  return unwrap(res)
 }
