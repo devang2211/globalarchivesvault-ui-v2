@@ -39,6 +39,7 @@ export const useTierPermissions = (
   const [data, setData] = useState<TierPermissionsState>(createEmptyState)
   const [initial, setInitial] = useState<TierPermissionsState | null>(null)
   const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   const [tierIds, setTierIds] = useState<{ standard?: number; enterprise?: number }>({})
   const [permissionMap, setPermissionMap] = useState<Map<string, number>>(new Map())
@@ -112,6 +113,7 @@ export const useTierPermissions = (
     if (!tierIds.standard || !tierIds.enterprise) return
 
     const toastId = toast.loading("Saving changes...")
+    setSaving(true)
     setLoading(true)
 
     try {
@@ -149,6 +151,7 @@ export const useTierPermissions = (
       toast.dismiss(toastId)
       toast.error("Failed to save changes")
     } finally {
+      setSaving(false)
       setLoading(false)
     }
   }
@@ -166,6 +169,7 @@ export const useTierPermissions = (
     setData,
     isDirty,
     loading,
+    saving,
     save,
     reset,
   }
