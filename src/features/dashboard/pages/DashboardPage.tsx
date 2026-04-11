@@ -1,37 +1,22 @@
-// export default function DashboardPage() {
-//   return (
-//     <div className="space-y-6">
+import { Skeleton } from "@/components/ui/skeleton"
 
-import { DashboardCard } from "../components/DashboardCard";
+const StatCard = () => (
+  <div className="rounded-lg border border-border bg-background p-5 flex flex-col gap-3">
+    <Skeleton className="h-3 w-24" />
+    <Skeleton className="h-7 w-16" />
+    <Skeleton className="h-2.5 w-32" />
+  </div>
+)
 
-//       {/* Page Header */}
-//       <div>
-//         <h1 className="text-xl font-semibold tracking-tight">
-//           Dashboard
-//         </h1>
-//         <p className="text-sm text-muted-foreground">
-//           Overview of your system activity
-//         </p>
-//       </div>
-
-//       {/* Cards grid */}
-//       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-
-//         <div className="border border-border rounded-lg p-4">
-//           <p className="text-sm text-muted-foreground">Users</p>
-//           <p className="text-2xl font-semibold">1,234</p>
-//         </div>
-
-//         <div className="border border-border rounded-lg p-4">
-//           <p className="text-sm text-muted-foreground">Documents</p>
-//           <p className="text-2xl font-semibold">8,432</p>
-//         </div>
-
-//       </div>
-
-//     </div>
-//   )
-// }
+const WideCard = () => (
+  <div className="rounded-lg border border-border bg-background p-5 flex flex-col gap-3">
+    <Skeleton className="h-3 w-32" />
+    <Skeleton className="h-4 w-full" />
+    <Skeleton className="h-4 w-4/5" />
+    <Skeleton className="h-4 w-3/5" />
+    <Skeleton className="h-4 w-2/3 mt-1" />
+  </div>
+)
 
 export default function DashboardPage() {
   return (
@@ -39,26 +24,22 @@ export default function DashboardPage() {
 
       {/* Header */}
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">
-          Dashboard
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Overview of your system activity
-        </p>
+        <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">Overview of your system activity</p>
       </div>
 
-      {/* Cards */}
+      {/* Stat cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <DashboardCard title="Total Users" value="1,245" />
-        <DashboardCard title="Active Sessions" value="312" />
-        <DashboardCard title="Storage Used" value="72%" />
-        <DashboardCard title="Errors" value="3" />
+        <StatCard />
+        <StatCard />
+        <StatCard />
+        <StatCard />
       </div>
 
-      {/* Large section */}
+      {/* Wide cards */}
       <div className="grid gap-4 md:grid-cols-2">
-        <DashboardCard title="Recent Activity" value="Logs..." />
-        <DashboardCard title="System Health" value="Healthy" />
+        <WideCard />
+        <WideCard />
       </div>
 
     </div>

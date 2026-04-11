@@ -17,6 +17,24 @@ import "@fontsource/inter/600.css"
 //   document.documentElement.classList.add("font-inter") // default
 // }
 
+// Apply persisted preferences synchronously before first paint
+try {
+  const saved = JSON.parse(localStorage.getItem("preferences") || "{}")
+  const root = document.documentElement
+  if (saved.font) {
+    root.classList.remove("font-inter", "font-manrope", "font-system")
+    root.classList.add(`font-${saved.font}`)
+  }
+  if (saved.theme) {
+    root.classList.remove("light", "dark")
+    if (saved.theme === "system") {
+      root.classList.add(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+    } else {
+      root.classList.add(saved.theme)
+    }
+  }
+} catch {}
+
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { RouterProvider, createRouter } from "@tanstack/react-router"

@@ -1,150 +1,223 @@
-import { cn } from "@/lib/utils"
-import { usePreferences } from "@/app/providers/PreferencesProvider"
-import {
-  ThemePreview,
-  SidebarPreview,
-  LayoutPreview,
-  DirectionPreview,
-} from "@/components/ui/preview-blocks"
+import { type SVGProps } from 'react'
+import { CircleCheck, RotateCcw } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { usePreferences } from '@/app/providers/PreferencesProvider'
+import { IconThemeSystem } from '@/assets/custom/icon-theme-system'
+import { IconThemeLight } from '@/assets/custom/icon-theme-light'
+import { IconThemeDark } from '@/assets/custom/icon-theme-dark'
+import { IconDir } from '@/assets/custom/icon-dir'
 
-/* =========================================
-   Option Card
-========================================= */
-type OptionCardProps = {
-  label: string
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
+const DEFAULTS = {
+  theme: 'light',
+  font: 'inter',
+  sidebar: 'default',
+  layout: 'default',
+  direction: 'ltr',
 }
 
-const OptionCard = ({
+/* ---- Section Title ---- */
+function SectionTitle({
+  title,
+  showReset,
+  onReset,
+}: {
+  title: string
+  showReset?: boolean
+  onReset?: () => void
+}) {
+  return (
+    <div className='mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground'>
+      {title}
+      {showReset && onReset && (
+        <button
+          type='button'
+          onClick={onReset}
+          className='flex size-4 cursor-pointer items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-muted/80'
+        >
+          <RotateCcw className='size-3' />
+        </button>
+      )}
+    </div>
+  )
+}
+
+/* ---- Radio Option Item ---- */
+function RadioOptionItem({
   label,
-  active,
-  onClick,
-  children,
-}: OptionCardProps) => {
+  checked,
+  onSelect,
+  icon: Icon,
+  isTheme = false,
+}: {
+  label: string
+  checked: boolean
+  onSelect: () => void
+  icon: (props: SVGProps<SVGSVGElement>) => React.ReactElement
+  isTheme?: boolean
+}) {
   return (
     <button
-      onClick={onClick}
-      className={cn(
-        "relative rounded-md border p-2 text-left transition cursor-pointer",
-        "hover:border-muted-foreground",
-        active
-          ? "border-primary ring-2 ring-primary/20"
-          : "border-border"
-      )}
+      type='button'
+      onClick={onSelect}
+      className='cursor-pointer outline-none transition duration-200 ease-in'
     >
-      {children}
-
-      {active && (
-        <div className="absolute top-2 right-2 h-5 w-5 rounded-full bg-primary text-white flex items-center justify-center text-xs">
-          ✓
-        </div>
-      )}
-
-      <div className="mt-2 text-xs text-center capitalize">
-        {label}
+      <div
+        className={cn(
+          'relative rounded-[6px] ring-[1px]',
+          checked ? 'shadow-2xl ring-primary' : 'ring-border'
+        )}
+      >
+        <CircleCheck
+          className={cn(
+            'absolute right-0 top-0 size-6 -translate-y-1/2 translate-x-1/2 fill-primary stroke-white',
+            !checked && 'hidden'
+          )}
+        />
+        <Icon
+          className={cn(
+            !isTheme &&
+              (checked
+                ? 'fill-primary stroke-primary'
+                : 'fill-muted-foreground stroke-muted-foreground')
+          )}
+        />
       </div>
+      <div className='mt-1 text-xs'>{label}</div>
     </button>
   )
 }
 
-/* =========================================
-   Theme Settings
-========================================= */
+/* ---- Font Option Item ---- */
+function FontOptionItem({
+  value,
+  label,
+  fontFamily,
+  checked,
+  onSelect,
+}: {
+  value: string
+  label: string
+  fontFamily: string
+  checked: boolean
+  onSelect: () => void
+}) {
+  return (
+    <button
+      type='button'
+      onClick={onSelect}
+      className='cursor-pointer outline-none transition duration-200 ease-in'
+    >
+      <div
+        className={cn(
+          'relative rounded-[6px] ring-[1px]',
+          checked ? 'shadow-2xl ring-primary' : 'ring-border'
+        )}
+      >
+        <CircleCheck
+          className={cn(
+            'absolute right-0 top-0 size-6 -translate-y-1/2 translate-x-1/2 fill-primary stroke-white',
+            !checked && 'hidden'
+          )}
+        />
+        <div
+          className='flex h-[51px] w-full items-center justify-center overflow-hidden rounded-[6px] bg-muted'
+          style={{ fontFamily }}
+        >
+          <span className='text-xl font-semibold'>Ag</span>
+        </div>
+      </div>
+      <div className='mt-1 text-xs'>{label}</div>
+    </button>
+  )
+}
+
+/* ---- Main Component ---- */
 export const ThemeSettings = () => {
   const { preferences, updatePreference } = usePreferences()
 
   return (
-    <div className="space-y-8">
+    <div className='space-y-6'>
 
       {/* THEME */}
-      <div className="space-y-3 pb-6 border-b border-border">
-        <p className="text-sm font-medium tracking-tight">Theme</p>
-
-        <div className="grid grid-cols-3 gap-3">
-          {["system", "light", "dark"].map((theme) => (
-            <OptionCard
-              key={theme}
-              label={theme}
-              active={preferences.theme === theme}
-              onClick={() => updatePreference("theme", theme)}
-            >
-                <ThemePreview type={theme} />
-            </OptionCard>
+      <div>
+        <SectionTitle
+          title='Theme'
+          showReset={preferences.theme !== DEFAULTS.theme}
+          onReset={() => updatePreference('theme', DEFAULTS.theme)}
+        />
+        <div className='grid w-full grid-cols-3 gap-4'>
+          {[
+            { value: 'system', label: 'System', icon: IconThemeSystem },
+            { value: 'light', label: 'Light', icon: IconThemeLight },
+            { value: 'dark', label: 'Dark', icon: IconThemeDark },
+          ].map((item) => (
+            <RadioOptionItem
+              key={item.value}
+              label={item.label}
+              icon={item.icon}
+              checked={preferences.theme === item.value}
+              onSelect={() => updatePreference('theme', item.value)}
+              isTheme
+            />
           ))}
         </div>
       </div>
 
-      {/* SIDEBAR */}
-      <div className="space-y-3 pb-6 border-b border-border">
-        <p className="text-sm font-medium tracking-tight">Sidebar</p>
-
-        <div className="grid grid-cols-3 gap-3">
-          {["default", "inset", "floating"].map((variant) => (
-            <OptionCard
-              key={variant}
-              label={variant}
-              active={preferences.sidebar === variant}
-              onClick={() => updatePreference("sidebar", variant)}
-            >
-                <SidebarPreview type={variant} />
-
-            </OptionCard>
-          ))}
-        </div>
-      </div>
-
-      {/* LAYOUT */}
-      <div className="space-y-3 pb-6 border-b border-border">
-        <p className="text-sm font-medium tracking-tight">Layout</p>
-
-        <div className="grid grid-cols-3 gap-3">
-          {["default", "compact", "full"].map((layout) => (
-            <OptionCard
-              key={layout}
-              label={layout}
-              active={preferences.layout === layout}
-              onClick={() => updatePreference("layout", layout)}
-            >
-                <LayoutPreview type={layout} />
-
-            </OptionCard>
+      {/* FONT */}
+      <div>
+        <SectionTitle
+          title='Font'
+          showReset={preferences.font !== DEFAULTS.font}
+          onReset={() => updatePreference('font', DEFAULTS.font)}
+        />
+        <div className='grid w-full grid-cols-3 gap-4'>
+          {[
+            { value: 'inter', label: 'Inter', fontFamily: '"Inter", sans-serif' },
+            { value: 'manrope', label: 'Manrope', fontFamily: '"Manrope", sans-serif' },
+            { value: 'system', label: 'System', fontFamily: 'system-ui, -apple-system, sans-serif' },
+          ].map((item) => (
+            <FontOptionItem
+              key={item.value}
+              value={item.value}
+              label={item.label}
+              fontFamily={item.fontFamily}
+              checked={preferences.font === item.value}
+              onSelect={() => updatePreference('font', item.value)}
+            />
           ))}
         </div>
       </div>
 
       {/* DIRECTION */}
-      <div className="space-y-3">
-        <p className="text-sm font-medium tracking-tight">Direction</p>
-
-        <div className="grid grid-cols-2 gap-3">
-          {["ltr", "rtl"].map((dir) => (
-            <OptionCard
-              key={dir}
-              label={dir}
-              active={preferences.direction === dir}
-              onClick={() => updatePreference("direction", dir)}
-            >
-                <DirectionPreview type={dir} />
-
-            </OptionCard>
+      <div>
+        <SectionTitle
+          title='Direction'
+          showReset={preferences.direction !== DEFAULTS.direction}
+          onReset={() => updatePreference('direction', DEFAULTS.direction)}
+        />
+        <div className='grid w-full grid-cols-3 gap-4'>
+          {[
+            {
+              value: 'ltr',
+              label: 'Left to Right',
+              icon: (props: SVGProps<SVGSVGElement>) => <IconDir dir='ltr' {...props} />,
+            },
+            {
+              value: 'rtl',
+              label: 'Right to Left',
+              icon: (props: SVGProps<SVGSVGElement>) => <IconDir dir='rtl' {...props} />,
+            },
+          ].map((item) => (
+            <RadioOptionItem
+              key={item.value}
+              label={item.label}
+              icon={item.icon}
+              checked={preferences.direction === item.value}
+              onSelect={() => updatePreference('direction', item.value)}
+            />
           ))}
         </div>
       </div>
-
-      {/* RESET */}
-      <button
-        onClick={() => {
-          updatePreference("theme", "light")
-          updatePreference("sidebar", "default")
-          updatePreference("layout", "default")
-          updatePreference("direction", "ltr")
-        }}
-        className="w-full mt-6 text-sm text-destructive hover:underline cursor-pointer"
-      >
-        Reset to defaults
-      </button>
 
     </div>
   )

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/components/config-drawer.tsx)",
+      "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/components/theme-switch.tsx)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-theme-system.tsx)",
+      "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-theme-light.tsx)",
+      "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-theme-dark.tsx)",
+      "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-sidebar-inset.tsx)",
+      "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-sidebar-floating.tsx)",
+      "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-sidebar-sidebar.tsx)",
+      "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-layout-default.tsx)",
+      "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-layout-compact.tsx)",
+      "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-layout-full.tsx)",
+      "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-dir.tsx)"
+    ]
+  }
+}

@@ -26,6 +26,7 @@ const defaultPreferences: Preferences = {
 type PreferencesContextType = {
   preferences: Preferences
   updatePreference: (key: keyof Preferences, value: any) => void
+  resetPreferences: () => void
 }
 
 const PreferencesContext = createContext<PreferencesContextType | null>(null)
@@ -50,10 +51,11 @@ export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
      Update Function
   ========================================= */
   const updatePreference = (key: keyof Preferences, value: any) => {
-    setPreferences((prev) => ({
-      ...prev,
-      [key]: value,
-    }))
+    setPreferences((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const resetPreferences = () => {
+    setPreferences(defaultPreferences)
   }
 
   /* =========================================
@@ -62,16 +64,20 @@ export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const root = document.documentElement
 
-    root.classList.remove("light", "dark")
-
-    if (preferences.theme === "dark") {
-      root.classList.add("dark")
-    } else if (preferences.theme === "light") {
-      root.classList.add("light")
-    } else {
-      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-      root.classList.add(isDark ? "dark" : "light")
+    if (preferences.theme !== "system") {
+      root.classList.remove("light", "dark")
+      root.classList.add(preferences.theme)
+      return
     }
+
+    const media = window.matchMedia("(prefers-color-scheme: dark)")
+    const apply = () => {
+      root.classList.remove("light", "dark")
+      root.classList.add(media.matches ? "dark" : "light")
+    }
+    apply()
+    media.addEventListener("change", apply)
+    return () => media.removeEventListener("change", apply)
   }, [preferences.theme])
 
   /* =========================================
@@ -100,6 +106,7 @@ export const PreferencesProvider = ({ children }: { children: ReactNode }) => {
       value={{
         preferences,
         updatePreference,
+        resetPreferences,
       }}
     >
       {children}
@@ -119,3 +126,5 @@ export const usePreferences = () => {
 
   return context
 }
+
+export { defaultPreferences }

@@ -114,3 +114,24 @@ export const DirectionPreview = ({ type }: { type: string }) => {
     </div>
   )
 }
+
+/* =========================================
+   FONT PREVIEWS
+========================================= */
+const fontFamilyMap: Record<string, string> = {
+  inter: '"Inter", sans-serif',
+  manrope: '"Manrope", sans-serif',
+  system: 'system-ui, -apple-system, sans-serif',
+}
+
+export const FontPreview = ({ type }: { type: string }) => {
+  return (
+    <div
+      className="h-16 rounded-md border bg-muted flex flex-col items-center justify-center gap-0.5"
+      style={{ fontFamily: fontFamilyMap[type] }}
+    >
+      <span className="text-base font-semibold text-foreground leading-none">Ag</span>
+      <span className="text-[10px] text-muted-foreground capitalize">{type}</span>
+    </div>
+  )
+}
