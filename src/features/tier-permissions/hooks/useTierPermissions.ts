@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 import {
   getTiers,
-  getPermissions,
   getTierPermissions,
   saveTierPermissions,
+  type TierPermissionDto,
 } from "../api/tier.api"
 import { toast } from "sonner"
 import type { FeatureSection } from "@/shared/config/permissions"
@@ -16,7 +16,30 @@ type TierPermissionsState = Record<
   }
 >
 
+type VersionMap = {
+  standard: Record<string, number>
+  enterprise: Record<string, number>
+}
+
 type CreateEmptyState = () => TierPermissionsState
+
+const DEFAULT_VERSION = 1
+
+const isConflictError = (err: unknown): boolean => {
+  if (err && typeof err === "object") {
+    const axiosErr = err as { response?: { status?: number } }
+    return axiosErr.response?.status === 409
+  }
+  return false
+}
+
+const getErrorMessage = (err: unknown, fallback: string): string => {
+  if (err && typeof err === "object") {
+    const axiosErr = err as { message?: string }
+    return axiosErr.message || fallback
+  }
+  return fallback
+}
 
 // Sort arrays before comparing so toggle-off → toggle-on doesn't produce a false dirty signal
 const sortedStateJson = (state: TierPermissionsState): string =>
@@ -32,6 +55,8 @@ const sortedStateJson = (state: TierPermissionsState): string =>
     )
   )
 
+const createEmptyVersionMap = (): VersionMap => ({ standard: {}, enterprise: {} })
+
 export const useTierPermissions = (
   features: FeatureSection[],
   createEmptyState: CreateEmptyState
@@ -42,18 +67,53 @@ export const useTierPermissions = (
   const [saving, setSaving] = useState(false)
 
   const [tierIds, setTierIds] = useState<{ standard?: number; enterprise?: number }>({})
-  const [permissionMap, setPermissionMap] = useState<Map<string, number>>(new Map())
+  const [versions, setVersions] = useState<VersionMap>(createEmptyVersionMap)
+  const [initialVersions, setInitialVersions] = useState<VersionMap>(createEmptyVersionMap)
 
   // Stable refs so the effect doesn't need to re-run when the caller re-renders
   const featuresRef = useRef(features)
   const createEmptyStateRef = useRef(createEmptyState)
 
+  const loadPermissions = async (standardId: number, enterpriseId: number) => {
+    const [stdItems, entItems] = await Promise.all([
+      getTierPermissions(standardId),
+      getTierPermissions(enterpriseId),
+    ])
+
+    const newState = createEmptyStateRef.current()
+    const newVersions: VersionMap = { standard: {}, enterprise: {} }
+
+    const applyItems = (items: TierPermissionDto[], tier: "standard" | "enterprise") => {
+      items.forEach(({ permissionCode, isAllowed, version }) => {
+        newVersions[tier][permissionCode] = version
+        if (isAllowed) {
+          featuresRef.current.forEach(section => {
+            section.items.forEach(feature => {
+              if (feature.permissions.some(p => p.code === permissionCode)) {
+                if (!newState[feature.id][tier].includes(permissionCode)) {
+                  newState[feature.id][tier].push(permissionCode)
+                }
+              }
+            })
+          })
+        }
+      })
+    }
+
+    applyItems(stdItems, "standard")
+    applyItems(entItems, "enterprise")
+
+    setData(newState)
+    setInitial(newState)
+    setVersions(newVersions)
+    setInitialVersions(newVersions)
+  }
+
   useEffect(() => {
     const load = async () => {
       setLoading(true)
       try {
-        // Fetch tiers and permissions in parallel
-        const [tiers, permissions] = await Promise.all([getTiers(), getPermissions()])
+        const tiers = await getTiers()
 
         const standard = tiers.find(t => t.name.toLowerCase().includes("standard"))
         const enterprise = tiers.find(t => t.name.toLowerCase().includes("enterprise"))
@@ -63,41 +123,8 @@ export const useTierPermissions = (
           return
         }
 
-        setTierIds({
-          standard: standard.id,
-          enterprise: enterprise.id,
-        })
-
-        const map = new Map<string, number>()
-        permissions.forEach(p => map.set(p.code, p.id))
-        setPermissionMap(map)
-
-        const [stdIds, entIds] = await Promise.all([
-          getTierPermissions(standard.id),
-          getTierPermissions(enterprise.id),
-        ])
-
-        const getCodes = (ids: number[]) =>
-          permissions
-            .filter(p => ids.includes(p.id))
-            .map(p => p.code)
-
-        const stdCodes = getCodes(stdIds)
-        const entCodes = getCodes(entIds)
-
-        const newState = createEmptyStateRef.current()
-
-        featuresRef.current.forEach(section => {
-          section.items.forEach(feature => {
-            const codes = feature.permissions.map(p => p.code)
-
-            newState[feature.id].standard = codes.filter(c => stdCodes.includes(c))
-            newState[feature.id].enterprise = codes.filter(c => entCodes.includes(c))
-          })
-        })
-
-        setData(newState)
-        setInitial(newState)
+        setTierIds({ standard: standard.id, enterprise: enterprise.id })
+        await loadPermissions(standard.id, enterprise.id)
       } catch (err) {
         console.error(err)
         toast.error("Failed to load tier permissions")
@@ -109,6 +136,25 @@ export const useTierPermissions = (
     load()
   }, [])
 
+  const buildPermissionList = (tier: "standard" | "enterprise", versionMap: VersionMap): TierPermissionDto[] => {
+    const selectedCodes = new Set(Object.values(data).flatMap(f => f[tier]))
+    const items: TierPermissionDto[] = []
+
+    featuresRef.current.forEach(section => {
+      section.items.forEach(feature => {
+        feature.permissions.forEach(perm => {
+          items.push({
+            permissionCode: perm.code,
+            isAllowed: selectedCodes.has(perm.code),
+            version: versionMap[tier][perm.code] ?? DEFAULT_VERSION,
+          })
+        })
+      })
+    })
+
+    return items
+  }
+
   const save = async () => {
     if (!tierIds.standard || !tierIds.enterprise) return
 
@@ -117,17 +163,9 @@ export const useTierPermissions = (
     setLoading(true)
 
     try {
-      const mapCodesToIds = (codes: string[]): number[] =>
-        codes
-          .map(c => permissionMap.get(c))
-          .filter((id): id is number => id !== undefined)
-
-      const stdCodes = Object.values(data).flatMap(f => f.standard)
-      const entCodes = Object.values(data).flatMap(f => f.enterprise)
-
       const [stdResult, entResult] = await Promise.allSettled([
-        saveTierPermissions(tierIds.standard, mapCodesToIds([...new Set(stdCodes)])),
-        saveTierPermissions(tierIds.enterprise, mapCodesToIds([...new Set(entCodes)])),
+        saveTierPermissions(tierIds.standard, buildPermissionList("standard", versions)),
+        saveTierPermissions(tierIds.enterprise, buildPermissionList("enterprise", versions)),
       ])
 
       toast.dismiss(toastId)
@@ -136,7 +174,19 @@ export const useTierPermissions = (
       const entFailed = entResult.status === "rejected"
 
       if (stdFailed || entFailed) {
-        if (stdFailed && entFailed) {
+        const stdConflict = stdFailed && isConflictError(stdResult.reason)
+        const entConflict = entFailed && isConflictError((entResult as PromiseRejectedResult).reason)
+        const conflictReason = stdConflict
+          ? stdResult.reason
+          : entConflict
+            ? (entResult as PromiseRejectedResult).reason
+            : null
+
+        if (conflictReason) {
+          toast.error(getErrorMessage(conflictReason, "Concurrent modification detected. Please refresh and retry."), {
+            action: { label: "Refresh", onClick: () => window.location.reload() },
+          })
+        } else if (stdFailed && entFailed) {
           toast.error("Failed to save changes for both tiers")
         } else if (stdFailed) {
           toast.error("Failed to save Standard tier — Enterprise was saved successfully")
@@ -144,8 +194,8 @@ export const useTierPermissions = (
           toast.error("Failed to save Enterprise tier — Standard was saved successfully")
         }
       } else {
-        setInitial(data)
         toast.success("Permissions updated successfully")
+        await loadPermissions(tierIds.standard, tierIds.enterprise)
       }
     } catch (err) {
       toast.dismiss(toastId)
@@ -159,6 +209,7 @@ export const useTierPermissions = (
   const reset = () => {
     if (initial !== null) {
       setData(initial)
+      setVersions(initialVersions)
     }
   }
 

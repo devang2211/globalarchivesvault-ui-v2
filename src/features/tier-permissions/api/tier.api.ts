@@ -7,9 +7,10 @@ export type TierDto = {
   name: string
 }
 
-export type PermissionDto = {
-  id: number
-  code: string
+export type TierPermissionDto = {
+  permissionCode: string
+  isAllowed: boolean
+  version: number
 }
 
 export const getTiers = async () => {
@@ -17,20 +18,15 @@ export const getTiers = async () => {
   return unwrap(res)
 }
 
-export const getPermissions = async () => {
-  const res = await api.get<ApiResponse<PermissionDto[]>>("/api/permission")
-  return unwrap(res)
-}
-
 export const getTierPermissions = async (tierId: number) => {
-  const res = await api.get<ApiResponse<number[]>>(`/api/tier-permissions/${tierId}`)
+  const res = await api.get<ApiResponse<TierPermissionDto[]>>(`/api/tier-permissions/${tierId}`)
   return unwrap(res)
 }
 
-export const saveTierPermissions = async (tierId: number, permissionIds: number[]) => {
+export const saveTierPermissions = async (tierId: number, permissions: TierPermissionDto[]) => {
   const res = await api.post<ApiResponse<unknown>>("/api/tier-permissions/configure", {
     tierId,
-    permissionIds,
+    permissions,
   })
   return unwrap(res)
 }

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { RotateCcw, Save } from "lucide-react"
 import { Fragment } from "react"
@@ -85,8 +86,9 @@ export default function TierPermissionsPage() {
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
           <span className="mt-0.5 w-1 self-stretch rounded-full bg-primary/70 shrink-0" />
-          <div>
-            <h1 className="text-lg font-semibold">Pricing Tier Configuration</h1>
+          {/* fix #5 — text-xl; fix #3 — space-y-1 spacing token */}
+          <div className="space-y-1">
+            <h1 className="text-xl font-semibold">Pricing Tier Configuration</h1>
             <p className="text-sm text-muted-foreground">
               Configure access across Standard and Enterprise tiers
             </p>
@@ -105,7 +107,7 @@ export default function TierPermissionsPage() {
         )}
       </div>
 
-      {/* Table + footer in a single scrollable column — buttons sit immediately after table */}
+      {/* Table + footer */}
       <div className="flex-1 overflow-auto">
         <div className="flex flex-col gap-4">
 
@@ -118,8 +120,8 @@ export default function TierPermissionsPage() {
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">Enterprise</span>
             </div>
 
-            {/* Body — disabled while submitting */}
-            <div className={cn("divide-y divide-border/30", loading && "pointer-events-none opacity-50")}>
+            {/* Body — fix #6: no CSS overlay; Switch disabled prop handles loading state */}
+            <div className="divide-y divide-border/30">
               {features.map(section => (
                 <Fragment key={section.section}>
 
@@ -147,7 +149,8 @@ export default function TierPermissionsPage() {
                           )}
                           <span className="absolute left-[17px] top-1/2 h-px w-3 bg-foreground/20" />
 
-                          <div className="flex items-center pl-[32px]">
+                          {/* fix #8 — pl-8 replaces pl-[32px] */}
+                          <div className="flex items-center pl-8">
                             <span className="text-sm font-normal text-foreground/70">
                               {feature.label}
                             </span>
@@ -165,9 +168,9 @@ export default function TierPermissionsPage() {
                           return (
                             <div
                               key={perm.code}
-                              className="group relative grid grid-cols-[1fr_96px_96px] items-center px-4 py-2 hover:bg-primary/5 transition-colors"
+                              className="group relative grid grid-cols-[1fr_96px_96px] items-center px-4 py-2 hover:bg-muted/50 transition-colors"
                             >
-                              {/* Row highlight accent — appears on hover */}
+                              {/* Row highlight accent */}
                               <span className="absolute left-0 inset-y-0 w-0.5 bg-primary scale-y-0 group-hover:scale-y-100 transition-transform origin-center rounded-r-full" />
 
                               {!isLastFeature && (
@@ -179,13 +182,16 @@ export default function TierPermissionsPage() {
                               )}
                               <span className="absolute left-[29px] top-1/2 h-px w-3 bg-foreground/15" />
 
-                              <span className="text-sm text-foreground/50 pl-[44px]">
+                              {/* fix #8 — pl-11 replaces pl-[44px] */}
+                              <span className="text-sm text-foreground/50 pl-11">
                                 {perm.label}
                               </span>
 
                               <div className="flex justify-center">
+                                {/* fix #6 — disabled prop on Switch */}
                                 <Switch
                                   checked={isStd}
+                                  disabled={loading}
                                   onCheckedChange={() => toggle(feature.id, "standard", perm.code)}
                                   className="cursor-pointer"
                                 />
@@ -194,6 +200,7 @@ export default function TierPermissionsPage() {
                               <div className="flex justify-center">
                                 <Switch
                                   checked={isEnt}
+                                  disabled={loading}
                                   onCheckedChange={() => toggle(feature.id, "enterprise", perm.code)}
                                   className="cursor-pointer"
                                 />
@@ -212,35 +219,25 @@ export default function TierPermissionsPage() {
 
           </div>
 
-          {/* Footer — always visible, immediately after table */}
+          {/* Footer */}
           <div className="flex items-center justify-end gap-3">
-
-            <button
+            <Button
               onClick={handleSave}
               disabled={loading}
-              className={cn(
-                "inline-flex items-center gap-2 px-6 py-2 rounded-md text-sm font-medium transition cursor-pointer",
-                "bg-primary text-primary-foreground hover:bg-primary/90",
-                "disabled:cursor-not-allowed disabled:opacity-60",
-              )}
+              className={cn("cursor-pointer", loading && "opacity-70 pointer-events-none")}
             >
-              <Save className="h-3.5 w-3.5" />
+              <Save className="h-4 w-4" />
               {saving ? "Saving..." : "Save Changes"}
-            </button>
-
-            <button
+            </Button>
+            <Button
+              variant="outline"
               onClick={reset}
               disabled={loading}
-              className={cn(
-                "inline-flex items-center gap-2 px-5 py-2 rounded-md text-sm font-medium transition cursor-pointer",
-                "border border-border bg-background hover:bg-muted",
-                "disabled:opacity-50 disabled:cursor-not-allowed",
-              )}
+              className={cn("cursor-pointer", loading && "opacity-70 pointer-events-none")}
             >
-              <RotateCcw className="h-3.5 w-3.5" />
+              <RotateCcw className="h-4 w-4" />
               Cancel
-            </button>
-
+            </Button>
           </div>
 
         </div>
