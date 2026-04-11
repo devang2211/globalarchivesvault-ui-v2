@@ -213,7 +213,7 @@ export const Sidebar = ({
 
         // Mobile: slide in/out via transform
         "fixed inset-y-0 left-0 z-50 w-72",
-        "transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+        "transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] [will-change:transform]",
         isOpen ? "translate-x-0" : "-translate-x-full",
 
         // Variant — separator div handles the default edge; floating uses a soft card shadow

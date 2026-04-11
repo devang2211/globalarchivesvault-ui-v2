@@ -53,7 +53,7 @@ function SheetContent({
         data-slot='sheet-content'
         className={cn(
           'fixed z-[60] flex flex-col gap-4 bg-background shadow-lg',
-          side === 'right' && 'inset-y-0 end-0 h-full w-3/4 border-s sm:max-w-sm',
+          side === 'right' && 'inset-y-0 end-0 h-full w-3/4 sm:max-w-sm',
           side === 'left' && 'inset-y-0 start-0 h-full w-3/4 border-e sm:max-w-sm',
           side === 'top' && 'inset-x-0 top-0 h-auto border-b',
           side === 'bottom' && 'inset-x-0 bottom-0 h-auto border-t',

@@ -99,13 +99,15 @@ export const AppLayout = () => {
         </div>
       </div>
 
-      {/* Mobile overlay */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px] lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+      {/* Mobile overlay — always mounted so it can fade out smoothly */}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-black/50 lg:hidden",
+          "transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          isSidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
+        onClick={() => setIsSidebarOpen(false)}
+      />
     </div>
   )
 }
