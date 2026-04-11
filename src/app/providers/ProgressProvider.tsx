@@ -25,14 +25,12 @@ export const ProgressProvider = ({ children }: { children: React.ReactNode }) =>
   useEffect(() => {
     startRouteProgress()
 
-    const handleLoad = () => {
+    if (document.readyState === "complete") {
       stopRouteProgress()
-    }
-
-    window.addEventListener("load", handleLoad)
-
-    return () => {
-      window.removeEventListener("load", handleLoad)
+    } else {
+      const handleLoad = () => stopRouteProgress()
+      window.addEventListener("load", handleLoad, { once: true })
+      return () => window.removeEventListener("load", handleLoad)
     }
   }, [])
 

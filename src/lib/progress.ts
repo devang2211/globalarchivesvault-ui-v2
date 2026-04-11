@@ -59,7 +59,8 @@ let apiCount = 0
 
 let startTime = 0
 let isStarted = false
-let apiTimeout: any
+let apiTimeout: ReturnType<typeof setTimeout> | null = null
+let stopTimeout: ReturnType<typeof setTimeout> | null = null
 
 NProgress.configure({
   showSpinner: false,
@@ -74,6 +75,11 @@ NProgress.configure({
 ========================= */
 export const startRouteProgress = () => {
   routeCount++
+
+  if (stopTimeout !== null) {
+    clearTimeout(stopTimeout)
+    stopTimeout = null
+  }
 
   if (!isStarted) {
     startTime = Date.now()
@@ -93,18 +99,26 @@ export const stopRouteProgress = () => {
 export const startApiProgress = () => {
   apiCount++
 
-  if (!isStarted && routeCount === 0) {
+  if (stopTimeout !== null) {
+    clearTimeout(stopTimeout)
+    stopTimeout = null
+  }
+
+  if (!isStarted && routeCount === 0 && apiTimeout === null) {
     apiTimeout = setTimeout(() => {
-      startTime = Date.now()
-      NProgress.start()
-      isStarted = true
+      apiTimeout = null
+      if (!isStarted) {
+        startTime = Date.now()
+        NProgress.start()
+        isStarted = true
+      }
     }, 80) // prevent flicker
   }
 }
 
 export const stopApiProgress = () => {
   apiCount = Math.max(apiCount - 1, 0)
-  clearTimeout(apiTimeout)
+  if (apiCount === 0) { clearTimeout(apiTimeout); apiTimeout = null }
   tryStop()
 }
 
@@ -116,7 +130,9 @@ const tryStop = () => {
     const elapsed = Date.now() - startTime
     const delay = Math.max(0, 300 - elapsed)
 
-    setTimeout(() => {
+    if (stopTimeout !== null) clearTimeout(stopTimeout)
+    stopTimeout = setTimeout(() => {
+      stopTimeout = null
       NProgress.done()
       isStarted = false
     }, delay)
