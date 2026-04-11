@@ -232,24 +232,31 @@ img {
   image-rendering: -webkit-optimize-contrast;
 }
 
-/* Compact sidebar scrollbar */
-.sidebar-scroll::-webkit-scrollbar {
+/* Global compact scrollbar */
+*::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
 
-.sidebar-scroll::-webkit-scrollbar-track {
+*::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.sidebar-scroll::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
   background: hsl(var(--border));
   border-radius: 9999px;
 }
 
-.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+*::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.4);
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+
+/* Keep as alias for backwards compat */
 .sidebar-scroll {
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--border)) transparent;
