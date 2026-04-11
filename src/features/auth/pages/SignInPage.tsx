@@ -3,6 +3,7 @@ import { LoginForm } from "../components/LoginForm"
 import { AuthLayout } from "@/app/layouts/AuthLayout"
 import type { LoginFormValues } from "../schema/login.schema"
 
+import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
 import { setAuth } from "@/shared/lib/auth"
@@ -10,6 +11,7 @@ import { setAuth } from "@/shared/lib/auth"
 export default function SignInPage() {
   const mutation = useLogin()
   const navigate = useNavigate()
+  const [submitFailed, setSubmitFailed] = useState(0)
 
   const handleSubmit = async (data: LoginFormValues) => {
     const toastId = toast.loading("Signing in...")
@@ -22,6 +24,7 @@ export default function SignInPage() {
     } catch (error) {
       toast.dismiss(toastId)
       toast.error(error instanceof Error ? error.message : "Unable to connect to server")
+      setSubmitFailed((n) => n + 1)
     }
   }
 
@@ -55,6 +58,7 @@ export default function SignInPage() {
           <LoginForm
             onSubmit={handleSubmit}
             loading={mutation.isPending}
+            submitFailed={submitFailed}
           />
 
           {/* Footer */}

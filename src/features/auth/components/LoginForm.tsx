@@ -1,4 +1,6 @@
 import { LogIn } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { loginSchema, type LoginFormValues } from "../schema/login.schema"
@@ -18,17 +20,22 @@ import { PasswordInput } from "@/components/password-input"
 type Props = {
   onSubmit: (data: LoginFormValues) => void
   loading: boolean
+  submitFailed: number
 }
 
-export const LoginForm = ({ onSubmit, loading }: Props) => {
+export const LoginForm = ({ onSubmit, loading, submitFailed }: Props) => {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   })
 
+  useEffect(() => {
+    if (submitFailed > 0) form.setFocus("password")
+  }, [submitFailed])
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3" noValidate>
+      <form onSubmit={form.handleSubmit(onSubmit, () => form.setFocus("password"))} className="grid gap-3" noValidate>
         <FormField
           control={form.control}
           name="email"
@@ -39,6 +46,7 @@ export const LoginForm = ({ onSubmit, loading }: Props) => {
                 <Input
                   placeholder="name@example.com"
                   autoComplete="email"
+                  autoFocus
                   disabled={loading}
                   {...field}
                 />
@@ -72,9 +80,13 @@ export const LoginForm = ({ onSubmit, loading }: Props) => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="mt-2 cursor-pointer" disabled={loading}>
+        <Button
+          type="submit"
+          className={cn("mt-2 cursor-pointer", loading && "animate-pulse")}
+          disabled={loading}
+        >
           <LogIn />
-          Sign in
+          {loading ? "Signing in…" : "Sign in"}
         </Button>
       </form>
     </Form>
