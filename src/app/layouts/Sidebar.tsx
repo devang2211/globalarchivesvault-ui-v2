@@ -233,7 +233,7 @@ export const Sidebar = ({
       </div>
 
       {/* NAV */}
-      <div className="flex-1 overflow-y-auto px-2 py-3 space-y-4">
+      <div className="flex-1 overflow-y-auto scroll-smooth sidebar-scroll px-2 py-3 space-y-4">
         {filteredNavGroups.map((group: NavGroup) => (
           <div key={group.title}>
 
