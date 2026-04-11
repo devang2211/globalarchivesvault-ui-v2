@@ -33,7 +33,7 @@ export const ThemeSettingsDrawer = ({ open, onOpenChange }: Props) => {
         </div>
 
         <SheetFooter className='border-t border-border px-6 py-4'>
-          <Button variant='destructive' className='w-full' onClick={resetPreferences}>
+          <Button variant='destructive' className='w-full cursor-pointer' onClick={resetPreferences}>
             Reset
           </Button>
         </SheetFooter>

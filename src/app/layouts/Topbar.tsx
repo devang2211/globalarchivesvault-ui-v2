@@ -37,10 +37,7 @@ export const Topbar = ({ isCollapsed, onMenuClick, onCollapseToggle }: Props) =>
                   onClick={onCollapseToggle}
                   className="hidden lg:flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted cursor-pointer transition"
                 >
-                  <PanelLeft className={cn(
-                    "h-4 w-4 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                    isCollapsed && "rotate-180"
-                  )} />
+                  <PanelLeft className={cn("h-4 w-4", isCollapsed && "rotate-180")} />
                 </button>
               </Tooltip.Trigger>
               <Tooltip.Portal>
