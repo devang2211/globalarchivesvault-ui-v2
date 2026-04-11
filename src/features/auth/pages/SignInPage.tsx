@@ -1,6 +1,7 @@
 import { useLogin } from "../hooks/useLogin"
 import { LoginForm } from "../components/LoginForm"
 import { AuthLayout } from "@/app/layouts/AuthLayout"
+import type { LoginFormValues } from "../schema/login.schema"
 
 import { useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
@@ -10,17 +11,17 @@ export default function SignInPage() {
   const mutation = useLogin()
   const navigate = useNavigate()
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: LoginFormValues) => {
     const toastId = toast.loading("Signing in...")
 
     try {
       const authData = await mutation.mutateAsync(data)
       setAuth(authData)
-      toast.dismiss(toastId)
+      toast.success(`Welcome, ${authData.name}!`, { id: toastId })
       navigate({ to: "/dashboard" })
-    } catch (error: any) {
+    } catch (error) {
       toast.dismiss(toastId)
-      toast.error(error.message || "Unable to connect to server")
+      toast.error(error instanceof Error ? error.message : "Unable to connect to server")
     }
   }
 
@@ -59,13 +60,13 @@ export default function SignInPage() {
           {/* Footer */}
           <p className="text-xs text-muted-foreground text-center leading-relaxed">
             By clicking sign in, you agree to our{" "}
-            <span className="underline underline-offset-2 cursor-pointer">
+            <a href="/terms" className="underline underline-offset-2 hover:text-foreground transition-colors">
               Terms of Service
-            </span>{" "}
+            </a>{" "}
             and{" "}
-            <span className="underline underline-offset-2 cursor-pointer">
+            <a href="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">
               Privacy Policy
-            </span>
+            </a>
           </p>
 
         </div>
