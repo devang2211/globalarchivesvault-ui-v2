@@ -29,13 +29,32 @@ export const LoginForm = ({ onSubmit, loading, submitFailed }: Props) => {
     defaultValues: { email: "", password: "" },
   })
 
+  // On auth failure: clear password (security) and refocus
   useEffect(() => {
-    if (submitFailed > 0) form.setFocus("password")
+    if (submitFailed > 0) {
+      form.setValue("password", "", { shouldDirty: false, shouldValidate: false })
+      form.setFocus("password")
+    }
   }, [submitFailed])
+
+  // Browsers inject autofill without firing React's onChange, leaving RHF
+  // state stale. Read directly from the DOM on submit to capture autofilled
+  // values before RHF validates and calls onSubmit.
+  const handleSubmit = (e: { preventDefault(): void; currentTarget: HTMLFormElement }) => {
+    e.preventDefault()
+    const els = e.currentTarget.elements
+    const emailEl = els.namedItem("email") as HTMLInputElement | null
+    const passEl = els.namedItem("password") as HTMLInputElement | null
+
+    if (emailEl?.value) form.setValue("email", emailEl.value, { shouldDirty: true })
+    if (passEl?.value) form.setValue("password", passEl.value, { shouldDirty: true })
+
+    form.handleSubmit(onSubmit, () => form.setFocus("password"))()
+  }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit, () => form.setFocus("password"))} className="grid gap-3" noValidate>
+      <form onSubmit={handleSubmit} className="grid gap-3" noValidate>
         <FormField
           control={form.control}
           name="email"

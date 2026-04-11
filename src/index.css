@@ -120,15 +120,37 @@
   font-family: var(--font-sans) !important;
 } */
 
-/* 🔥 Autofill override (Chrome, Edge) */
+/* Autofill override — preserve shadcn input appearance */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px var(--background) inset !important;
   -webkit-text-fill-color: var(--foreground) !important;
   transition: background-color 9999s ease-in-out 0s;
-  border-color: var(--border) !important;
+  border-color: var(--input) !important;
+}
+
+/* Restore focus ring when autofilled + focused */
+input:-webkit-autofill:focus,
+input:-webkit-autofill:focus-visible {
+  -webkit-box-shadow:
+    0 0 0 1000px var(--background) inset,
+    0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent) !important;
+  border-color: var(--ring) !important;
+}
+
+/* Dark mode: match actual rendered bg (bg-input/30 over --background) */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px color-mix(in oklch, var(--input) 30%, var(--background)) inset !important;
+}
+
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:focus-visible {
+  -webkit-box-shadow:
+    0 0 0 1000px color-mix(in oklch, var(--input) 30%, var(--background)) inset,
+    0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent) !important;
 }
 
 /* Hide browser password reveal (Edge, IE) */

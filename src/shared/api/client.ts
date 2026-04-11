@@ -32,6 +32,10 @@ api.interceptors.response.use(
   (error) => {
     stopApiProgress()
 
+    // Prefer the API's own error message over Axios's generic HTTP status message
+    const apiMessage = error.response?.data?.error?.message
+    if (apiMessage) error.message = apiMessage
+
     const status = error.response?.status
     const isSignInCall = error.config?.url?.includes("/auth/sign-in")
     const isSignOutCall = error.config?.url?.includes("/auth/sign-out")
