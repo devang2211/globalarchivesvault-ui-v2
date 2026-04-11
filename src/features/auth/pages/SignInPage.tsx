@@ -23,34 +23,38 @@ export default function SignInPage() {
       navigate({ to: "/dashboard" })
     } catch (error) {
       toast.dismiss(toastId)
-      toast.error(error instanceof Error ? error.message : "Unable to connect to server")
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Unable to connect to server"
+      )
       setSubmitFailed((n) => n + 1)
     }
   }
 
   return (
     <AuthLayout>
-      <div className="space-y-10 text-center">
+      <div className="space-y-8">
 
         {/* Logo */}
         <div className="flex justify-center">
           <img
             src="/logo.svg"
             alt="Logo"
-            className="h-10 w-auto"
+            className="h-9 w-auto"
           />
         </div>
 
         {/* Card */}
-        <div className="bg-background border border-border rounded-lg shadow-sm p-7 space-y-6 text-left">
+        <div className="bg-background border border-border rounded-lg shadow-sm px-8 py-8 space-y-6">
 
           {/* Header */}
           <div className="space-y-1.5">
             <h1 className="text-lg font-semibold tracking-tight">
-              Sign in
+              Secure Access to Records
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Enter your email and password below to log into your account
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Sign in to access your organization's records and compliance workspace
             </p>
           </div>
 
@@ -74,6 +78,7 @@ export default function SignInPage() {
           </p>
 
         </div>
+
       </div>
     </AuthLayout>
   )

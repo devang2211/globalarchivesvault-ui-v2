@@ -54,7 +54,8 @@ export const LoginForm = ({ onSubmit, loading, submitFailed }: Props) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit} className="grid gap-3" noValidate>
+      <form onSubmit={handleSubmit} className="grid gap-4" noValidate>
+        {/* Email */}
         <FormField
           control={form.control}
           name="email"
@@ -63,7 +64,7 @@ export const LoginForm = ({ onSubmit, loading, submitFailed }: Props) => {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="name@example.com"
+                  placeholder="name@organization.com"
                   autoComplete="email"
                   autoFocus
                   disabled={loading}
@@ -74,6 +75,8 @@ export const LoginForm = ({ onSubmit, loading, submitFailed }: Props) => {
             </FormItem>
           )}
         />
+
+        {/* Password */}
         <FormField
           control={form.control}
           name="password"
@@ -82,7 +85,7 @@ export const LoginForm = ({ onSubmit, loading, submitFailed }: Props) => {
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <PasswordInput
-                  placeholder="********"
+                  placeholder="••••••••"
                   autoComplete="current-password"
                   disabled={loading}
                   {...field}
@@ -92,21 +95,23 @@ export const LoginForm = ({ onSubmit, loading, submitFailed }: Props) => {
               {/* TODO: switch to <Link to="/forgot-password"> once that route is created */}
               <a
                 href="/forgot-password"
-                className="absolute end-0 -top-0.5 text-sm font-medium text-muted-foreground hover:opacity-75"
+                className="absolute end-0 -top-0.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 Forgot password?
               </a>
             </FormItem>
           )}
         />
+
         <Button
           type="submit"
-          className={cn("mt-2 cursor-pointer", loading && "animate-pulse")}
+          className={cn("mt-1 w-full cursor-pointer", loading && "opacity-70 pointer-events-none")}
           disabled={loading}
         >
-          <LogIn />
-          {loading ? "Signing in…" : "Sign in"}
+          <LogIn className="h-4 w-4" />
+          {loading ? "Signing in…" : "Sign In"}
         </Button>
+
       </form>
     </Form>
   )
