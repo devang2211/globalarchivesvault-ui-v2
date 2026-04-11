@@ -54,11 +54,11 @@ export const UserMenu = () => {
         {/* LOGOUT */}
         <DropdownMenu.Item
           onSelect={() => {
+            signOutMutation.mutateAsync().catch(() => {})
             clearAuth()
             queryClient.clear()
             navigate({ to: "/sign-in" })
             toast.success("You've been signed out!")
-            signOutMutation.mutateAsync().catch(() => {})
           }}
           className="
             flex items-center gap-2 px-3 py-2 text-sm rounded-md
