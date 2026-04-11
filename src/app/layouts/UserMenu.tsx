@@ -27,6 +27,7 @@ export const UserMenu = () => {
         </button>
       </DropdownMenu.Trigger>
 
+      <DropdownMenu.Portal>
       <DropdownMenu.Content
         align="end"
         sideOffset={8}
@@ -71,6 +72,7 @@ export const UserMenu = () => {
           Sign out
         </DropdownMenu.Item>
       </DropdownMenu.Content>
+      </DropdownMenu.Portal>
     </DropdownMenu.Root>
   )
 }

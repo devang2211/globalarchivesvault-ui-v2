@@ -124,8 +124,8 @@ export default function TierPermissionsPage() {
               {features.map(section => (
                 <Fragment key={section.section}>
 
-                  {/* Section row */}
-                  <div className="grid grid-cols-[1fr_110px_110px] bg-muted/60 px-4 py-2.5 border-b border-border/40">
+                  {/* Section row — L0 */}
+                  <div className="grid grid-cols-[1fr_110px_110px] bg-muted/70 px-4 py-2.5 border-b border-border/40">
                     <div className="flex items-center gap-2">
                       <span className="h-4 w-0.5 rounded-full bg-primary/60" />
                       <span className="text-base font-medium text-foreground">
@@ -134,76 +134,57 @@ export default function TierPermissionsPage() {
                     </div>
                   </div>
 
-                  {section.items.map((feature, featureIdx) => {
-                    const isLastFeature = featureIdx === section.items.length - 1
+                  {section.items.map(feature => (
+                    <Fragment key={feature.id}>
 
-                    return (
-                      <Fragment key={feature.id}>
-
-                        {/* Feature row */}
-                        <div className="relative grid grid-cols-[1fr_110px_110px] bg-muted/20 px-4 py-2">
-                          <span className="absolute left-[17px] top-0 h-1/2 w-px bg-foreground/20" />
-                          {!isLastFeature && (
-                            <span className="absolute left-[17px] top-1/2 h-1/2 w-px bg-foreground/20" />
-                          )}
-                          <span className="absolute left-[17px] top-1/2 h-px w-3 bg-foreground/20" />
-                          <div className="flex items-center pl-8">
-                            <span className="text-sm font-normal text-foreground/70">
-                              {feature.label}
-                            </span>
-                          </div>
+                      {/* Feature row — L1 */}
+                      <div className="grid grid-cols-[1fr_110px_110px] bg-muted/35 px-4 py-2">
+                        <div className="flex items-center pl-5">
+                          <span className="text-sm font-normal text-foreground/70">
+                            {feature.label}
+                          </span>
                         </div>
+                      </div>
 
-                        {/* Permission rows */}
-                        {feature.permissions.map((perm, permIdx) => {
-                          const isLastPerm = permIdx === feature.permissions.length - 1
-                          const isStd = data[feature.id]?.standard.includes(perm.code) ?? false
-                          const isEnt = data[feature.id]?.enterprise.includes(perm.code) ?? false
+                      {/* Permission rows — L2 */}
+                      {feature.permissions.map(perm => {
+                        const isStd = data[feature.id]?.standard.includes(perm.code) ?? false
+                        const isEnt = data[feature.id]?.enterprise.includes(perm.code) ?? false
 
-                          return (
-                            <div
-                              key={perm.code}
-                              className="group relative grid grid-cols-[1fr_110px_110px] items-center px-4 py-2 hover:bg-muted/50 transition-colors"
-                            >
-                              <span className="absolute left-0 inset-y-0 w-0.5 bg-primary scale-y-0 group-hover:scale-y-100 transition-transform origin-center rounded-r-full" />
+                        return (
+                          <div
+                            key={perm.code}
+                            className="group relative grid grid-cols-[1fr_110px_110px] items-center px-4 py-2 hover:bg-muted/50 transition-colors"
+                          >
+                            <span className="absolute left-0 inset-y-0 w-0.5 bg-primary scale-y-0 group-hover:scale-y-100 transition-transform origin-center rounded-r-full" />
 
-                              {!isLastFeature && (
-                                <span className="absolute left-[17px] inset-y-0 w-px bg-foreground/15" />
-                              )}
-                              <span className="absolute left-[29px] top-0 h-1/2 w-px bg-foreground/15" />
-                              {!isLastPerm && (
-                                <span className="absolute left-[29px] top-1/2 h-1/2 w-px bg-foreground/15" />
-                              )}
-                              <span className="absolute left-[29px] top-1/2 h-px w-3 bg-foreground/15" />
+                            <span className="text-sm text-foreground/80 pl-10">
+                              {perm.label}
+                            </span>
 
-                              <span className="text-sm text-foreground/80 pl-11">
-                                {perm.label}
-                              </span>
-
-                              <div className="flex justify-center">
-                                <Switch
-                                  checked={isStd}
-                                  disabled={loading}
-                                  onCheckedChange={() => toggle(feature.id, "standard", perm.code)}
-                                  className="cursor-pointer"
-                                />
-                              </div>
-
-                              <div className="flex justify-center">
-                                <Switch
-                                  checked={isEnt}
-                                  disabled={loading}
-                                  onCheckedChange={() => toggle(feature.id, "enterprise", perm.code)}
-                                  className="cursor-pointer"
-                                />
-                              </div>
+                            <div className="flex justify-center">
+                              <Switch
+                                checked={isStd}
+                                disabled={loading}
+                                onCheckedChange={() => toggle(feature.id, "standard", perm.code)}
+                                className="cursor-pointer"
+                              />
                             </div>
-                          )
-                        })}
 
-                      </Fragment>
-                    )
-                  })}
+                            <div className="flex justify-center">
+                              <Switch
+                                checked={isEnt}
+                                disabled={loading}
+                                onCheckedChange={() => toggle(feature.id, "enterprise", perm.code)}
+                                className="cursor-pointer"
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
+
+                    </Fragment>
+                  ))}
 
                 </Fragment>
               ))}
