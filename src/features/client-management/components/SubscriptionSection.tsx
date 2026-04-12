@@ -23,6 +23,11 @@ export const SubscriptionSection = () => {
   const [tiers, setTiers] = useState<Tier[]>([])
   const [openDate, setOpenDate] = useState(false)
 
+  const handleDateOpenChange = (open: boolean, onBlur: () => void) => {
+    setOpenDate(open)
+    if (!open) onBlur()
+  }
+
   const form = useFormContext<ClientDetailsForm>()
 
   useEffect(() => {
@@ -44,18 +49,21 @@ export const SubscriptionSection = () => {
       <FormField
         control={form.control}
         name="tierId"
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <FormItem>
             <FormLabel>
               Pricing Tier <span className="text-destructive">*</span>
             </FormLabel>
             <FormControl>
-              <div className="inline-flex w-full rounded-md border border-border overflow-hidden">
+              <div className={cn(
+                "inline-flex w-full rounded-md border overflow-hidden",
+                fieldState.invalid ? "border-destructive" : "border-border"
+              )}>
                 {tiers.map((tier) => (
                   <button
                     key={tier.id}
                     type="button"
-                    onClick={() => field.onChange(tier.id)}
+                    onClick={() => { field.onChange(tier.id); field.onBlur() }}
                     className={cn(
                       "flex-1 px-3 py-2 text-sm font-medium transition cursor-pointer",
                       "border-r last:border-r-0 border-border",
@@ -78,17 +86,20 @@ export const SubscriptionSection = () => {
       <FormField
         control={form.control}
         name="startDate"
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <FormItem>
             <FormLabel>
               Start Date <span className="text-destructive">*</span>
             </FormLabel>
             <FormControl>
-              <Popover.Root open={openDate} onOpenChange={setOpenDate}>
+              <Popover.Root open={openDate} onOpenChange={(open) => handleDateOpenChange(open, field.onBlur)}>
                 <Popover.Trigger asChild>
                   <button
                     type="button"
-                    className="h-9 w-full flex items-center justify-between rounded-md border border-border px-3 text-sm bg-background hover:bg-muted transition cursor-pointer"
+                    className={cn(
+                      "h-9 w-full flex items-center justify-between rounded-md border px-3 text-sm bg-background hover:bg-muted transition cursor-pointer",
+                      fieldState.invalid ? "border-destructive" : "border-border"
+                    )}
                   >
                     {field.value ? (
                       <span>{format(new Date(field.value), "MM/dd/yyyy")}</span>
@@ -111,6 +122,7 @@ export const SubscriptionSection = () => {
                       onSelect={(date) => {
                         if (!date) return
                         field.onChange(date.toISOString())
+                        field.onBlur()
                         setOpenDate(false)
                       }}
                       initialFocus

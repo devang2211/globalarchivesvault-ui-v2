@@ -19,6 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 
+import { cn } from "@/lib/utils"
 import api from "@/shared/api/client"
 import type { ClientDetailsForm } from "../schema/onboarding.schema"
 
@@ -55,10 +56,11 @@ export const ComplianceSection = () => {
     <div className="space-y-5">
 
       {/* TAXONOMY LEVEL 2 — multilevel combobox */}
+      <div id="field-taxonomyLevel2Id" tabIndex={-1} className="outline-none">
       <FormField
         control={form.control}
         name="taxonomyLevel2Id"
-        render={({ field }) => {
+        render={({ field, fieldState }) => {
           const selectedChild = industries
             .flatMap((g) => g.children)
             .find((c) => c.id === field.value)
@@ -69,13 +71,22 @@ export const ComplianceSection = () => {
 
           return (
             <FormItem>
-              <FormLabel>Industry / Institution</FormLabel>
+              <FormLabel>Industry / Institution <span className="text-destructive">*</span></FormLabel>
               <FormControl>
-                <Popover.Root open={openIndustry} onOpenChange={setOpenIndustry}>
+                <Popover.Root
+                  open={openIndustry}
+                  onOpenChange={(open) => {
+                    setOpenIndustry(open)
+                    if (!open) field.onBlur()
+                  }}
+                >
                   <Popover.Trigger asChild>
                     <button
                       type="button"
-                      className="h-9 w-full flex items-center justify-between rounded-md border border-border px-3 text-sm bg-background hover:bg-muted transition"
+                      className={cn(
+                        "h-9 w-full flex items-center justify-between rounded-md border px-3 text-sm bg-background hover:bg-muted transition",
+                        fieldState.invalid ? "border-destructive" : "border-border"
+                      )}
                     >
                       <span className="truncate text-left">
                         {selectedChild
@@ -103,6 +114,7 @@ export const ComplianceSection = () => {
                                   key={child.id}
                                   onSelect={() => {
                                     field.onChange(child.id)
+                                    field.onBlur()
                                     setOpenIndustry(false)
                                   }}
                                   className="pl-5"
@@ -126,23 +138,34 @@ export const ComplianceSection = () => {
           )
         }}
       />
+      </div>
 
       {/* REGULATORY FRAMEWORKS — multi-select with chips */}
+      <div id="field-regulatoryFrameworkIds" tabIndex={-1} className="outline-none">
       <FormField
         control={form.control}
         name="regulatoryFrameworkIds"
-        render={({ field }) => {
+        render={({ field, fieldState }) => {
           const selected: number[] = field.value ?? []
 
           return (
             <FormItem>
-              <FormLabel>Regulatory Frameworks</FormLabel>
+              <FormLabel>Regulatory Frameworks <span className="text-destructive">*</span></FormLabel>
               <FormControl>
-                <Popover.Root open={openFramework} onOpenChange={setOpenFramework}>
+                <Popover.Root
+                  open={openFramework}
+                  onOpenChange={(open) => {
+                    setOpenFramework(open)
+                    if (!open) field.onBlur()
+                  }}
+                >
                   <Popover.Trigger asChild>
                     <button
                       type="button"
-                      className="w-full min-h-[36px] flex flex-wrap items-center gap-1.5 rounded-md border border-border px-2 py-1.5 text-sm bg-background hover:bg-muted transition"
+                      className={cn(
+                        "w-full min-h-[36px] flex flex-wrap items-center gap-1.5 rounded-md border px-2 py-1.5 text-sm bg-background hover:bg-muted transition",
+                        fieldState.invalid ? "border-destructive" : "border-border"
+                      )}
                     >
                       {selected.length === 0 ? (
                         <span className="text-muted-foreground">Select frameworks</span>
@@ -161,6 +184,7 @@ export const ComplianceSection = () => {
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   field.onChange(selected.filter((x) => x !== id))
+                                  field.onBlur()
                                 }}
                               />
                             </span>
@@ -210,6 +234,7 @@ export const ComplianceSection = () => {
           )
         }}
       />
+      </div>
 
     </div>
   )

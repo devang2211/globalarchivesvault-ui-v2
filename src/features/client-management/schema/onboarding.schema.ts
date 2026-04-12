@@ -17,23 +17,40 @@ export const clientDetailsSchema = z.object({
     .or(z.literal("")),
 
   contactEmail: z
-    .string()
-    .email("Invalid email address")
-    .max(320, "Email must be 320 characters or less")
-    .optional()
-    .or(z.literal("")),
+    .union([
+      z.literal(""),
+      z.string()
+        .max(320, "Email must be 320 characters or less")
+        .refine(
+          (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+          { message: "Invalid email address" }
+        ),
+    ])
+    .optional(),
 
   contactPhone: z
-    .string()
-    .max(50, "Phone must be 50 characters or less")
-    .optional()
-    .or(z.literal("")),
+    .union([
+      z.literal(""),
+      z.string()
+        .regex(
+          /^(\+1[\s\-]?)?\(?\d{3}\)?[\s\-.]?\d{3}[\s\-.]?\d{4}$/,
+          "Invalid phone number"
+        )
+        .max(50, "Phone must be 50 characters or less"),
+    ])
+    .optional(),
 
   isActive: z.boolean(),
 
   // Compliance
-  taxonomyLevel2Id: z.number().nullable().optional(),
-  regulatoryFrameworkIds: z.array(z.number()).optional(),
+  taxonomyLevel2Id: z
+    .number({ message: "Industry / Institution is required" })
+    .nullable()
+    .refine((val) => val !== null, { message: "Industry / Institution is required" }),
+
+  regulatoryFrameworkIds: z
+    .array(z.number())
+    .min(1, "At least one regulatory framework is required"),
 
   // Subscription
   tierId: z.number({ message: "Pricing tier is required" }),

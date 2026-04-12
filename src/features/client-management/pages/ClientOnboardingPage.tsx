@@ -1,24 +1,65 @@
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useNavigate } from "@tanstack/react-router"
+import { Check } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 import { Form } from "@/components/ui/form"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
+import api from "@/shared/api/client"
 import { clientDetailsSchema, type ClientDetailsForm } from "../schema/onboarding.schema"
 import { ClientDetailsSection } from "../components/ClientDetailsSection"
 import { ComplianceSection } from "../components/ComplianceSection"
 import { SubscriptionSection } from "../components/SubscriptionSection"
 import { PlatformAccessSection } from "../components/PlatformAccessSection"
 
+/* ------------------------------------------------------------------ */
+/* STEPS CONFIG                                                         */
+/* ------------------------------------------------------------------ */
+
+const STEPS = [
+  {
+    id: "client-details",
+    title: "Client Details",
+    subtitle: "Basic organisation information",
+    fields: ["name", "contactEmail", "contactPhone"] as (keyof ClientDetailsForm)[],
+  },
+  {
+    id: "compliance",
+    title: "Compliance",
+    subtitle: "Industry & regulatory frameworks",
+    fields: ["taxonomyLevel2Id", "regulatoryFrameworkIds"] as (keyof ClientDetailsForm)[],
+  },
+  {
+    id: "subscription",
+    title: "Subscription",
+    subtitle: "Pricing tier & start date",
+    fields: ["tierId", "startDate"] as (keyof ClientDetailsForm)[],
+  },
+  {
+    id: "platform-access",
+    title: "Platform Access Setup",
+    subtitle: "Feature permissions for this client",
+    fields: [] as (keyof ClientDetailsForm)[],
+  },
+] as const
+
+type StepId = (typeof STEPS)[number]["id"]
+
+/* ------------------------------------------------------------------ */
+/* PAGE                                                                 */
+/* ------------------------------------------------------------------ */
+
 export const ClientOnboardingPage = () => {
+  const navigate = useNavigate()
+  const [activeStep, setActiveStep] = useState<StepId>("client-details")
+  const [tiers, setTiers] = useState<{ id: number; name: string }[]>([])
+
   const form = useForm<ClientDetailsForm>({
     resolver: zodResolver(clientDetailsSchema),
+    mode: "onTouched",
     defaultValues: {
       id: 0,
       name: "",
@@ -32,67 +73,228 @@ export const ClientOnboardingPage = () => {
     },
   })
 
+  useEffect(() => {
+    api.get("/api/tier")
+      .then((res) => setTiers(res.data.data || []))
+      .catch(() => {})
+  }, [])
+
+  const tierId = form.watch("tierId")
+  const selectedTierName = tiers.find((t) => t.id === tierId)?.name
+
+  const activeIndex = STEPS.findIndex((s) => s.id === activeStep)
+  const activeStepMeta = STEPS[activeIndex]
+  const isFirst = activeIndex === 0
+  const isLast = activeIndex === STEPS.length - 1
+
+  /* Navigate back via sidebar — completed steps only */
+  const goTo = (id: StepId) => {
+    const targetIndex = STEPS.findIndex((s) => s.id === id)
+    if (targetIndex < activeIndex) setActiveStep(id)
+  }
+
+  const goPrev = () => {
+    if (!isFirst) setActiveStep(STEPS[activeIndex - 1].id)
+  }
+
+  /* Validate current step fields before advancing */
+  const goNext = async () => {
+    if (isLast) return
+    const fields = [...STEPS[activeIndex].fields] as (keyof ClientDetailsForm)[]
+
+    if (fields.length === 0) {
+      setActiveStep(STEPS[activeIndex + 1].id)
+      return
+    }
+
+    // Trigger all fields in parallel — shows every error message at once
+    const results = await Promise.all(fields.map((f) => form.trigger(f as any)))
+    const allValid = results.every(Boolean)
+
+    if (allValid) {
+      setActiveStep(STEPS[activeIndex + 1].id)
+      return
+    }
+
+    // Focus first invalid — use trigger return value directly, no getFieldState
+    const firstInvalidIndex = results.findIndex((r) => !r)
+    if (firstInvalidIndex !== -1) {
+      const firstInvalidField = fields[firstInvalidIndex]
+      const el = document.getElementById(`field-${firstInvalidField}`)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" })
+        el.focus()
+      } else {
+        form.setFocus(firstInvalidField as any)
+      }
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* RENDER                                                             */
+  /* ---------------------------------------------------------------- */
+
   return (
     <div className="space-y-6">
 
       {/* PAGE HEADER */}
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Client Onboarding</h1>
-        <p className="text-sm text-muted-foreground">
-          Set up a new client account across all required areas
-        </p>
+      <div className="flex items-start gap-3">
+        <span className="mt-0.5 w-1 self-stretch rounded-full bg-primary/70 shrink-0" />
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold">Client Onboarding</h1>
+          <p className="text-sm text-muted-foreground">
+            Set up a new client account across all required areas
+          </p>
+        </div>
       </div>
 
       <Form {...form}>
-        <form className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <form className="flex gap-8 items-start" onSubmit={(e) => e.preventDefault()}>
 
-          {/* LEFT COLUMN */}
-          <div className="space-y-6">
+          {/* ------------------------------------------------------ */}
+          {/* LEFT — STEPPER SIDEBAR                                   */}
+          {/* ------------------------------------------------------ */}
+          <aside className="w-52 shrink-0">
+            <nav className="relative">
+              {STEPS.map((step, index) => {
+                const isActive = step.id === activeStep
+                const isCompleted = index < activeIndex
+                const isClickable = isCompleted
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Client Details</CardTitle>
-                <CardDescription>Basic information about the client organisation</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ClientDetailsSection />
-              </CardContent>
-            </Card>
+                return (
+                  <div key={step.id} className="relative flex gap-3">
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Compliance</CardTitle>
-                <CardDescription>Industry classification and regulatory frameworks</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ComplianceSection />
-              </CardContent>
-            </Card>
+                    {/* Connector line */}
+                    {index < STEPS.length - 1 && (
+                      <span
+                        className={cn(
+                          "absolute left-4 top-9 w-px bottom-0 -mb-1 transition-colors",
+                          isCompleted ? "bg-primary/40" : "bg-border/60"
+                        )}
+                      />
+                    )}
 
-          </div>
+                    {/* Step row */}
+                    <div
+                      onClick={() => isClickable && goTo(step.id)}
+                      className={cn(
+                        "flex gap-3 pb-7 text-left w-full",
+                        isClickable ? "cursor-pointer group" : "cursor-default"
+                      )}
+                    >
+                      {/* Circle */}
+                      <span
+                        className={cn(
+                          "relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-colors",
+                          isActive
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : isCompleted
+                            ? "border-primary/60 bg-primary/10 text-primary group-hover:bg-primary/20"
+                            : "border-border bg-background text-muted-foreground"
+                        )}
+                      >
+                        {isCompleted ? <Check className="h-3.5 w-3.5" /> : index + 1}
+                      </span>
 
-          {/* RIGHT COLUMN */}
-          <div className="space-y-6">
+                      {/* Label */}
+                      <div className="pt-1 min-w-0">
+                        <p
+                          className={cn(
+                            "text-sm font-medium leading-tight transition-colors",
+                            isActive
+                              ? "text-foreground"
+                              : isCompleted
+                              ? "text-foreground/70 group-hover:text-foreground"
+                              : "text-muted-foreground"
+                          )}
+                        >
+                          {step.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground/50 mt-0.5 leading-tight">
+                          {step.subtitle}
+                        </p>
+                      </div>
+                    </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Subscription</CardTitle>
-                <CardDescription>Pricing tier and contract start date</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <SubscriptionSection />
-              </CardContent>
-            </Card>
+                  </div>
+                )
+              })}
+            </nav>
+          </aside>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Platform Access Setup</CardTitle>
-                <CardDescription>Feature permissions granted to this client</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <PlatformAccessSection />
-              </CardContent>
-            </Card>
+          {/* ------------------------------------------------------ */}
+          {/* RIGHT — ACTIVE SECTION                                   */}
+          {/* ------------------------------------------------------ */}
+          <div className="flex-1 min-w-0 flex flex-col gap-6">
+
+            {/* Section card — soft border */}
+            <div className="rounded-xl border border-border/40 bg-card shadow-sm">
+
+              {/* Header */}
+              <div className="px-6 py-5 border-b border-border/30">
+                <div className="flex items-center gap-2.5">
+                  <h2 className="text-base font-semibold">{activeStepMeta.title}</h2>
+                </div>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {activeStepMeta.subtitle}
+                </p>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 py-5">
+                {activeStep === "client-details"  && <ClientDetailsSection />}
+                {activeStep === "compliance"       && <ComplianceSection />}
+                {activeStep === "subscription"     && <SubscriptionSection />}
+                {activeStep === "platform-access"  && <PlatformAccessSection tierName={selectedTierName} />}
+              </div>
+
+              {/* Required note */}
+              <div className="px-6 pb-4">
+                <p className="text-xs text-muted-foreground">
+                  Fields marked <span className="text-destructive font-medium">*</span> are required
+                </p>
+              </div>
+
+            </div>
+
+            {/* Navigation */}
+            <div className="flex items-center justify-between pt-2 border-t border-border/40">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate({ to: "/client-management" })}
+                className="cursor-pointer"
+              >
+                Cancel
+              </Button>
+
+              <div className="flex gap-3">
+                {!isFirst && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={goPrev}
+                    className="cursor-pointer"
+                  >
+                    Previous
+                  </Button>
+                )}
+
+                {!isLast ? (
+                  <Button
+                    type="button"
+                    onClick={goNext}
+                    className="cursor-pointer"
+                  >
+                    Next
+                  </Button>
+                ) : (
+                  <Button type="submit" className="cursor-pointer">
+                    Save Client
+                  </Button>
+                )}
+              </div>
+            </div>
 
           </div>
 

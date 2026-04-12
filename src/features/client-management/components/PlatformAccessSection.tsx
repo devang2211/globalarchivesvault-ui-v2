@@ -10,7 +10,7 @@ import type { ClientDetailsForm } from "../schema/onboarding.schema"
 
 const COLS = "grid-cols-[1fr_130px_140px_130px]"
 
-export const PlatformAccessSection = () => {
+export const PlatformAccessSection = ({ tierName }: { tierName?: string }) => {
   const form = useFormContext<ClientDetailsForm>()
   const tierId = form.watch("tierId")
 
@@ -73,7 +73,9 @@ export const PlatformAccessSection = () => {
         </span>
         <div className="text-center">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Default Access</p>
-          <p className="text-[10px] text-muted-foreground/60 normal-case tracking-normal mt-0.5">Pricing Tier</p>
+          <p className="text-[10px] text-muted-foreground/60 normal-case tracking-normal mt-0.5">
+            {tierName ?? "Pricing Tier"}
+          </p>
         </div>
         <div className="text-center">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Client Access</p>
