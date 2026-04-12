@@ -187,7 +187,7 @@ export const ComplianceSection = () => {
                                 className="h-3 w-3 cursor-pointer opacity-60 hover:opacity-100"
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  field.onChange(selected.filter((x) => x.id !== item.regulatoryFrameworkId))
+                                  field.onChange(selected.filter((x) => x.regulatoryFrameworkId !== item.regulatoryFrameworkId))
                                   field.onBlur()
                                 }}
                               />

@@ -26,6 +26,7 @@ export type ClientListParams = {
   status?: boolean[]
   pricingTierId?: number[]
   sort?: string
+  search?: string
 }
 
 type PagedResult = {

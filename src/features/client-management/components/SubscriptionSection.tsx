@@ -102,9 +102,9 @@ export const SubscriptionSection = () => {
                     )}
                   >
                     {field.value ? (
-                      <span className="font-normal">{format(new Date(field.value), "MM/dd/yyyy")}</span>
+                      <span className="font-normal">{format(new Date(field.value), "MMM d, yyyy")}</span>
                     ) : (
-                      <span className="text-muted-foreground font-normal">MM/DD/YYYY</span>
+                      <span className="text-muted-foreground font-normal">MMM D, YYYY</span>
                     )}
                     <CalendarIcon className="h-4 w-4 opacity-50" />
                   </button>
@@ -125,7 +125,7 @@ export const SubscriptionSection = () => {
                         field.onBlur()
                         setOpenDate(false)
                       }}
-                      initialFocus
+                      autoFocus
                     />
                   </Popover.Content>
                 </Popover.Portal>
