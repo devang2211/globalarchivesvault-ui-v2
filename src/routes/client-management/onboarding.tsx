@@ -1,14 +1,12 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
-import { ClientCreatePage } from "@/features/client-management/pages/ClientCreatePage"
-import { getToken } from "@/shared/lib/auth"
+import { ClientOnboardingPage } from "@/features/client-management/pages/ClientOnboardingPage"
+import { isSuperAdmin } from "@/shared/lib/auth"
 
 export const Route = createFileRoute("/client-management/onboarding")({
   beforeLoad: () => {
-    const token = getToken()
-
-    if (!token) {
-      throw redirect({ to: "/sign-in" })
+    if (!isSuperAdmin()) {
+      throw redirect({ to: "/errors/forbidden" })
     }
   },
-  component: ClientCreatePage,
+  component: ClientOnboardingPage,
 })

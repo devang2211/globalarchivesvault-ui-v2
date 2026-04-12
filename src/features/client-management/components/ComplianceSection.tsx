@@ -1,316 +1,216 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { useFormContext } from "react-hook-form"
-import api from "@/shared/api/client"
+import { Check, ChevronsUpDown, X } from "lucide-react"
 
 import * as Popover from "@radix-ui/react-popover"
 import {
   Command,
+  CommandEmpty,
+  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-  CommandEmpty,
-  CommandGroup,
 } from "@/components/ui/command"
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 
-import { Check, ChevronsUpDown, X } from "lucide-react"
-import { Label } from "@/components/ui/label"
+import api from "@/shared/api/client"
+import type { ClientDetailsForm } from "../schema/onboarding.schema"
 
-/* ================= TYPES ================= */
-
-type L1 = { id: number; name: string }
-type L2 = {
-  id: number
-  name: string
-  taxonomyLevel1Id: number
-}
-
-type Framework = {
-  id: number
-  name: string
-  code: string
-}
-
-/* ================= COMPONENT ================= */
+type IndustryChild = { id: number; name: string }
+type IndustryGroup = { id: number; name: string; children: IndustryChild[] }
+type Framework = { id: number; name: string; code: string }
 
 export const ComplianceSection = () => {
-  const { setValue, watch } = useFormContext()
-
-  const industryId = watch("industryId")
-  const frameworkIds = watch("frameworkIds") || []
-
-  const [l1, setL1] = useState<L1[]>([])
-  const [l2, setL2] = useState<L2[]>([])
-  const [frameworkList, setFrameworkList] = useState<Framework[]>([])
-
+  const [industries, setIndustries] = useState<IndustryGroup[]>([])
+  const [frameworks, setFrameworks] = useState<Framework[]>([])
   const [openIndustry, setOpenIndustry] = useState(false)
   const [openFramework, setOpenFramework] = useState(false)
 
-  /* ================= LOAD DATA ================= */
+  const form = useFormContext<ClientDetailsForm>()
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [l1Res, l2Res, fwRes] = await Promise.all([
-          api.get("/api/Taxonomy/level1"),
-          api.get("/api/Taxonomy/level2"),
+        const [indRes, fwRes] = await Promise.all([
+          api.get("/api/taxonomy/industries-with-institutions"),
           api.get("/api/Lookups/regulatory-frameworks"),
         ])
-
-        /* 🔥 NORMALIZE L1 */
-        const level1 = (l1Res.data.data || []).map((x: any) => ({
-          id: x.id ?? x.Id,
-          name: x.name ?? x.Name,
-        }))
-
-        /* 🔥 NORMALIZE L2 */
-        const level2 = (l2Res.data.data || []).map((x: any) => ({
-          id: x.id ?? x.Id,
-          name: x.name ?? x.Name,
-          taxonomyLevel1Id:
-            x.taxonomyLevel1Id ?? x.TaxonomyLevel1Id,
-        }))
-
-        setL1(level1)
-        setL2(level2)
-        setFrameworkList(fwRes.data.data || [])
+        setIndustries(indRes.data.data || [])
+        setFrameworks(fwRes.data.data || [])
       } catch {
-        setL1([])
-        setL2([])
-        setFrameworkList([])
+        setIndustries([])
+        setFrameworks([])
       }
     }
-
     load()
   }, [])
 
-  /* ================= GROUP DATA ================= */
-
-  const grouped = useMemo(() => {
-    return l1.map((group) => ({
-      ...group,
-      children: l2.filter(
-        (c) =>
-          String(c.taxonomyLevel1Id) === String(group.id)
-      ),
-    }))
-  }, [l1, l2])
-
-  const selectedIndustry = l2.find(
-    (x) => String(x.id) === String(industryId)
-  )
-
-  const parentIndustry = l1.find(
-    (g) =>
-      String(g.id) ===
-      String(selectedIndustry?.taxonomyLevel1Id)
-  )
-
-  /* ================= RENDER ================= */
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
 
-      {/* ================= INDUSTRY ================= */}
-      <div className="space-y-2">
-        <Label>Industry / Institution</Label>
+      {/* TAXONOMY LEVEL 2 — multilevel combobox */}
+      <FormField
+        control={form.control}
+        name="taxonomyLevel2Id"
+        render={({ field }) => {
+          const selectedChild = industries
+            .flatMap((g) => g.children)
+            .find((c) => c.id === field.value)
 
-        <Popover.Root
-          open={openIndustry}
-          onOpenChange={setOpenIndustry}
-        >
-          <Popover.Trigger asChild>
-            <button
-              className="
-                w-full h-9 flex items-center justify-between
-                rounded-md border border-border px-3 text-sm
-                bg-background hover:bg-muted transition
-              "
-            >
-              <span className="text-muted-foreground/80 font-normal">
-                {selectedIndustry
-                  ? `${parentIndustry?.name || "Unknown"} / ${selectedIndustry.name}`
-                  : "Select industry / institution"}
-              </span>
+          const selectedParent = industries.find((g) =>
+            g.children.some((c) => c.id === field.value)
+          )
 
-              <ChevronsUpDown className="h-4 w-4 opacity-50" />
-            </button>
-          </Popover.Trigger>
+          return (
+            <FormItem>
+              <FormLabel>Industry / Institution</FormLabel>
+              <FormControl>
+                <Popover.Root open={openIndustry} onOpenChange={setOpenIndustry}>
+                  <Popover.Trigger asChild>
+                    <button
+                      type="button"
+                      className="h-9 w-full flex items-center justify-between rounded-md border border-border px-3 text-sm bg-background hover:bg-muted transition"
+                    >
+                      <span className="truncate text-left">
+                        {selectedChild
+                          ? `${selectedParent?.name} / ${selectedChild.name}`
+                          : "Select industry / institution"}
+                      </span>
+                      <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
+                    </button>
+                  </Popover.Trigger>
 
-          <Popover.Portal>
-            <Popover.Content
-              align="start"
-              sideOffset={6}
-              className="
-                z-50 w-[var(--radix-popover-trigger-width)]
-                border border-border bg-background rounded-md shadow-md p-0
-              "
-            >
-              <Command>
-                <CommandInput placeholder="Search..." />
-                <CommandList>
-                  <CommandEmpty>No results</CommandEmpty>
+                  <Popover.Portal>
+                    <Popover.Content
+                      sideOffset={6}
+                      className="z-50 w-[var(--radix-popover-trigger-width)] rounded-md border border-border bg-background shadow-md p-0"
+                    >
+                      <Command>
+                        <CommandInput placeholder="Search..." />
+                        <CommandList>
+                          <CommandEmpty>No results found.</CommandEmpty>
 
-{grouped.map((group) => (
-  <CommandGroup
-    key={group.id}
-    heading={group.name}
-    className="px-0"
-  >
-    {/* L1 HEADER */}
-    {/* <div
-      className="
-        px-3 py-1.5 text-xs font-semibold
-        text-muted-foreground uppercase tracking-wide
-      "
-    >
-      {group.name}
-    </div> */}
-
-    {/* L2 ITEMS */}
-    {group.children.map((item) => (
-      <CommandItem
-        key={item.id}
-        onSelect={() => {
-          setValue("industryId", item.id, {
-            shouldValidate: true,
-          })
-          setOpenIndustry(false)
+                          {industries.map((group) => (
+                            <CommandGroup key={group.id} heading={group.name}>
+                              {group.children.map((child) => (
+                                <CommandItem
+                                  key={child.id}
+                                  onSelect={() => {
+                                    field.onChange(child.id)
+                                    setOpenIndustry(false)
+                                  }}
+                                  className="pl-5"
+                                >
+                                  {child.name}
+                                  {field.value === child.id && (
+                                    <Check className="ml-auto h-4 w-4" />
+                                  )}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )
         }}
-className="
-  pl-6 pr-3 text-sm flex items-center
-  cursor-pointer
-  data-[highlighted]:bg-muted
-  data-[highlighted]:text-foreground
-"
-      >
-        {/* subtle bullet */}
-        <span className="mr-2 text-muted-foreground">•</span>
+      />
 
-        {item.name}
+      {/* REGULATORY FRAMEWORKS — multi-select with chips */}
+      <FormField
+        control={form.control}
+        name="regulatoryFrameworkIds"
+        render={({ field }) => {
+          const selected: number[] = field.value ?? []
 
-        {String(industryId) === String(item.id) && (
-          <Check className="ml-auto h-4 w-4" />
-        )}
-      </CommandItem>
-    ))}
-  </CommandGroup>
-))}
-                </CommandList>
-              </Command>
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
-      </div>
+          return (
+            <FormItem>
+              <FormLabel>Regulatory Frameworks</FormLabel>
+              <FormControl>
+                <Popover.Root open={openFramework} onOpenChange={setOpenFramework}>
+                  <Popover.Trigger asChild>
+                    <button
+                      type="button"
+                      className="w-full min-h-[36px] flex flex-wrap items-center gap-1.5 rounded-md border border-border px-2 py-1.5 text-sm bg-background hover:bg-muted transition"
+                    >
+                      {selected.length === 0 ? (
+                        <span className="text-muted-foreground">Select frameworks</span>
+                      ) : (
+                        selected.map((id) => {
+                          const fw = frameworks.find((f) => f.id === id)
+                          if (!fw) return null
+                          return (
+                            <span
+                              key={id}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-xs font-medium"
+                            >
+                              {fw.name}
+                              <X
+                                className="h-3 w-3 cursor-pointer opacity-60 hover:opacity-100"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  field.onChange(selected.filter((x) => x !== id))
+                                }}
+                              />
+                            </span>
+                          )
+                        })
+                      )}
+                      <ChevronsUpDown className="ml-auto h-4 w-4 opacity-50 shrink-0" />
+                    </button>
+                  </Popover.Trigger>
 
-      {/* ================= FRAMEWORKS ================= */}
-      <div className="space-y-2">
-        <Label>Regulatory Frameworks</Label>
+                  <Popover.Portal>
+                    <Popover.Content
+                      sideOffset={6}
+                      className="z-50 w-[var(--radix-popover-trigger-width)] rounded-md border border-border bg-background shadow-md p-0"
+                    >
+                      <Command>
+                        <CommandInput placeholder="Search frameworks..." />
+                        <CommandList>
+                          <CommandEmpty>No results found.</CommandEmpty>
 
-        <Popover.Root
-          open={openFramework}
-          onOpenChange={setOpenFramework}
-        >
-          <Popover.Trigger asChild>
-            <button
-              className="
-                w-full min-h-[36px] flex flex-wrap items-center gap-2
-                rounded-md border border-border px-2 py-1 text-sm
-                bg-background hover:bg-muted transition
-              "
-            >
-              {frameworkIds.length === 0 && (
-                <span className="text-muted-foreground/80 font-normal">
-                  Select frameworks
-                </span>
-              )}
+                          {frameworks.map((fw) => {
+                            const active = selected.includes(fw.id)
+                            return (
+                              <CommandItem
+                                key={fw.id}
+                                onSelect={() => {
+                                  field.onChange(
+                                    active
+                                      ? selected.filter((x) => x !== fw.id)
+                                      : [...selected, fw.id]
+                                  )
+                                }}
+                              >
+                                {fw.name}
+                                {active && <Check className="ml-auto h-4 w-4" />}
+                              </CommandItem>
+                            )
+                          })}
+                        </CommandList>
+                      </Command>
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )
+        }}
+      />
 
-              {frameworkIds.map((id: number) => {
-                const f = frameworkList.find(
-                  (x) => x.id === id
-                )
-                if (!f) return null
-
-                return (
-                  <span
-                    key={id}
-                    className="
-                      flex items-center gap-1 px-2 py-0.5 rounded-md
-                      bg-muted text-xs
-                    "
-                  >
-                    {f.code}
-
-                    <X
-                      className="h-3 w-3 cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setValue(
-                          "frameworkIds",
-                          frameworkIds.filter(
-                            (x: number) => x !== id
-                          ),
-                          { shouldValidate: true }
-                        )
-                      }}
-                    />
-                  </span>
-                )
-              })}
-
-              <ChevronsUpDown className="ml-auto h-4 w-4 opacity-50" />
-            </button>
-          </Popover.Trigger>
-
-          <Popover.Portal>
-            <Popover.Content
-              align="start"
-              sideOffset={6}
-              className="
-                z-50 w-[var(--radix-popover-trigger-width)]
-                border border-border bg-background rounded-md shadow-md p-0
-              "
-            >
-              <Command>
-                <CommandInput placeholder="Search frameworks..." />
-                <CommandList>
-                  <CommandEmpty>No results</CommandEmpty>
-
-                  {frameworkList.map((item) => {
-                    const active =
-                      frameworkIds.includes(item.id)
-
-                    return (
-<CommandItem
-  key={item.id}
-  onSelect={() => {
-    const next = active
-      ? frameworkIds.filter((x: number) => x !== item.id)
-      : [...frameworkIds, item.id]
-
-    setValue("frameworkIds", next, {
-      shouldValidate: true,
-    })
-  }}
-  className="
-    cursor-pointer
-    data-[highlighted]:bg-muted
-    data-[highlighted]:text-foreground
-  "
->
-                        {item.name}
-
-                        {active && (
-                          <Check className="ml-auto h-4 w-4" />
-                        )}
-                      </CommandItem>
-                    )
-                  })}
-                </CommandList>
-              </Command>
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
-      </div>
     </div>
   )
 }
