@@ -110,11 +110,6 @@ export default function RoleManagementPage() {
                         <span className="flex-1 text-sm font-medium truncate">
                           {role.name}
                         </span>
-                        {role.isHidden && (
-                          <Badge variant="secondary" className="text-xs shrink-0 px-1.5 py-0">
-                            System
-                          </Badge>
-                        )}
                         {!role.isActive && (
                           <Badge variant="outline" className="text-xs shrink-0 px-1.5 py-0 text-muted-foreground">
                             Inactive
