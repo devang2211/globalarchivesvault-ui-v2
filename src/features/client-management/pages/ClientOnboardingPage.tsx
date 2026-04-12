@@ -65,8 +65,6 @@ export const ClientOnboardingPage = () => {
   const [submitting, setSubmitting] = useState(false)
 
   const [clientMap, setClientMap] = useState<Map<string, boolean>>(new Map())
-  const [versionMap, setVersionMap] = useState<Map<string, number>>(new Map())
-  const [clientVersion, setClientVersion] = useState(0)
 
   const form = useForm<ClientDetailsForm>({
     resolver: zodResolver(clientDetailsSchema),
@@ -97,9 +95,7 @@ export const ClientOnboardingPage = () => {
       try {
         const client = await getClient(clientId!)
         // Seed permission maps before form.reset() triggers tierId watch in PlatformAccessSection
-        setClientVersion(client.version ?? 0)
         setClientMap(new Map(client.permissions?.map((p) => [p.permissionCode, p.isAllowed]) ?? []))
-        setVersionMap(new Map(client.permissions?.map((p) => [p.permissionCode, p.version]) ?? []))
         form.reset({
           id: client.id,
           name: client.name,
@@ -140,15 +136,13 @@ export const ClientOnboardingPage = () => {
   }
 
   const onSave: SubmitHandler<ClientDetailsForm> = async (data) => {
-    const permissions = Array.from(versionMap.entries()).map(([permissionCode, version]) => ({
+    const permissions = Array.from(clientMap.entries()).map(([permissionCode, isAllowed]) => ({
       permissionCode,
-      isAllowed: clientMap.get(permissionCode) ?? false,
-      version,
+      isAllowed,
     }))
 
     const payload = {
       id: data.id === 0 ? null : data.id,
-      version: isEditMode ? clientVersion : undefined,
       name: data.name,
       tierId: data.tierId,
       appTimeZoneId: data.appTimezoneId ?? null,
@@ -314,7 +308,6 @@ export const ClientOnboardingPage = () => {
                     tierName={selectedTierName}
                     clientMap={clientMap}
                     setClientMap={setClientMap}
-                    setVersionMap={setVersionMap}
                   />
                 )}
               </div>

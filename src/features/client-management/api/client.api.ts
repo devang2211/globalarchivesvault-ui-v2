@@ -48,7 +48,6 @@ export const getClients = async (params: ClientListParams): Promise<ClientListRe
 
 export type ClientDetailDto = {
   id: number
-  version: number
   name: string
   tierId: number
   appTimeZoneId?: number | null
@@ -58,8 +57,8 @@ export type ClientDetailDto = {
   contactPhone?: string | null
   onBoardingDate?: string | null
   isActive: boolean
-  regulatoryFrameworks?: { regulatoryFrameworkId: number; version: number }[] | null
-  permissions?: { permissionCode: string; isAllowed: boolean; version: number }[] | null
+  regulatoryFrameworks?: { regulatoryFrameworkId: number }[] | null
+  permissions?: { permissionCode: string; isAllowed: boolean }[] | null
 }
 
 export const getClient = async (id: number): Promise<ClientDetailDto> => {

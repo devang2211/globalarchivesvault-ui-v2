@@ -14,14 +14,12 @@ interface PlatformAccessSectionProps {
   tierName?: string
   clientMap: Map<string, boolean>
   setClientMap: Dispatch<SetStateAction<Map<string, boolean>>>
-  setVersionMap: Dispatch<SetStateAction<Map<string, number>>>
 }
 
 export const PlatformAccessSection = ({
   tierName,
   clientMap,
   setClientMap,
-  setVersionMap,
 }: PlatformAccessSectionProps) => {
   const form = useFormContext<ClientDetailsForm>()
   const tierId = form.watch("tierId")
@@ -38,7 +36,6 @@ export const PlatformAccessSection = ({
     if (!tierId) {
       setTierMap(new Map())
       setClientMap(new Map())
-      setVersionMap(new Map())
       return
     }
 
@@ -48,20 +45,16 @@ export const PlatformAccessSection = ({
         const items = await getTierPermissions(tierId)
         const tier = new Map<string, boolean>()
         const client = new Map<string, boolean>()
-        const version = new Map<string, number>()
-        items.forEach(({ permissionCode, isAllowed, version: v }) => {
+        items.forEach(({ permissionCode, isAllowed }) => {
           tier.set(permissionCode, isAllowed)
           client.set(permissionCode, isAllowed)
-          version.set(permissionCode, v)
         })
         setTierMap(tier)
-        setVersionMap(version)
         // If clientMap was pre-seeded (edit mode), keep those values
         setClientMap(prev => prev.size > 0 ? prev : client)
       } catch {
         setTierMap(new Map())
         setClientMap(new Map())
-        setVersionMap(new Map())
       } finally {
         setLoading(false)
       }

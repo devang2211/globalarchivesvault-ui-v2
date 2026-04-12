@@ -146,7 +146,7 @@ export const ComplianceSection = () => {
         control={form.control}
         name="regulatoryFrameworks"
         render={({ field, fieldState }) => {
-          const selected: { regulatoryFrameworkId: number; version: number }[] = field.value ?? []
+          const selected: { regulatoryFrameworkId: number }[] = field.value ?? []
 
           return (
             <FormItem>
@@ -214,7 +214,7 @@ export const ComplianceSection = () => {
                                   field.onChange(
                                     active
                                       ? selected.filter((x) => x.regulatoryFrameworkId !== fw.id)
-                                      : [...selected, { regulatoryFrameworkId: fw.id, version: 1 }]
+                                      : [...selected, { regulatoryFrameworkId: fw.id }]
                                   )
                                 }}
                               >
