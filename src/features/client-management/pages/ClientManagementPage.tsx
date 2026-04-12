@@ -176,6 +176,7 @@ export default function ClientManagementPage() {
         page,
         pageSize,
         sort: sort || undefined,
+        search: debounced || undefined,
         pricingTierId: pricingTierFilter.length ? pricingTierFilter.map(Number) : undefined,
         status: statusFilter.length ? statusFilter.map((v) => v === "1") : undefined,
       })
@@ -289,7 +290,7 @@ export default function ClientManagementPage() {
       <DataTable table={table} columns={columns} loading={loading} />
 
       {/* PAGINATION */}
-      <DataTablePagination table={table} className="mt-auto" />
+      <DataTablePagination table={table} total={total} className="mt-auto" />
 
     </div>
   )
