@@ -21,6 +21,7 @@ import { Route as PricingTierConfigureRouteImport } from './routes/pricing-tier/
 import { Route as ErrorsNotFoundRouteImport } from './routes/errors/not-found'
 import { Route as ErrorsForbiddenRouteImport } from './routes/errors/forbidden'
 import { Route as ClientManagementOnboardingRouteImport } from './routes/client-management/onboarding'
+import { Route as ClientManagementUpdateIdRouteImport } from './routes/client-management/update/$id'
 
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
@@ -83,6 +84,12 @@ const ClientManagementOnboardingRoute =
     path: '/onboarding',
     getParentRoute: () => ClientManagementRouteRoute,
   } as any)
+const ClientManagementUpdateIdRoute =
+  ClientManagementUpdateIdRouteImport.update({
+    id: '/update/$id',
+    path: '/update/$id',
+    getParentRoute: () => ClientManagementRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/pricing-tier/configure': typeof PricingTierConfigureRoute
   '/client-management/': typeof ClientManagementIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/client-management/update/$id': typeof ClientManagementUpdateIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -109,6 +117,7 @@ export interface FileRoutesByTo {
   '/pricing-tier/configure': typeof PricingTierConfigureRoute
   '/client-management': typeof ClientManagementIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/client-management/update/$id': typeof ClientManagementUpdateIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -124,6 +133,7 @@ export interface FileRoutesById {
   '/pricing-tier/configure': typeof PricingTierConfigureRoute
   '/client-management/': typeof ClientManagementIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/client-management/update/$id': typeof ClientManagementUpdateIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/pricing-tier/configure'
     | '/client-management/'
     | '/dashboard/'
+    | '/client-management/update/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/pricing-tier/configure'
     | '/client-management'
     | '/dashboard'
+    | '/client-management/update/$id'
   id:
     | '__root__'
     | '/'
@@ -166,6 +178,7 @@ export interface FileRouteTypes {
     | '/pricing-tier/configure'
     | '/client-management/'
     | '/dashboard/'
+    | '/client-management/update/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -263,17 +276,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClientManagementOnboardingRouteImport
       parentRoute: typeof ClientManagementRouteRoute
     }
+    '/client-management/update/$id': {
+      id: '/client-management/update/$id'
+      path: '/update/$id'
+      fullPath: '/client-management/update/$id'
+      preLoaderRoute: typeof ClientManagementUpdateIdRouteImport
+      parentRoute: typeof ClientManagementRouteRoute
+    }
   }
 }
 
 interface ClientManagementRouteRouteChildren {
   ClientManagementOnboardingRoute: typeof ClientManagementOnboardingRoute
   ClientManagementIndexRoute: typeof ClientManagementIndexRoute
+  ClientManagementUpdateIdRoute: typeof ClientManagementUpdateIdRoute
 }
 
 const ClientManagementRouteRouteChildren: ClientManagementRouteRouteChildren = {
   ClientManagementOnboardingRoute: ClientManagementOnboardingRoute,
   ClientManagementIndexRoute: ClientManagementIndexRoute,
+  ClientManagementUpdateIdRoute: ClientManagementUpdateIdRoute,
 }
 
 const ClientManagementRouteRouteWithChildren =

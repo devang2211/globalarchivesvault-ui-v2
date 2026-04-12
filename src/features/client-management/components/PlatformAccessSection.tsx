@@ -30,7 +30,9 @@ export const PlatformAccessSection = ({
   const [loading, setLoading] = useState(false)
 
   /* -------------------------------------------------------
-     Load tier permissions — reset all maps on tier change
+     Load tier permissions — reset all maps on tier change.
+     If clientMap is already populated (edit mode pre-seeds
+     it), preserve client-specific overrides.
   ------------------------------------------------------- */
   useEffect(() => {
     if (!tierId) {
@@ -53,8 +55,9 @@ export const PlatformAccessSection = ({
           version.set(permissionCode, v)
         })
         setTierMap(tier)
-        setClientMap(client)
         setVersionMap(version)
+        // If clientMap was pre-seeded (edit mode), keep those values
+        setClientMap(prev => prev.size > 0 ? prev : client)
       } catch {
         setTierMap(new Map())
         setClientMap(new Map())

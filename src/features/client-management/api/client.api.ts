@@ -46,6 +46,27 @@ export const getClients = async (params: ClientListParams): Promise<ClientListRe
   }
 }
 
+export type ClientDetailDto = {
+  id: number
+  version: number
+  name: string
+  tierId: number
+  appTimeZoneId?: number | null
+  taxonomyLevel2Id?: number | null
+  location?: string | null
+  contactEmail?: string | null
+  contactPhone?: string | null
+  onBoardingDate?: string | null
+  isActive: boolean
+  regulatoryFrameworks?: { regulatoryFrameworkId: number; version: number }[] | null
+  permissions?: { permissionCode: string; isAllowed: boolean; version: number }[] | null
+}
+
+export const getClient = async (id: number): Promise<ClientDetailDto> => {
+  const res = await api.get<ApiResponse<ClientDetailDto>>(`/api/client/${id}`)
+  return unwrap(res)!
+}
+
 export const deleteClient = async (id: number): Promise<void> => {
   await api.delete(`/api/client/${id}`)
 }

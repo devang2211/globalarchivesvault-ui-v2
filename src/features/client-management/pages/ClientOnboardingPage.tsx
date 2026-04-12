@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useNavigate } from "@tanstack/react-router"
+import { useNavigate, useParams } from "@tanstack/react-router"
 import { Check, X, ChevronLeft, ChevronRight, Save, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -15,6 +15,7 @@ import { ClientDetailsSection } from "../components/ClientDetailsSection"
 import { ComplianceSection } from "../components/ComplianceSection"
 import { SubscriptionSection } from "../components/SubscriptionSection"
 import { PlatformAccessSection } from "../components/PlatformAccessSection"
+import { getClient } from "../api/client.api"
 
 /* ------------------------------------------------------------------ */
 /* STEPS CONFIG                                                         */
@@ -55,13 +56,18 @@ type StepId = (typeof STEPS)[number]["id"]
 
 export const ClientOnboardingPage = () => {
   const navigate = useNavigate()
+  const params = useParams({ strict: false }) as { id?: string }
+  const clientId = params.id ? Number(params.id) : null
+  const isEditMode = clientId !== null
+
   const [activeStep, setActiveStep] = useState<StepId>("client-details")
   const [tiers, setTiers] = useState<{ id: number; name: string }[]>([])
+  const [fetching, setFetching] = useState(isEditMode)
   const [submitting, setSubmitting] = useState(false)
 
-  /* Lifted permission state — needed at submit time */
   const [clientMap, setClientMap] = useState<Map<string, boolean>>(new Map())
   const [versionMap, setVersionMap] = useState<Map<string, number>>(new Map())
+  const [clientVersion, setClientVersion] = useState(0)
 
   const form = useForm<ClientDetailsForm>({
     resolver: zodResolver(clientDetailsSchema),
@@ -85,6 +91,39 @@ export const ClientOnboardingPage = () => {
       .catch(() => {})
   }, [])
 
+  useEffect(() => {
+    if (!isEditMode) return
+    const fetchClient = async () => {
+      setFetching(true)
+      try {
+        const client = await getClient(clientId!)
+        // Seed permission maps before form.reset() triggers tierId watch in PlatformAccessSection
+        setClientVersion(client.version ?? 0)
+        setClientMap(new Map(client.permissions?.map((p) => [p.permissionCode, p.isAllowed]) ?? []))
+        setVersionMap(new Map(client.permissions?.map((p) => [p.permissionCode, p.version]) ?? []))
+        form.reset({
+          id: client.id,
+          name: client.name,
+          appTimezoneId: client.appTimeZoneId ?? null,
+          location: client.location ?? "",
+          contactEmail: client.contactEmail ?? "",
+          contactPhone: client.contactPhone ?? "",
+          isActive: client.isActive,
+          taxonomyLevel2Id: client.taxonomyLevel2Id as number,
+          tierId: client.tierId,
+          startDate: client.onBoardingDate ?? "",
+          regulatoryFrameworks: client.regulatoryFrameworks ?? [],
+        })
+      } catch {
+        toast.error("Failed to load client details.")
+        navigate({ to: "/client-management" })
+      } finally {
+        setFetching(false)
+      }
+    }
+    fetchClient()
+  }, [clientId])
+
   const tierId = form.watch("tierId")
   const selectedTierName = tiers.find((t) => t.id === tierId)?.name
 
@@ -93,7 +132,6 @@ export const ClientOnboardingPage = () => {
   const isFirst = activeIndex === 0
   const isLast = activeIndex === STEPS.length - 1
 
-  /* Navigate back via sidebar — completed steps only */
   const goTo = (id: StepId) => {
     const targetIndex = STEPS.findIndex((s) => s.id === id)
     if (targetIndex < activeIndex) setActiveStep(id)
@@ -103,7 +141,6 @@ export const ClientOnboardingPage = () => {
     if (!isFirst) setActiveStep(STEPS[activeIndex - 1].id)
   }
 
-  /* Submit */
   const onSave: SubmitHandler<ClientDetailsForm> = async (data) => {
     const permissions = Array.from(versionMap.entries()).map(([permissionCode, version]) => ({
       permissionCode,
@@ -113,6 +150,7 @@ export const ClientOnboardingPage = () => {
 
     const payload = {
       id: data.id === 0 ? null : data.id,
+      version: isEditMode ? clientVersion : undefined,
       name: data.name,
       tierId: data.tierId,
       appTimeZoneId: data.appTimezoneId ?? null,
@@ -129,16 +167,15 @@ export const ClientOnboardingPage = () => {
     setSubmitting(true)
     try {
       await api.post("/api/Client/upsert", payload)
-      toast.success("Client saved successfully")
-      navigate({ to: "/client-management/" })
+      toast.success(isEditMode ? "Client updated successfully" : "Client saved successfully")
+      navigate({ to: "/client-management" })
     } catch {
-      toast.error("Failed to save client. Please try again.")
+      toast.error(isEditMode ? "Failed to update client. Please try again." : "Failed to save client. Please try again.")
     } finally {
       setSubmitting(false)
     }
   }
 
-  /* Validate current step fields before advancing */
   const goNext = async () => {
     if (isLast) return
     const fields = [...STEPS[activeIndex].fields] as (keyof ClientDetailsForm)[]
@@ -148,7 +185,6 @@ export const ClientOnboardingPage = () => {
       return
     }
 
-    // Trigger all fields in parallel — shows every error message at once
     const results = await Promise.all(fields.map((f) => form.trigger(f as any)))
     const allValid = results.every(Boolean)
 
@@ -157,7 +193,6 @@ export const ClientOnboardingPage = () => {
       return
     }
 
-    // Focus first invalid — use trigger return value directly, no getFieldState
     const firstInvalidIndex = results.findIndex((r) => !r)
     if (firstInvalidIndex !== -1) {
       const firstInvalidField = fields[firstInvalidIndex]
@@ -175,6 +210,14 @@ export const ClientOnboardingPage = () => {
   /* RENDER                                                             */
   /* ---------------------------------------------------------------- */
 
+  if (fetching) {
+    return (
+      <div className="flex flex-1 items-center justify-center py-24">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
 
@@ -182,9 +225,11 @@ export const ClientOnboardingPage = () => {
       <div className="flex items-start gap-3">
         <span className="mt-0.5 w-1 self-stretch rounded-full bg-primary/70 shrink-0" />
         <div className="space-y-1">
-          <h1 className="text-xl font-semibold">Client Onboarding</h1>
+          <h1 className="text-xl font-semibold">
+            {isEditMode ? "Edit Client" : "Client Onboarding"}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            Set up a new client account
+            {isEditMode ? "Update client details and permissions" : "Set up a new client account"}
           </p>
         </div>
       </div>
@@ -192,9 +237,7 @@ export const ClientOnboardingPage = () => {
       <Form {...form}>
         <form className="flex gap-8 items-start" onSubmit={(e) => e.preventDefault()}>
 
-          {/* ------------------------------------------------------ */}
-          {/* LEFT — STEPPER SIDEBAR                                   */}
-          {/* ------------------------------------------------------ */}
+          {/* LEFT — STEPPER SIDEBAR */}
           <aside className="w-52 shrink-0">
             <nav className="relative">
               {STEPS.map((step, index) => {
@@ -205,7 +248,6 @@ export const ClientOnboardingPage = () => {
                 return (
                   <div key={step.id} className="relative flex gap-3">
 
-                    {/* Connector line */}
                     {index < STEPS.length - 1 && (
                       <span
                         className={cn(
@@ -215,7 +257,6 @@ export const ClientOnboardingPage = () => {
                       />
                     )}
 
-                    {/* Step row */}
                     <div
                       onClick={() => isClickable && goTo(step.id)}
                       className={cn(
@@ -223,7 +264,6 @@ export const ClientOnboardingPage = () => {
                         isClickable ? "cursor-pointer group" : "cursor-default"
                       )}
                     >
-                      {/* Circle */}
                       <span
                         className={cn(
                           "relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-colors",
@@ -237,7 +277,6 @@ export const ClientOnboardingPage = () => {
                         {isCompleted ? <Check className="h-3.5 w-3.5" /> : index + 1}
                       </span>
 
-                      {/* Label */}
                       <div className="pt-1 min-w-0">
                         <p
                           className={cn(
@@ -263,25 +302,18 @@ export const ClientOnboardingPage = () => {
             </nav>
           </aside>
 
-          {/* ------------------------------------------------------ */}
-          {/* RIGHT — ACTIVE SECTION                                   */}
-          {/* ------------------------------------------------------ */}
+          {/* RIGHT — ACTIVE SECTION */}
           <div className="flex-1 min-w-0 flex flex-col gap-6">
 
-            {/* Section card — soft border */}
             <div className="rounded-xl border border-border/40 bg-card shadow-sm">
 
-              {/* Header */}
               <div className="px-6 py-5 border-b border-border/30">
-                <div className="flex items-center gap-2.5">
-                  <h2 className="text-base font-semibold">{activeStepMeta.title}</h2>
-                </div>
+                <h2 className="text-base font-semibold">{activeStepMeta.title}</h2>
                 <p className="text-sm text-muted-foreground mt-0.5">
                   {activeStepMeta.subtitle}
                 </p>
               </div>
 
-              {/* Content */}
               <div className="px-6 py-5">
                 {activeStep === "client-details"  && <ClientDetailsSection />}
                 {activeStep === "compliance"       && <ComplianceSection />}
@@ -298,17 +330,15 @@ export const ClientOnboardingPage = () => {
 
             </div>
 
-            {/* Required note */}
             <p className="text-xs text-muted-foreground -mt-3">
               Fields marked <span className="text-destructive font-medium">*</span> are required
             </p>
 
-            {/* Navigation */}
             <div className="flex items-center justify-between pt-2 border-t border-border/40">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate({ to: "/client-management/" })}
+                onClick={() => navigate({ to: "/client-management" })}
                 className="cursor-pointer"
               >
                 <X className="h-4 w-4" />
@@ -345,7 +375,7 @@ export const ClientOnboardingPage = () => {
                     className="cursor-pointer"
                   >
                     {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    {submitting ? "Saving..." : "Save Client"}
+                    {submitting ? "Saving..." : isEditMode ? "Save Changes" : "Save Client"}
                   </Button>
                 )}
               </div>

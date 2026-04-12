@@ -45,7 +45,7 @@ export const ClientRowActions = ({ row }: ClientRowActionsProps) => {
         <DropdownMenuItem
           className="cursor-pointer"
           onClick={() =>
-            navigate({ to: "/client-management/onboarding", search: { id: row.id } as any })
+            navigate({ to: "/client-management/update/$id" as any, params: { id: String(row.id) } as any })
           }
         >
           Edit
