@@ -9,8 +9,8 @@
   --popover: oklch(100% 0 0);
   --popover-foreground: oklch(14% 0.02 260);
 
-  --border: oklch(95% 0.008 255);
-  --input: oklch(95% 0.008 255);
+  --border: oklch(0.929 0.013 255.508);
+  --input: oklch(0.929 0.013 255.508);
 
   --ring: oklch(70% 0.03 256);
 
@@ -64,8 +64,8 @@
   --accent: oklch(18% 0.01 260);
   --accent-foreground: oklch(96% 0.01 260);
 
-  --border: oklch(22% 0.01 260);
-  --input: oklch(22% 0.01 260);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
 
   --ring: oklch(70% 0.03 256);
 

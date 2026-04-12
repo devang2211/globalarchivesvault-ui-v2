@@ -1,67 +1,73 @@
-import { Input } from "@/components/ui/input"
-import { DataTableMultiSelectFilter } from "./DataTableMultiSelectFilter"
 import { X } from "lucide-react"
+import { type Table } from "@tanstack/react-table"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { DataTableFacetedFilter } from "./DataTableFacetedFilter"
 
-type Props = {
-  search: string
-  setSearch: (v: string) => void
-  filters: {
-    key: string
+type FilterConfig = {
+  title: string
+  options: {
     label: string
-    options: { label: string; value: string }[]
-    value: string[]
-    onChange: (v: string[]) => void
+    value: string
+    icon?: React.ComponentType<{ className?: string }>
   }[]
-  onClearFilters: () => void
+  value: string[]
+  onValueChange: (v: string[]) => void
+}
 
-  // ✅ dynamic actions slot
+type Props<TData> = {
+  table: Table<TData>
+  search: string
+  onSearchChange: (v: string) => void
+  searchPlaceholder?: string
+  filters?: FilterConfig[]
+  onClearFilters: () => void
   actions?: React.ReactNode
 }
 
-export function DataTableToolbar({
+export function DataTableToolbar<TData>({
+  table,
   search,
-  setSearch,
-  filters,
+  onSearchChange,
+  searchPlaceholder = "Search...",
+  filters = [],
   onClearFilters,
   actions,
-}: Props) {
-  const hasFilters = filters.some((f) => f.value.length > 0)
+}: Props<TData>) {
+  const isFiltered = !!search || filters.some((f) => f.value.length > 0)
 
   return (
-    <div className="flex items-center justify-between gap-3 flex-wrap">
-      
-      {/* LEFT */}
-      <div className="flex items-center gap-2 flex-wrap">
-        
+    <div className="flex items-center justify-between">
+      <div className="flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2">
         <Input
+          placeholder={searchPlaceholder}
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search..."
-          className="h-9 w-72"
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="h-8 w-[150px] lg:w-[250px]"
         />
-
-        {filters.map((filter) => (
-          <DataTableMultiSelectFilter
-            key={filter.key}
-            label={filter.label}
-            options={filter.options}
-            value={filter.value}
-            onChange={filter.onChange}
-          />
-        ))}
-
-        {hasFilters && (
-          <button
+        <div className="flex gap-x-2">
+          {filters.map((filter) => (
+            <DataTableFacetedFilter
+              key={filter.title}
+              title={filter.title}
+              options={filter.options}
+              value={filter.value}
+              onValueChange={filter.onValueChange}
+            />
+          ))}
+        </div>
+        {isFiltered && (
+          <Button
+            variant="ghost"
             onClick={onClearFilters}
-            className="ml-2 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+            className="h-8 px-2 lg:px-3"
           >
             Reset
-            <X className="h-4 w-4" />
-          </button>
+            <X className="ml-2 h-4 w-4" />
+          </Button>
         )}
       </div>
 
-      {/* RIGHT (DYNAMIC) */}
       {actions && (
         <div className="flex items-center gap-2">
           {actions}

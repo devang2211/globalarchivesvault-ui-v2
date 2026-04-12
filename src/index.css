@@ -1,11 +1,15 @@
 @import "tailwindcss";
 
 @layer base {
+  * {
+    border-color: var(--border);
+  }
+
   html {
     font-family: var(--font-sans);
     font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: "rlig" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   body {
@@ -243,23 +247,23 @@ img {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: hsl(var(--border));
+  background: var(--border);
   border-radius: 9999px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.4);
+  background: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: hsl(var(--border)) transparent;
+  scrollbar-color: var(--border) transparent;
 }
 
 /* Keep as alias for backwards compat */
 .sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: hsl(var(--border)) transparent;
+  scrollbar-color: var(--border) transparent;
 }
 
 /* 🔥 Progress bar */

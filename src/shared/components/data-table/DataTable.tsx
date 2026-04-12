@@ -1,130 +1,89 @@
-import {
-  type ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
+import { type ColumnDef, type Table as TanstackTable, flexRender } from "@tanstack/react-table"
 import { cn } from "@/lib/utils"
-import { ChevronUp, ChevronDown } from "lucide-react"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
 
 type Props<T> = {
-  data?: T[]   // ✅ allow undefined
+  table: TanstackTable<T>
   columns: ColumnDef<T>[]
-  sorting?: string
-  onSortChange?: (s: string) => void
   loading?: boolean
 }
 
-export function DataTable<T>({
-  data = [],   // ✅ default empty array
-  columns,
-  sorting,
-  onSortChange,
-  loading,
-}: Props<T>) {
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  })
-
+export function DataTable<T>({ table, columns, loading }: Props<T>) {
   return (
-    <div className="rounded-xl border border-border bg-background shadow-sm overflow-hidden">
-      <table className="w-full text-sm">
-        {/* HEADER */}
-        <thead className="bg-muted/40 sticky top-0 z-10 backdrop-blur">
+    <div className="overflow-hidden rounded-md border">
+      <Table className="min-w-xl">
+        <TableHeader>
           {table.getHeaderGroups().map((hg) => (
-            <tr key={hg.id}>
+            <TableRow key={hg.id}>
               {hg.headers.map((header) => {
-                const id = header.column.id
-                const isAsc = sorting === `${id}.asc`
-                const isDesc = sorting === `${id}.desc`
-
+                const meta = header.column.columnDef.meta as Record<string, string> | undefined
                 return (
-                  <th
+                  <TableHead
                     key={header.id}
-                    className={cn(
-                      "px-4 py-3 text-left font-medium text-muted-foreground",
-                      onSortChange && "cursor-pointer select-none"
-                    )}
-                    onClick={() => {
-                      if (!onSortChange) return
-                      const next = isAsc ? `${id}.desc` : `${id}.asc`
-                      onSortChange(next)
-                    }}
+                    colSpan={header.colSpan}
+                    className={cn(meta?.className, meta?.thClassName)}
                   >
-                    <div className="flex items-center gap-1">
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-
-                      {onSortChange && (
-                        <span className="flex flex-col">
-                          <ChevronUp
-                            className={cn(
-                              "h-3 w-3",
-                              isAsc
-                                ? "text-foreground"
-                                : "text-muted-foreground/40"
-                            )}
-                          />
-                          <ChevronDown
-                            className={cn(
-                              "h-3 w-3 -mt-1",
-                              isDesc
-                                ? "text-foreground"
-                                : "text-muted-foreground/40"
-                            )}
-                          />
-                        </span>
-                      )}
-                    </div>
-                  </th>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
                 )
               })}
-            </tr>
+            </TableRow>
           ))}
-        </thead>
-
-        {/* BODY */}
-        <tbody>
+        </TableHeader>
+        <TableBody>
           {loading ? (
-            Array.from({ length: 8 }).map((_, i) => (
-              <tr key={i} className="border-b">
-                <td colSpan={columns.length} className="px-4 py-3">
-                  <div className="h-4 w-full animate-pulse rounded bg-muted" />
-                </td>
-              </tr>
+            Array.from({ length: 8 }).map((_, rowIndex) => (
+              <TableRow key={rowIndex}>
+                {table.getVisibleLeafColumns().map((column, colIndex) => {
+                  const meta = column.columnDef.meta as Record<string, string> | undefined
+                  const widths = ["w-3/4", "w-1/2", "w-5/6", "w-2/3", "w-1/3", "w-4/5"]
+                  const width = widths[(rowIndex + colIndex) % widths.length]
+                  return (
+                    <TableCell
+                      key={column.id}
+                      className={cn("py-3", meta?.className, meta?.tdClassName)}
+                    >
+                      <Skeleton className={cn("h-4", width)} />
+                    </TableCell>
+                  )
+                })}
+              </TableRow>
             ))
-          ) : data.length === 0 ? (
-            <tr>
-              <td
-                colSpan={columns.length}
-                className="text-center py-10 text-muted-foreground"
-              >
-                No results found
-              </td>
-            </tr>
-          ) : (
+          ) : table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                className="group border-b border-border/50 hover:bg-muted/40 transition"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-3 align-middle">
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
-                  </td>
-                ))}
-              </tr>
+              <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                {row.getVisibleCells().map((cell) => {
+                  const meta = cell.column.columnDef.meta as Record<string, string> | undefined
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className={cn("py-3", meta?.className, meta?.tdClassName)}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  )
+                })}
+              </TableRow>
             ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }
