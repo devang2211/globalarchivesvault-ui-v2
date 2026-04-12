@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as UsersRouteRouteImport } from './routes/users/route'
 import { Route as TaxonomyRouteRouteImport } from './routes/taxonomy/route'
 import { Route as RolesRouteRouteImport } from './routes/roles/route'
 import { Route as PricingTierRouteRouteImport } from './routes/pricing-tier/route'
@@ -17,6 +18,7 @@ import { Route as ErrorsRouteRouteImport } from './routes/errors/route'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as ClientManagementRouteRouteImport } from './routes/client-management/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as TaxonomyIndexRouteImport } from './routes/taxonomy/index'
 import { Route as RolesIndexRouteImport } from './routes/roles/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
@@ -31,6 +33,11 @@ import { Route as ClientManagementUpdateIdRouteImport } from './routes/client-ma
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersRouteRoute = UsersRouteRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TaxonomyRouteRoute = TaxonomyRouteRouteImport.update({
@@ -67,6 +74,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const UsersIndexRoute = UsersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => UsersRouteRoute,
 } as any)
 const TaxonomyIndexRoute = TaxonomyIndexRouteImport.update({
   id: '/',
@@ -129,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/roles': typeof RolesRouteRouteWithChildren
   '/taxonomy': typeof TaxonomyRouteRouteWithChildren
+  '/users': typeof UsersRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/client-management/details': typeof ClientManagementDetailsRoute
   '/client-management/onboarding': typeof ClientManagementOnboardingRoute
@@ -139,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/roles/': typeof RolesIndexRoute
   '/taxonomy/': typeof TaxonomyIndexRoute
+  '/users/': typeof UsersIndexRoute
   '/client-management/update/$id': typeof ClientManagementUpdateIdRoute
 }
 export interface FileRoutesByTo {
@@ -155,6 +169,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/roles': typeof RolesIndexRoute
   '/taxonomy': typeof TaxonomyIndexRoute
+  '/users': typeof UsersIndexRoute
   '/client-management/update/$id': typeof ClientManagementUpdateIdRoute
 }
 export interface FileRoutesById {
@@ -166,6 +181,7 @@ export interface FileRoutesById {
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/roles': typeof RolesRouteRouteWithChildren
   '/taxonomy': typeof TaxonomyRouteRouteWithChildren
+  '/users': typeof UsersRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/client-management/details': typeof ClientManagementDetailsRoute
   '/client-management/onboarding': typeof ClientManagementOnboardingRoute
@@ -176,6 +192,7 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/roles/': typeof RolesIndexRoute
   '/taxonomy/': typeof TaxonomyIndexRoute
+  '/users/': typeof UsersIndexRoute
   '/client-management/update/$id': typeof ClientManagementUpdateIdRoute
 }
 export interface FileRouteTypes {
@@ -188,6 +205,7 @@ export interface FileRouteTypes {
     | '/pricing-tier'
     | '/roles'
     | '/taxonomy'
+    | '/users'
     | '/sign-in'
     | '/client-management/details'
     | '/client-management/onboarding'
@@ -198,6 +216,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/roles/'
     | '/taxonomy/'
+    | '/users/'
     | '/client-management/update/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -214,6 +233,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/roles'
     | '/taxonomy'
+    | '/users'
     | '/client-management/update/$id'
   id:
     | '__root__'
@@ -224,6 +244,7 @@ export interface FileRouteTypes {
     | '/pricing-tier'
     | '/roles'
     | '/taxonomy'
+    | '/users'
     | '/sign-in'
     | '/client-management/details'
     | '/client-management/onboarding'
@@ -234,6 +255,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/roles/'
     | '/taxonomy/'
+    | '/users/'
     | '/client-management/update/$id'
   fileRoutesById: FileRoutesById
 }
@@ -245,6 +267,7 @@ export interface RootRouteChildren {
   PricingTierRouteRoute: typeof PricingTierRouteRouteWithChildren
   RolesRouteRoute: typeof RolesRouteRouteWithChildren
   TaxonomyRouteRoute: typeof TaxonomyRouteRouteWithChildren
+  UsersRouteRoute: typeof UsersRouteRouteWithChildren
   SignInRoute: typeof SignInRoute
 }
 
@@ -255,6 +278,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/taxonomy': {
@@ -305,6 +335,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/users/': {
+      id: '/users/'
+      path: '/'
+      fullPath: '/users/'
+      preLoaderRoute: typeof UsersIndexRouteImport
+      parentRoute: typeof UsersRouteRoute
     }
     '/taxonomy/': {
       id: '/taxonomy/'
@@ -459,6 +496,18 @@ const TaxonomyRouteRouteWithChildren = TaxonomyRouteRoute._addFileChildren(
   TaxonomyRouteRouteChildren,
 )
 
+interface UsersRouteRouteChildren {
+  UsersIndexRoute: typeof UsersIndexRoute
+}
+
+const UsersRouteRouteChildren: UsersRouteRouteChildren = {
+  UsersIndexRoute: UsersIndexRoute,
+}
+
+const UsersRouteRouteWithChildren = UsersRouteRoute._addFileChildren(
+  UsersRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ClientManagementRouteRoute: ClientManagementRouteRouteWithChildren,
@@ -467,6 +516,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingTierRouteRoute: PricingTierRouteRouteWithChildren,
   RolesRouteRoute: RolesRouteRouteWithChildren,
   TaxonomyRouteRoute: TaxonomyRouteRouteWithChildren,
+  UsersRouteRoute: UsersRouteRouteWithChildren,
   SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport
