@@ -10,12 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as TaxonomyRouteRouteImport } from './routes/taxonomy/route'
 import { Route as RolesRouteRouteImport } from './routes/roles/route'
 import { Route as PricingTierRouteRouteImport } from './routes/pricing-tier/route'
 import { Route as ErrorsRouteRouteImport } from './routes/errors/route'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as ClientManagementRouteRouteImport } from './routes/client-management/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TaxonomyIndexRouteImport } from './routes/taxonomy/index'
 import { Route as RolesIndexRouteImport } from './routes/roles/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as ClientManagementIndexRouteImport } from './routes/client-management/index'
@@ -29,6 +31,11 @@ import { Route as ClientManagementUpdateIdRouteImport } from './routes/client-ma
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TaxonomyRouteRoute = TaxonomyRouteRouteImport.update({
+  id: '/taxonomy',
+  path: '/taxonomy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RolesRouteRoute = RolesRouteRouteImport.update({
@@ -60,6 +67,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TaxonomyIndexRoute = TaxonomyIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TaxonomyRouteRoute,
 } as any)
 const RolesIndexRoute = RolesIndexRouteImport.update({
   id: '/',
@@ -116,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/errors': typeof ErrorsRouteRouteWithChildren
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/roles': typeof RolesRouteRouteWithChildren
+  '/taxonomy': typeof TaxonomyRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/client-management/details': typeof ClientManagementDetailsRoute
   '/client-management/onboarding': typeof ClientManagementOnboardingRoute
@@ -125,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/client-management/': typeof ClientManagementIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/roles/': typeof RolesIndexRoute
+  '/taxonomy/': typeof TaxonomyIndexRoute
   '/client-management/update/$id': typeof ClientManagementUpdateIdRoute
 }
 export interface FileRoutesByTo {
@@ -140,6 +154,7 @@ export interface FileRoutesByTo {
   '/client-management': typeof ClientManagementIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/roles': typeof RolesIndexRoute
+  '/taxonomy': typeof TaxonomyIndexRoute
   '/client-management/update/$id': typeof ClientManagementUpdateIdRoute
 }
 export interface FileRoutesById {
@@ -150,6 +165,7 @@ export interface FileRoutesById {
   '/errors': typeof ErrorsRouteRouteWithChildren
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/roles': typeof RolesRouteRouteWithChildren
+  '/taxonomy': typeof TaxonomyRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/client-management/details': typeof ClientManagementDetailsRoute
   '/client-management/onboarding': typeof ClientManagementOnboardingRoute
@@ -159,6 +175,7 @@ export interface FileRoutesById {
   '/client-management/': typeof ClientManagementIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/roles/': typeof RolesIndexRoute
+  '/taxonomy/': typeof TaxonomyIndexRoute
   '/client-management/update/$id': typeof ClientManagementUpdateIdRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +187,7 @@ export interface FileRouteTypes {
     | '/errors'
     | '/pricing-tier'
     | '/roles'
+    | '/taxonomy'
     | '/sign-in'
     | '/client-management/details'
     | '/client-management/onboarding'
@@ -179,6 +197,7 @@ export interface FileRouteTypes {
     | '/client-management/'
     | '/dashboard/'
     | '/roles/'
+    | '/taxonomy/'
     | '/client-management/update/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -194,6 +213,7 @@ export interface FileRouteTypes {
     | '/client-management'
     | '/dashboard'
     | '/roles'
+    | '/taxonomy'
     | '/client-management/update/$id'
   id:
     | '__root__'
@@ -203,6 +223,7 @@ export interface FileRouteTypes {
     | '/errors'
     | '/pricing-tier'
     | '/roles'
+    | '/taxonomy'
     | '/sign-in'
     | '/client-management/details'
     | '/client-management/onboarding'
@@ -212,6 +233,7 @@ export interface FileRouteTypes {
     | '/client-management/'
     | '/dashboard/'
     | '/roles/'
+    | '/taxonomy/'
     | '/client-management/update/$id'
   fileRoutesById: FileRoutesById
 }
@@ -222,6 +244,7 @@ export interface RootRouteChildren {
   ErrorsRouteRoute: typeof ErrorsRouteRouteWithChildren
   PricingTierRouteRoute: typeof PricingTierRouteRouteWithChildren
   RolesRouteRoute: typeof RolesRouteRouteWithChildren
+  TaxonomyRouteRoute: typeof TaxonomyRouteRouteWithChildren
   SignInRoute: typeof SignInRoute
 }
 
@@ -232,6 +255,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/taxonomy': {
+      id: '/taxonomy'
+      path: '/taxonomy'
+      fullPath: '/taxonomy'
+      preLoaderRoute: typeof TaxonomyRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/roles': {
@@ -275,6 +305,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/taxonomy/': {
+      id: '/taxonomy/'
+      path: '/'
+      fullPath: '/taxonomy/'
+      preLoaderRoute: typeof TaxonomyIndexRouteImport
+      parentRoute: typeof TaxonomyRouteRoute
     }
     '/roles/': {
       id: '/roles/'
@@ -410,6 +447,18 @@ const RolesRouteRouteWithChildren = RolesRouteRoute._addFileChildren(
   RolesRouteRouteChildren,
 )
 
+interface TaxonomyRouteRouteChildren {
+  TaxonomyIndexRoute: typeof TaxonomyIndexRoute
+}
+
+const TaxonomyRouteRouteChildren: TaxonomyRouteRouteChildren = {
+  TaxonomyIndexRoute: TaxonomyIndexRoute,
+}
+
+const TaxonomyRouteRouteWithChildren = TaxonomyRouteRoute._addFileChildren(
+  TaxonomyRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ClientManagementRouteRoute: ClientManagementRouteRouteWithChildren,
@@ -417,6 +466,7 @@ const rootRouteChildren: RootRouteChildren = {
   ErrorsRouteRoute: ErrorsRouteRouteWithChildren,
   PricingTierRouteRoute: PricingTierRouteRouteWithChildren,
   RolesRouteRoute: RolesRouteRouteWithChildren,
+  TaxonomyRouteRoute: TaxonomyRouteRouteWithChildren,
   SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport
