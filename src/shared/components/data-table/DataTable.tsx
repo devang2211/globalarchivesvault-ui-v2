@@ -40,8 +40,11 @@ export function DataTable<T>({ table, columns, loading }: Props<T>) {
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
-          {loading ? (
+        <TableBody className={cn(
+          "transition-opacity duration-200",
+          loading && table.getRowModel().rows.length > 0 && "opacity-50 pointer-events-none"
+        )}>
+          {loading && table.getRowModel().rows.length === 0 ? (
             Array.from({ length: 8 }).map((_, rowIndex) => (
               <TableRow key={rowIndex}>
                 {table.getVisibleLeafColumns().map((column, colIndex) => {

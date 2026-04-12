@@ -60,7 +60,7 @@ export function DataTableToolbar<TData>({
           <Button
             variant="ghost"
             onClick={onClearFilters}
-            className="h-8 px-2 lg:px-3"
+            className="h-8 px-2 lg:px-3 cursor-pointer"
           >
             Reset
             <X className="ml-2 h-4 w-4" />

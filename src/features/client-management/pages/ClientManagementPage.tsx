@@ -11,142 +11,121 @@ import { useNavigate } from "@tanstack/react-router"
 import {
   CheckCircle2,
   CircleOff,
-  UserPlus,
-  Trash2,
+  Building2,
 } from "lucide-react"
 import { format } from "date-fns"
-import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
 import { DataTable } from "@/shared/components/data-table/DataTable"
 import { DataTableToolbar } from "@/shared/components/data-table/DataTableToolbar"
 import { DataTablePagination } from "@/shared/components/data-table/DataTablePagination"
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeader"
-import { DataTableBulkActions } from "@/shared/components/data-table/DataTableBulkActions"
 import { useDataTableState } from "@/shared/hooks/useDataTableState"
 import { useDebounce } from "@/shared/hooks/useDebounce"
 import { getTiers, type TierDto } from "@/features/tier-permissions/api/tier.api"
 
-import { getClients, deleteClient, type ClientDto } from "../api/client.api"
+import { getClients, type ClientDto } from "../api/client.api"
 import { ClientRowActions } from "../components/ClientRowActions"
 
 /* ------------------------------------------------------------------ */
 /* COLUMNS                                                              */
 /* ------------------------------------------------------------------ */
 
-const buildColumns = (onDeleted: () => void): ColumnDef<ClientDto>[] => [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+const buildColumns = (): ColumnDef<ClientDto>[] => [
   {
     accessorKey: "name",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Client" />,
-    meta: { className: "ps-1 max-w-0 w-[30%]", tdClassName: "ps-4" },
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+    meta: { className: "ps-4 w-[22%]" },
+    cell: ({ row }) => (
+      <span className="truncate">{row.original.name}</span>
+    ),
+  },
+  {
+    accessorKey: "pricingTier",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Pricing Tier" />,
+    meta: { className: "ps-4" },
+    enableSorting: false,
     cell: ({ row }) => {
-      const tier = row.original.tier
-      return (
-        <div className="flex items-center space-x-2">
-          {tier && <Badge variant="outline">{tier}</Badge>}
-          <span className="truncate font-medium">{row.original.name}</span>
-        </div>
-      )
+      const tier = row.original.pricingTier
+      if (!tier) return <span className="text-muted-foreground/40">—</span>
+      return <Badge variant="outline">{tier}</Badge>
     },
   },
   {
-    accessorKey: "industry",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Industry" />,
-    meta: { className: "ps-1", tdClassName: "ps-4" },
-    cell: ({ row }) => (
-      <span className="text-muted-foreground">{row.original.industry ?? "—"}</span>
-    ),
-  },
-  {
-    accessorKey: "location",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Location" />,
-    meta: { className: "ps-1", tdClassName: "ps-4" },
-    cell: ({ row }) => (
-      <span className="text-muted-foreground">{row.original.location ?? "—"}</span>
-    ),
-  },
-  {
-    accessorKey: "contactEmail",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Contact" />,
-    meta: { className: "ps-1", tdClassName: "ps-4" },
+    id: "institution",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Institution" />,
+    meta: { className: "ps-4 w-[22%]" },
     enableSorting: false,
     cell: ({ row }) => {
-      const { contactEmail, contactPhone } = row.original
-      if (!contactEmail && !contactPhone)
-        return <span className="text-muted-foreground/40">—</span>
+      const l1 = row.original.taxonomyLevel1Name
+      const l2 = row.original.taxonomyLevel2Name
+      if (!l1 && !l2) return <span className="text-muted-foreground/40">—</span>
       return (
-        <div className="space-y-0.5 text-sm text-muted-foreground">
-          {contactEmail && <div>{contactEmail}</div>}
-          {contactPhone && <div>{contactPhone}</div>}
+        <div className="flex flex-col gap-0.5">
+          {l1 && <span className="text-sm leading-tight">{l1}</span>}
+          {l2 && <span className="text-sm leading-tight">{l2}</span>}
         </div>
       )
     },
   },
   {
     accessorKey: "onBoardingDate",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Onboarded" />,
-    meta: { className: "ps-1", tdClassName: "ps-4" },
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Onboard Date" />,
+    meta: { className: "ps-4" },
+    enableSorting: false,
     cell: ({ row }) => {
       const raw = row.original.onBoardingDate
       if (!raw) return <span className="text-muted-foreground/40">—</span>
       try {
-        return (
-          <span className="text-muted-foreground">
-            {format(new Date(raw), "MMM d, yyyy")}
-          </span>
-        )
+        return <span>{format(new Date(raw), "MMM d, yyyy")}</span>
       } catch {
-        return <span className="text-muted-foreground">{raw}</span>
+        return <span>{raw}</span>
       }
     },
   },
   {
     accessorKey: "isActive",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
-    meta: { className: "ps-1", tdClassName: "ps-4" },
+    meta: { className: "ps-4" },
+    enableSorting: false,
     cell: ({ row }) =>
       row.original.isActive ? (
-        <div className="flex w-[90px] items-center gap-2">
-          <CheckCircle2 className="size-4 text-emerald-500" />
-          <span>Active</span>
+        <div className="flex items-center gap-1.5">
+          <CheckCircle2 className="size-4 shrink-0 text-muted-foreground" />
+          <span className="text-sm">Active</span>
         </div>
       ) : (
-        <div className="flex w-[90px] items-center gap-2">
-          <CircleOff className="size-4 text-muted-foreground" />
-          <span className="text-muted-foreground">Inactive</span>
+        <div className="flex items-center gap-1.5">
+          <CircleOff className="size-4 shrink-0 text-muted-foreground" />
+          <span className="text-sm">Inactive</span>
         </div>
       ),
   },
   {
+    accessorKey: "regulatoryFrameworks",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Regulatory Frameworks" />,
+    meta: { className: "ps-4 w-[28%]" },
+    enableSorting: false,
+    cell: ({ row }) => {
+      const raw = row.original.regulatoryFrameworks
+      const frameworks = raw ? raw.split(",").map((f) => f.trim()).filter(Boolean) : []
+      if (!frameworks.length) return <span className="text-muted-foreground/40">—</span>
+      return (
+        <div className="flex flex-wrap gap-1">
+          {frameworks.map((f) => (
+            <Badge key={f} variant="secondary" className="text-xs font-normal">
+              {f}
+            </Badge>
+          ))}
+        </div>
+      )
+    },
+  },
+  {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => <ClientRowActions row={row.original} onDeleted={onDeleted} />,
+    cell: ({ row }) => <ClientRowActions row={row.original} />,
   },
 ]
 
@@ -170,7 +149,7 @@ export default function ClientManagementPage() {
     getFilter,
     setFilter,
     clearAllFilters,
-  } = useDataTableState()
+  } = useDataTableState("client-management:filters")
 
   const debounced = useDebounce(searchText)
 
@@ -178,18 +157,13 @@ export default function ClientManagementPage() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
 
-  const tierFilter = getFilter("tier")
+  const pricingTierFilter = getFilter("pricingTier")
   const statusFilter = getFilter("status")
 
   const [sorting, setSorting] = useState<SortingState>(
     sort ? [{ id: sort.split(".")[0], desc: sort.endsWith(".desc") }] : []
   )
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    location: false,
-    contactEmail: false,
-    onBoardingDate: false,
-  })
-  const [rowSelection, setRowSelection] = useState({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
   useEffect(() => {
     getTiers().then(setTiers).catch(() => {})
@@ -201,10 +175,9 @@ export default function ClientManagementPage() {
       const res = await getClients({
         page,
         pageSize,
-        search: debounced || undefined,
         sort: sort || undefined,
-        tier: tierFilter.length ? tierFilter : undefined,
-        isActive: statusFilter.length ? statusFilter : undefined,
+        pricingTierId: pricingTierFilter.length ? pricingTierFilter.map(Number) : undefined,
+        status: statusFilter.length ? statusFilter.map((v) => v === "1") : undefined,
       })
       setData(res.items)
       setTotal(res.total)
@@ -219,7 +192,7 @@ export default function ClientManagementPage() {
   useEffect(() => {
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, sort, debounced, tierFilter.join(","), statusFilter.join(",")])
+  }, [page, pageSize, sort, debounced, pricingTierFilter.join(","), statusFilter.join(",")])
 
   const handleSortingChange = (
     updater: SortingState | ((prev: SortingState) => SortingState)
@@ -241,7 +214,7 @@ export default function ClientManagementPage() {
     if (next.pageSize !== pageSize) setPageSize(next.pageSize)
   }
 
-  const columns = buildColumns(load)
+  const columns = buildColumns()
 
   const table = useReactTable({
     data,
@@ -250,13 +223,10 @@ export default function ClientManagementPage() {
       pagination: { pageIndex: page - 1, pageSize },
       sorting,
       columnVisibility,
-      rowSelection,
     },
     manualPagination: true,
     manualSorting: true,
     pageCount: Math.ceil(total / pageSize) || 1,
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
     onSortingChange: handleSortingChange as any,
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: handlePaginationChange as any,
@@ -265,9 +235,9 @@ export default function ClientManagementPage() {
 
   const filters = [
     {
-      title: "Tier",
-      value: tierFilter,
-      onValueChange: (v: string[]) => setFilter("tier", v),
+      title: "Pricing Tier",
+      value: pricingTierFilter,
+      onValueChange: (v: string[]) => setFilter("pricingTier", v),
       options: tiers.map((t) => ({ label: t.name, value: String(t.id) })),
     },
     {
@@ -275,25 +245,11 @@ export default function ClientManagementPage() {
       value: statusFilter,
       onValueChange: (v: string[]) => setFilter("status", v),
       options: [
-        { label: "Active", value: "true", icon: CheckCircle2 },
-        { label: "Inactive", value: "false", icon: CircleOff },
+        { label: "Active", value: "1", icon: CheckCircle2 },
+        { label: "Inactive", value: "0", icon: CircleOff },
       ],
     },
   ]
-
-  /* Bulk delete */
-  const handleBulkDelete = async () => {
-    const selected = table.getFilteredSelectedRowModel().rows
-    if (!selected.length) return
-    try {
-      await Promise.all(selected.map((r) => deleteClient((r.original as ClientDto).id)))
-      toast.success(`${selected.length} client${selected.length > 1 ? "s" : ""} deleted`)
-      table.resetRowSelection()
-      load()
-    } catch {
-      toast.error("Failed to delete selected clients.")
-    }
-  }
 
   return (
     <div className="flex flex-1 flex-col gap-4">
@@ -323,7 +279,7 @@ export default function ClientManagementPage() {
             className="h-8 cursor-pointer"
             size="sm"
           >
-            <UserPlus className="mr-2 h-4 w-4" />
+            <Building2 className="mr-2 h-4 w-4" />
             Client Onboarding
           </Button>
         }
@@ -334,19 +290,6 @@ export default function ClientManagementPage() {
 
       {/* PAGINATION */}
       <DataTablePagination table={table} className="mt-auto" />
-
-      {/* BULK ACTIONS */}
-      <DataTableBulkActions table={table} entityName="client">
-        <Button
-          variant="destructive"
-          size="sm"
-          className="h-8 cursor-pointer"
-          onClick={handleBulkDelete}
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
-        </Button>
-      </DataTableBulkActions>
 
     </div>
   )

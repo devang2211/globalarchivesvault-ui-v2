@@ -1,15 +1,16 @@
 import api from "@/shared/api/client"
+import type { ApiResponse } from "@/shared/types/api"
+import { unwrap } from "@/shared/api/unwrap"
 
 export type ClientDto = {
   id: number
   name: string
-  industry?: string
-  location?: string
-  contactEmail?: string
-  contactPhone?: string
-  tier?: string
+  pricingTier?: string
+  taxonomyLevel1Name?: string
+  taxonomyLevel2Name?: string
   onBoardingDate?: string
   isActive: boolean
+  regulatoryFrameworks?: string | null
 }
 
 export type ClientListResponse = {
@@ -22,23 +23,29 @@ export type ClientListResponse = {
 export type ClientListParams = {
   page?: number
   pageSize?: number
-  search?: string
+  status?: boolean[]
+  pricingTierId?: number[]
   sort?: string
-  tier?: string[]
-  isActive?: string[]
+}
+
+type PagedResult = {
+  data: ClientDto[]
+  total: number
+  page: number
+  pageSize: number
 }
 
 export const getClients = async (params: ClientListParams): Promise<ClientListResponse> => {
-  const res = await api.get("/api/Client", { params })
-  const data = res.data.data
+  const res = await api.get<ApiResponse<PagedResult>>("/api/client", { params })
+  const result = unwrap(res)
   return {
-    items: data?.items ?? data ?? [],
-    total: data?.total ?? data?.length ?? 0,
-    page: data?.page ?? params.page ?? 1,
-    pageSize: data?.pageSize ?? params.pageSize ?? 10,
+    items: result?.data ?? [],
+    total: result?.total ?? 0,
+    page: result?.page ?? params.page ?? 1,
+    pageSize: result?.pageSize ?? params.pageSize ?? 10,
   }
 }
 
 export const deleteClient = async (id: number): Promise<void> => {
-  await api.delete(`/api/Client/${id}`)
+  await api.delete(`/api/client/${id}`)
 }

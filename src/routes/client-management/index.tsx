@@ -4,9 +4,7 @@ import { getToken } from "@/shared/lib/auth"
 
 export const Route = createFileRoute("/client-management/")({
   beforeLoad: () => {
-    const token = getToken()
-
-    if (!token) {
+    if (!getToken()) {
       throw redirect({ to: "/sign-in" })
     }
   },

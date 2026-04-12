@@ -14,7 +14,8 @@
       "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-layout-compact.tsx)",
       "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-layout-full.tsx)",
       "Bash(curl -s https://raw.githubusercontent.com/satnaing/shadcn-admin/main/src/assets/custom/icon-dir.tsx)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(node -e \"const r = require\\('./node_modules/@tanstack/react-router/dist/cjs/index.cjs'\\); console.log\\(Object.keys\\(r\\).filter\\(k => k.toLowerCase\\(\\).includes\\('redirect'\\)\\)\\)\")"
     ]
   }
 }

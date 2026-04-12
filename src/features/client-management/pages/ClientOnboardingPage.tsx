@@ -130,7 +130,7 @@ export const ClientOnboardingPage = () => {
     try {
       await api.post("/api/Client/upsert", payload)
       toast.success("Client saved successfully")
-      navigate({ to: "/client-management" })
+      navigate({ to: "/client-management/" })
     } catch {
       toast.error("Failed to save client. Please try again.")
     } finally {
@@ -308,7 +308,7 @@ export const ClientOnboardingPage = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate({ to: "/client-management" })}
+                onClick={() => navigate({ to: "/client-management/" })}
                 className="cursor-pointer"
               >
                 <X className="h-4 w-4" />

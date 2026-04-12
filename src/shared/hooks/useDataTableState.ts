@@ -1,69 +1,71 @@
-import { useSearch, useNavigate } from "@tanstack/react-router"
+import { useState, useEffect, useCallback } from "react"
 
-export const useDataTableState = () => {
-  const search = useSearch({ strict: false })
-  const navigate = useNavigate()
+type TableState = {
+  page: number
+  pageSize: number
+  sort: string
+  searchText: string
+  filters: Record<string, string[]>
+}
 
-  const page = Number(search.page ?? 1)
-  const pageSize = Number(search.pageSize ?? 10)
-  const sort = search.sort ?? ""
-  const searchText = search.search ?? ""
+const DEFAULT_STATE: TableState = {
+  page: 1,
+  pageSize: 10,
+  sort: "",
+  searchText: "",
+  filters: {},
+}
 
-  const setState = (updates: Record<string, any>) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        ...updates,
-      }),
-    })
+function readStorage(key: string): TableState {
+  try {
+    const raw = sessionStorage.getItem(key)
+    if (!raw) return DEFAULT_STATE
+    const saved = JSON.parse(raw)
+    return {
+      page:       Number(saved.page     ?? 1),
+      pageSize:   Number(saved.pageSize ?? 10),
+      sort:       saved.sort            ?? "",
+      searchText: saved.searchText      ?? "",
+      filters:    saved.filters         ?? {},
+    }
+  } catch {
+    return DEFAULT_STATE
   }
+}
+
+export const useDataTableState = (storageKey?: string) => {
+  const [state, setState] = useState<TableState>(() =>
+    storageKey ? readStorage(storageKey) : DEFAULT_STATE
+  )
+
+  useEffect(() => {
+    if (!storageKey) return
+    sessionStorage.setItem(storageKey, JSON.stringify(state))
+  }, [state, storageKey])
+
+  const update = useCallback((updates: Partial<TableState>) => {
+    setState(prev => ({ ...prev, ...updates }))
+  }, [])
 
   return {
-    page,
-    pageSize,
-    sort,
-    searchText,
+    page:       state.page,
+    pageSize:   state.pageSize,
+    sort:       state.sort,
+    searchText: state.searchText,
 
-    setPage: (p: number) => setState({ page: p }),
+    setPage:     (p: number)    => update({ page: p }),
+    setPageSize: (size: number) => update({ pageSize: size, page: 1 }),
+    setSort:     (s: string)    => update({ sort: s }),
+    setSearch:   (s: string)    => update({ searchText: s, page: 1 }),
 
-    setPageSize: (size: number) =>
-      setState({
-        pageSize: size,
-        page: 1,
-      }),
+    getFilter: (key: string): string[] => state.filters[key] ?? [],
 
-    setSort: (s: string) => setState({ sort: s }),
-
-    setSearch: (s: string) =>
-      setState({
-        search: s,
-        page: 1,
-      }),
-
-    // ✅ FILTER SUPPORT
-    getFilter: (key: string): string[] => {
-      const val = search[key]
-      if (!val) return []
-      return Array.isArray(val) ? val : [val]
-    },
-
-    setFilter: (key: string, values: string[]) => {
-      setState({
-        [key]: values.length ? values : undefined,
-        page: 1,
-      })
-    },
+    setFilter: (key: string, values: string[]) =>
+      update({ filters: { ...state.filters, [key]: values }, page: 1 }),
 
     clearAllFilters: () => {
-      const newSearch = { ...search }
-
-      Object.keys(newSearch).forEach((k) => {
-        if (!["page", "pageSize", "sort", "search"].includes(k)) {
-          delete newSearch[k]
-        }
-      })
-
-      navigate({ search: newSearch })
+      if (storageKey) sessionStorage.removeItem(storageKey)
+      setState(prev => ({ ...DEFAULT_STATE, pageSize: prev.pageSize }))
     },
   }
 }

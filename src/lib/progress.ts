@@ -89,7 +89,7 @@ export const startRouteProgress = () => {
 }
 
 export const stopRouteProgress = () => {
-  routeCount = Math.max(routeCount - 1, 0)
+  routeCount = 0 // onResolved is terminal — reset regardless of redirect chains
   tryStop()
 }
 

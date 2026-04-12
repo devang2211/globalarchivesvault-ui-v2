@@ -37,7 +37,7 @@ export function DataTableFacetedFilter({
   value,
   onValueChange,
 }: DataTableFacetedFilterProps) {
-  const selectedValues = new Set(value)
+  const selectedValues = new Set(value.filter((v) => options.some((o) => o.value === v)))
 
   const toggle = (val: string) => {
     const next = new Set(selectedValues)
@@ -52,7 +52,7 @@ export function DataTableFacetedFilter({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 border-dashed">
+        <Button variant="outline" size="sm" className="h-8 border-dashed cursor-pointer">
           <PlusCircle className="mr-2 h-4 w-4" />
           {title}
           {selectedValues.size > 0 && (
@@ -96,16 +96,16 @@ export function DataTableFacetedFilter({
               {options.map((opt) => {
                 const isSelected = selectedValues.has(opt.value)
                 return (
-                  <CommandItem key={opt.value} onSelect={() => toggle(opt.value)}>
+                  <CommandItem key={opt.value} onSelect={() => toggle(opt.value)} className="cursor-pointer">
                     <div
                       className={cn(
-                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                        "flex size-4 items-center justify-center rounded-sm border border-primary",
                         isSelected
                           ? "bg-primary text-primary-foreground"
                           : "opacity-50 [&_svg]:invisible"
                       )}
                     >
-                      <Check className="h-4 w-4" />
+                      <Check className="size-4 text-background" />
                     </div>
                     {opt.icon && (
                       <opt.icon className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -121,7 +121,7 @@ export function DataTableFacetedFilter({
                 <CommandGroup>
                   <CommandItem
                     onSelect={() => onValueChange([])}
-                    className="justify-center text-center"
+                    className="justify-center text-center cursor-pointer"
                   >
                     Clear filters
                   </CommandItem>
