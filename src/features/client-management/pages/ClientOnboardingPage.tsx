@@ -164,7 +164,7 @@ export const ClientOnboardingPage = () => {
       isActive: data.isActive,
       regulatoryFrameworks: allFrameworks.map((fw) => ({
         regulatoryFrameworkId: fw.id,
-        isSelected: data.regulatoryFrameworks.some((s) => s.regulatoryFrameworkId === fw.id) ? "Y" : "N",
+        isAllowed: data.regulatoryFrameworks.some((s) => s.regulatoryFrameworkId === fw.id),
       })),
       permissions,
     }
