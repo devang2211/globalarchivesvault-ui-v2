@@ -10,7 +10,6 @@ export type RoleListItemDto = {
   id: number
   name: string
   isActive: boolean
-  isHidden: boolean
 }
 
 export type RolePermissionDto = {
@@ -82,7 +81,7 @@ export type TaxonomyLevel4Dto = {
 /* ---------------------------------- */
 
 export const getRoles = async (): Promise<RoleListItemDto[]> => {
-  const res = await api.get<ApiResponse<RoleListItemDto[]>>("/api/role")
+  const res = await api.get<ApiResponse<RoleListItemDto[]>>("/api/role/lookup")
   return unwrap(res) ?? []
 }
 
