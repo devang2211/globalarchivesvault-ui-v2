@@ -46,7 +46,8 @@ export const clientDetailsSchema = z.object({
   taxonomyLevel2Id: z
     .number({ message: "Industry / Institution is required" })
     .nullable()
-    .refine((val): val is number => val !== null, { message: "Industry / Institution is required" }),
+    .refine((val) => val !== null, { message: "Industry / Institution is required" })
+    .transform((val) => val!),
 
   regulatoryFrameworks: z
     .array(z.object({ regulatoryFrameworkId: z.number() }))

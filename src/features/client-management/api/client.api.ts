@@ -48,6 +48,7 @@ export const getClients = async (params: ClientListParams): Promise<ClientListRe
 
 export type ClientDetailDto = {
   id: number
+  version: number
   name: string
   tierId: number
   appTimeZoneId?: number | null

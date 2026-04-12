@@ -34,6 +34,7 @@ export const ComplianceSection = () => {
   const [openFramework, setOpenFramework] = useState(false)
 
   const form = useFormContext<ClientDetailsForm>()
+  const isEditMode = (form.watch("id") ?? 0) > 0
 
   useEffect(() => {
     const load = async () => {
@@ -76,6 +77,7 @@ export const ComplianceSection = () => {
                 <Popover.Root
                   open={openIndustry}
                   onOpenChange={(open) => {
+                    if (isEditMode) return
                     setOpenIndustry(open)
                     if (!open) field.onBlur()
                   }}
@@ -83,8 +85,10 @@ export const ComplianceSection = () => {
                   <Popover.Trigger asChild>
                     <button
                       type="button"
+                      disabled={isEditMode}
                       className={cn(
-                        "h-9 w-full flex items-center justify-between rounded-md border px-3 text-sm bg-background hover:bg-muted transition",
+                        "h-9 w-full flex items-center justify-between rounded-md border px-3 text-sm bg-background transition",
+                        isEditMode ? "opacity-60 cursor-not-allowed" : "hover:bg-muted cursor-pointer",
                         fieldState.invalid ? "border-destructive" : "border-border"
                       )}
                     >

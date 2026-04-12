@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useNavigate, useParams } from "@tanstack/react-router"
-import { Check, X, ChevronLeft, ChevronRight, Save, Loader2 } from "lucide-react"
+import { Check, X, ChevronLeft, ChevronRight, Save } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
@@ -65,6 +65,7 @@ export const ClientOnboardingPage = () => {
   const [submitting, setSubmitting] = useState(false)
 
   const [clientMap, setClientMap] = useState<Map<string, boolean>>(new Map())
+  const [clientVersion, setClientVersion] = useState(0)
 
   const form = useForm<ClientDetailsForm>({
     resolver: zodResolver(clientDetailsSchema),
@@ -95,6 +96,7 @@ export const ClientOnboardingPage = () => {
       try {
         const client = await getClient(clientId!)
         // Seed permission maps before form.reset() triggers tierId watch in PlatformAccessSection
+        setClientVersion(client.version ?? 0)
         setClientMap(new Map(client.permissions?.map((p) => [p.permissionCode, p.isAllowed]) ?? []))
         form.reset({
           id: client.id,
@@ -143,6 +145,7 @@ export const ClientOnboardingPage = () => {
 
     const payload = {
       id: data.id === 0 ? null : data.id,
+      version: isEditMode ? clientVersion : undefined,
       name: data.name,
       tierId: data.tierId,
       appTimeZoneId: data.appTimezoneId ?? null,
@@ -157,12 +160,13 @@ export const ClientOnboardingPage = () => {
     }
 
     setSubmitting(true)
+    const toastId = toast.loading(isEditMode ? "Updating client..." : "Saving client...")
     try {
       await api.post("/api/Client/upsert", payload)
-      toast.success(isEditMode ? "Client updated successfully" : "Client saved successfully")
+      toast.success(isEditMode ? "Client updated successfully" : "Client saved successfully", { id: toastId })
       navigate({ to: "/client-management" })
     } catch {
-      toast.error(isEditMode ? "Failed to update client. Please try again." : "Failed to save client. Please try again.")
+      toast.error(isEditMode ? "Failed to update client. Please try again." : "Failed to save client. Please try again.", { id: toastId })
     } finally {
       setSubmitting(false)
     }
@@ -290,7 +294,7 @@ export const ClientOnboardingPage = () => {
           {/* RIGHT — ACTIVE SECTION */}
           <div className="flex-1 min-w-0 flex flex-col gap-6">
 
-            <div className="rounded-xl border border-border/40 bg-card shadow-sm">
+            <div className={cn("rounded-xl border border-border/40 bg-card shadow-sm transition-opacity", submitting && "opacity-60 pointer-events-none")}>
 
               <div className="px-6 py-5 border-b border-border/30">
                 <h2 className="text-base font-semibold">{activeStepMeta.title}</h2>
@@ -358,7 +362,7 @@ export const ClientOnboardingPage = () => {
                     onClick={() => form.handleSubmit(onSave as any)()}
                     className="cursor-pointer"
                   >
-                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    <Save className="h-4 w-4" />
                     {submitting ? "Saving..." : isEditMode ? "Save Changes" : "Save Client"}
                   </Button>
                 )}
