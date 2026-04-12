@@ -28,7 +28,7 @@ const SkeletonRows = ({ count = 2 }: { count?: number }) => (
 )
 
 /* ---------------------------------- */
-/* L4 ROW — leaf with Upload + Search */
+/* L4 ROW — leaf with Allowed + Upload + Search */
 /* ---------------------------------- */
 
 type L4RowProps = {
@@ -48,20 +48,33 @@ function TaxonomyL4Row({ itemId, itemName, readonly }: L4RowProps) {
     canSearch: false,
   }
 
-  const update = (field: "canUpload" | "canSearch", value: boolean) => {
-    const exists = taxonomyLevel4s.some(t => t.taxonomyLevel4Id === itemId)
-    const updatedEntry = { ...entry, [field]: value }
-    // isAllowed = true whenever at least one of canUpload / canSearch is enabled
-    updatedEntry.isAllowed = updatedEntry.canUpload || updatedEntry.canSearch
+  // When canUpload OR canSearch is on, isAllowed is forced true.
+  // When both are off, isAllowed can be toggled independently.
+  const eitherOn = entry.canUpload || entry.canSearch
+  const isAllowed = eitherOn || entry.isAllowed
 
+  const commit = (next: typeof entry) => {
+    const exists = taxonomyLevel4s.some(t => t.taxonomyLevel4Id === itemId)
     if (exists) {
       form.setValue(
         "taxonomyLevel4s",
-        taxonomyLevel4s.map(t => (t.taxonomyLevel4Id === itemId ? updatedEntry : t))
+        taxonomyLevel4s.map(t => (t.taxonomyLevel4Id === itemId ? next : t))
       )
     } else {
-      form.setValue("taxonomyLevel4s", [...taxonomyLevel4s, updatedEntry])
+      form.setValue("taxonomyLevel4s", [...taxonomyLevel4s, next])
     }
+  }
+
+  const updateToggle = (field: "canUpload" | "canSearch", value: boolean) => {
+    const next = { ...entry, [field]: value }
+    // Force isAllowed true whenever either sub-toggle is on
+    if (next.canUpload || next.canSearch) next.isAllowed = true
+    commit(next)
+  }
+
+  const toggleAllowed = (value: boolean) => {
+    // Only reachable when both canUpload and canSearch are off
+    commit({ ...entry, isAllowed: value })
   }
 
   return (
@@ -79,20 +92,30 @@ function TaxonomyL4Row({ itemId, itemName, readonly }: L4RowProps) {
         <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30 shrink-0 mt-1.5" />
         <span className="text-sm text-foreground/75 leading-snug">{itemName}</span>
       </div>
-      {/* Fixed-width switch cells — always top-aligned so they don't shift with wrapping text */}
+      {/* Allowed — clickable only when both Upload and Search are off; locked on when either is on */}
+      <div className="w-20 shrink-0 flex justify-center pt-0.5">
+        <Switch
+          checked={isAllowed}
+          disabled={readonly || eitherOn}
+          onCheckedChange={toggleAllowed}
+          className={cn(!readonly && !eitherOn && "cursor-pointer", eitherOn && "opacity-60")}
+        />
+      </div>
+      {/* Upload */}
       <div className="w-20 shrink-0 flex justify-center pt-0.5">
         <Switch
           checked={entry.canUpload}
           disabled={readonly}
-          onCheckedChange={val => update("canUpload", val)}
+          onCheckedChange={val => updateToggle("canUpload", val)}
           className={cn(!readonly && "cursor-pointer")}
         />
       </div>
+      {/* Search */}
       <div className="w-20 shrink-0 flex justify-center pt-0.5">
         <Switch
           checked={entry.canSearch}
           disabled={readonly}
-          onCheckedChange={val => update("canSearch", val)}
+          onCheckedChange={val => updateToggle("canSearch", val)}
           className={cn(!readonly && "cursor-pointer")}
         />
       </div>
@@ -214,7 +237,7 @@ function TaxonomyL1Node({ nodeId, nodeName, readonly }: L1NodeProps) {
 
   return (
     <div className="border-b border-border/30 last:border-b-0">
-      {/* L1 header — no accent bar, just chevron + bold name */}
+      {/* L1 header */}
       <button
         type="button"
         onClick={() => setExpanded(v => !v)}
@@ -260,10 +283,13 @@ export function TaxonomyMatrix({ readonly }: Props) {
 
   return (
     <div className="rounded-xl border border-border/60 overflow-hidden">
-      {/* Column header — 2 switch columns only (Upload + Search) */}
+      {/* Column header — Allowed (derived) + Upload + Search */}
       <div className="sticky top-0 z-10 flex items-center bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3">
         <span className="flex-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           Taxonomy
+        </span>
+        <span className="w-20 shrink-0 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">
+          Allowed
         </span>
         <span className="w-20 shrink-0 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">
           Upload
