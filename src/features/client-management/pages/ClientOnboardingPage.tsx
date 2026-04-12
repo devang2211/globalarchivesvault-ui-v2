@@ -62,7 +62,6 @@ export const ClientOnboardingPage = () => {
 
   const [activeStep, setActiveStep] = useState<StepId>("client-details")
   const [tiers, setTiers] = useState<{ id: number; name: string }[]>([])
-  const [fetching, setFetching] = useState(isEditMode)
   const [submitting, setSubmitting] = useState(false)
 
   const [clientMap, setClientMap] = useState<Map<string, boolean>>(new Map())
@@ -94,7 +93,7 @@ export const ClientOnboardingPage = () => {
   useEffect(() => {
     if (!isEditMode) return
     const fetchClient = async () => {
-      setFetching(true)
+      const toastId = toast.loading("Loading client details...")
       try {
         const client = await getClient(clientId!)
         // Seed permission maps before form.reset() triggers tierId watch in PlatformAccessSection
@@ -114,11 +113,10 @@ export const ClientOnboardingPage = () => {
           startDate: client.onBoardingDate ?? "",
           regulatoryFrameworks: client.regulatoryFrameworks ?? [],
         })
+        toast.dismiss(toastId)
       } catch {
-        toast.error("Failed to load client details.")
+        toast.error("Failed to load client details.", { id: toastId })
         navigate({ to: "/client-management" })
-      } finally {
-        setFetching(false)
       }
     }
     fetchClient()
@@ -210,14 +208,6 @@ export const ClientOnboardingPage = () => {
   /* RENDER                                                             */
   /* ---------------------------------------------------------------- */
 
-  if (fetching) {
-    return (
-      <div className="flex flex-1 items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
 
@@ -236,6 +226,7 @@ export const ClientOnboardingPage = () => {
 
       <Form {...form}>
         <form className="flex gap-8 items-start" onSubmit={(e) => e.preventDefault()}>
+          <fieldset disabled={submitting} className="contents">
 
           {/* LEFT — STEPPER SIDEBAR */}
           <aside className="w-52 shrink-0">
@@ -382,7 +373,7 @@ export const ClientOnboardingPage = () => {
             </div>
 
           </div>
-
+          </fieldset>
         </form>
       </Form>
 
