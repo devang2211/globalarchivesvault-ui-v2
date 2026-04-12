@@ -58,7 +58,7 @@ export type ClientDetailDto = {
   contactPhone?: string | null
   onBoardingDate?: string | null
   isActive: boolean
-  regulatoryFrameworks?: { regulatoryFrameworkId: number }[] | null
+  regulatoryFrameworks?: { regulatoryFrameworkId: number; isAllowed: boolean }[] | null
   permissions?: { permissionCode: string; isAllowed: boolean }[] | null
 }
 

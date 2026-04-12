@@ -62,6 +62,7 @@ export const ClientOnboardingPage = () => {
 
   const [activeStep, setActiveStep] = useState<StepId>("client-details")
   const [tiers, setTiers] = useState<{ id: number; name: string }[]>([])
+  const [allFrameworks, setAllFrameworks] = useState<{ id: number }[]>([])
   const [submitting, setSubmitting] = useState(false)
 
   const [clientMap, setClientMap] = useState<Map<string, boolean>>(new Map())
@@ -84,9 +85,13 @@ export const ClientOnboardingPage = () => {
   })
 
   useEffect(() => {
-    api.get("/api/tier")
-      .then((res) => setTiers(res.data.data || []))
-      .catch(() => {})
+    Promise.all([
+      api.get("/api/tier"),
+      api.get("/api/Lookups/regulatory-frameworks"),
+    ]).then(([tierRes, fwRes]) => {
+      setTiers(tierRes.data.data || [])
+      setAllFrameworks(fwRes.data.data || [])
+    }).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -109,7 +114,9 @@ export const ClientOnboardingPage = () => {
           taxonomyLevel2Id: client.taxonomyLevel2Id as number,
           tierId: client.tierId,
           startDate: client.onBoardingDate ?? "",
-          regulatoryFrameworks: client.regulatoryFrameworks ?? [],
+          regulatoryFrameworks: (client.regulatoryFrameworks ?? [])
+            .filter((f) => f.isAllowed)
+            .map(({ regulatoryFrameworkId }) => ({ regulatoryFrameworkId })),
         })
         toast.dismiss(toastId)
       } catch {
@@ -155,7 +162,10 @@ export const ClientOnboardingPage = () => {
       contactPhone: data.contactPhone || null,
       onBoardingDate: data.startDate,
       isActive: data.isActive,
-      regulatoryFrameworks: data.regulatoryFrameworks,
+      regulatoryFrameworks: allFrameworks.map((fw) => ({
+        regulatoryFrameworkId: fw.id,
+        isSelected: data.regulatoryFrameworks.some((s) => s.regulatoryFrameworkId === fw.id) ? "Y" : "N",
+      })),
       permissions,
     }
 
