@@ -107,27 +107,21 @@ export const deactivateRole = async (id: number): Promise<void> => {
 /* ---------------------------------- */
 
 export const getTaxonomyLevel1s = async (): Promise<TaxonomyLevel1Dto[]> => {
-  const res = await api.get<ApiResponse<TaxonomyLevel1Dto[]>>("/api/taxonomy/level1")
+  const res = await api.get<ApiResponse<TaxonomyLevel1Dto[]>>("/api/Taxonomy/level1?isActive=null")
   return unwrap(res) ?? []
 }
 
 export const getTaxonomyLevel2s = async (level1Id: number): Promise<TaxonomyLevel2Dto[]> => {
-  const res = await api.get<ApiResponse<TaxonomyLevel2Dto[]>>("/api/taxonomy/level2", {
-    params: { level1Id },
-  })
+  const res = await api.get<ApiResponse<TaxonomyLevel2Dto[]>>(`/api/Taxonomy/level2?level1Id=${level1Id}&isActive=null`)
   return unwrap(res) ?? []
 }
 
 export const getTaxonomyLevel3s = async (level2Id: number): Promise<TaxonomyLevel3Dto[]> => {
-  const res = await api.get<ApiResponse<TaxonomyLevel3Dto[]>>("/api/taxonomy/level3", {
-    params: { level2Id },
-  })
+  const res = await api.get<ApiResponse<TaxonomyLevel3Dto[]>>(`/api/Taxonomy/level3?level2Id=${level2Id}&isActive=null`)
   return unwrap(res) ?? []
 }
 
 export const getTaxonomyLevel4s = async (level3Id: number): Promise<TaxonomyLevel4Dto[]> => {
-  const res = await api.get<ApiResponse<TaxonomyLevel4Dto[]>>("/api/taxonomy/level4", {
-    params: { level3Id },
-  })
+  const res = await api.get<ApiResponse<TaxonomyLevel4Dto[]>>(`/api/Taxonomy/level4?level3Id=${level3Id}&isActive=null`)
   return unwrap(res) ?? []
 }

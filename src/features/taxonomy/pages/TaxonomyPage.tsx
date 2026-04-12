@@ -222,7 +222,7 @@ export default function TaxonomyPage() {
 
         {/* Level 2 — Sub-Industry */}
         <TaxonomyColumn
-          title="Sub-Industry"
+          title="Institution"
           items={level2s}
           selectedId={selectedL2}
           isLoading={!!selectedL1 && loadingL2}
@@ -235,12 +235,12 @@ export default function TaxonomyPage() {
 
         {/* Level 3 — Institution Type */}
         <TaxonomyColumn
-          title="Institution Type"
+          title="Department"
           items={level3s}
           selectedId={selectedL3}
           isLoading={!!selectedL2 && loadingL3}
           isDisabled={!selectedL2}
-          disabledMessage="Select a Sub-Industry first"
+          disabledMessage="Select an Institution first"
           onSelect={handleSelectL3}
           onAdd={openAddL3}
           onEdit={openEditL3}
@@ -248,12 +248,12 @@ export default function TaxonomyPage() {
 
         {/* Level 4 — Institution Name */}
         <TaxonomyColumn
-          title="Institution Name"
+          title="Record Type"
           items={level4s}
           selectedId={null}
           isLoading={!!selectedL3 && loadingL4}
           isDisabled={!selectedL3}
-          disabledMessage="Select an Institution Type first"
+          disabledMessage="Select a Department first"
           onSelect={() => {}}
           onAdd={openAddL4}
           onEdit={openEditL4}
