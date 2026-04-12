@@ -66,7 +66,7 @@ const NAV_GROUPS: NavGroup[] = [
       {
         title: "Records Configuration",
         items: [
-          { title: "Taxonomy", url: "/taxonomy" },
+          { title: "Taxonomy", url: "/taxonomy", roles: ["SuperAdmin"] },
           { title: "Metadata", url: "/metadata" },
           { title: "Metadata Groups", url: "/metadata-groups" },
           { title: "Document Types", url: "/document-types" },
