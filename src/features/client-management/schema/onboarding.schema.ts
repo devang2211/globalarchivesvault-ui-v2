@@ -46,10 +46,10 @@ export const clientDetailsSchema = z.object({
   taxonomyLevel2Id: z
     .number({ message: "Industry / Institution is required" })
     .nullable()
-    .refine((val) => val !== null, { message: "Industry / Institution is required" }),
+    .refine((val): val is number => val !== null, { message: "Industry / Institution is required" }),
 
-  regulatoryFrameworkIds: z
-    .array(z.number())
+  regulatoryFrameworks: z
+    .array(z.object({ regulatoryFrameworkId: z.number(), version: z.number() }))
     .min(1, "At least one regulatory framework is required"),
 
   // Subscription

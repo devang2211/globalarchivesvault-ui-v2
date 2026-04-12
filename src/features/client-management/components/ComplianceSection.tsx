@@ -141,12 +141,12 @@ export const ComplianceSection = () => {
       </div>
 
       {/* REGULATORY FRAMEWORKS — multi-select with chips */}
-      <div id="field-regulatoryFrameworkIds" tabIndex={-1} className="outline-none">
+      <div id="field-regulatoryFrameworks" tabIndex={-1} className="outline-none">
       <FormField
         control={form.control}
-        name="regulatoryFrameworkIds"
+        name="regulatoryFrameworks"
         render={({ field, fieldState }) => {
-          const selected: number[] = field.value ?? []
+          const selected: { regulatoryFrameworkId: number; version: number }[] = field.value ?? []
 
           return (
             <FormItem>
@@ -170,12 +170,12 @@ export const ComplianceSection = () => {
                       {selected.length === 0 ? (
                         <span className="text-muted-foreground font-normal">Select frameworks</span>
                       ) : (
-                        selected.map((id) => {
-                          const fw = frameworks.find((f) => f.id === id)
+                        selected.map((item) => {
+                          const fw = frameworks.find((f) => f.id === item.regulatoryFrameworkId)
                           if (!fw) return null
                           return (
                             <span
-                              key={id}
+                              key={item.regulatoryFrameworkId}
                               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-xs font-normal"
                             >
                               {fw.name}
@@ -183,7 +183,7 @@ export const ComplianceSection = () => {
                                 className="h-3 w-3 cursor-pointer opacity-60 hover:opacity-100"
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  field.onChange(selected.filter((x) => x !== id))
+                                  field.onChange(selected.filter((x) => x.id !== item.regulatoryFrameworkId))
                                   field.onBlur()
                                 }}
                               />
@@ -206,15 +206,15 @@ export const ComplianceSection = () => {
                           <CommandEmpty>No results found.</CommandEmpty>
 
                           {frameworks.map((fw) => {
-                            const active = selected.includes(fw.id)
+                            const active = selected.some((x) => x.regulatoryFrameworkId === fw.id)
                             return (
                               <CommandItem
                                 key={fw.id}
                                 onSelect={() => {
                                   field.onChange(
                                     active
-                                      ? selected.filter((x) => x !== fw.id)
-                                      : [...selected, fw.id]
+                                      ? selected.filter((x) => x.regulatoryFrameworkId !== fw.id)
+                                      : [...selected, { regulatoryFrameworkId: fw.id, version: 1 }]
                                   )
                                 }}
                               >

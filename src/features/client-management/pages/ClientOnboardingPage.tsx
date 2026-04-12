@@ -31,7 +31,7 @@ const STEPS = [
     id: "compliance",
     title: "Compliance",
     subtitle: "Institution & regulatory frameworks",
-    fields: ["taxonomyLevel2Id", "regulatoryFrameworkIds"] as (keyof ClientDetailsForm)[],
+    fields: ["taxonomyLevel2Id", "regulatoryFrameworks"] as (keyof ClientDetailsForm)[],
   },
   {
     id: "subscription",
@@ -74,7 +74,7 @@ export const ClientOnboardingPage = () => {
       contactEmail: "",
       contactPhone: "",
       isActive: true,
-      regulatoryFrameworkIds: [],
+      regulatoryFrameworks: [],
       startDate: "",
     },
   })
@@ -122,7 +122,7 @@ export const ClientOnboardingPage = () => {
       contactPhone: data.contactPhone || null,
       onBoardingDate: data.startDate,
       isActive: data.isActive,
-      regulatoryFrameworks: data.regulatoryFrameworkIds,
+      regulatoryFrameworks: data.regulatoryFrameworks,
       permissions,
     }
 
