@@ -21,6 +21,7 @@ import { Route as PricingTierConfigureRouteImport } from './routes/pricing-tier/
 import { Route as ErrorsNotFoundRouteImport } from './routes/errors/not-found'
 import { Route as ErrorsForbiddenRouteImport } from './routes/errors/forbidden'
 import { Route as ClientManagementOnboardingRouteImport } from './routes/client-management/onboarding'
+import { Route as ClientManagementDetailsRouteImport } from './routes/client-management/details'
 import { Route as ClientManagementUpdateIdRouteImport } from './routes/client-management/update/$id'
 
 const SignInRoute = SignInRouteImport.update({
@@ -84,6 +85,11 @@ const ClientManagementOnboardingRoute =
     path: '/onboarding',
     getParentRoute: () => ClientManagementRouteRoute,
   } as any)
+const ClientManagementDetailsRoute = ClientManagementDetailsRouteImport.update({
+  id: '/details',
+  path: '/details',
+  getParentRoute: () => ClientManagementRouteRoute,
+} as any)
 const ClientManagementUpdateIdRoute =
   ClientManagementUpdateIdRouteImport.update({
     id: '/update/$id',
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/errors': typeof ErrorsRouteRouteWithChildren
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/client-management/details': typeof ClientManagementDetailsRoute
   '/client-management/onboarding': typeof ClientManagementOnboardingRoute
   '/errors/forbidden': typeof ErrorsForbiddenRoute
   '/errors/not-found': typeof ErrorsNotFoundRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/errors': typeof ErrorsRouteRouteWithChildren
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/client-management/details': typeof ClientManagementDetailsRoute
   '/client-management/onboarding': typeof ClientManagementOnboardingRoute
   '/errors/forbidden': typeof ErrorsForbiddenRoute
   '/errors/not-found': typeof ErrorsNotFoundRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/errors': typeof ErrorsRouteRouteWithChildren
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/client-management/details': typeof ClientManagementDetailsRoute
   '/client-management/onboarding': typeof ClientManagementOnboardingRoute
   '/errors/forbidden': typeof ErrorsForbiddenRoute
   '/errors/not-found': typeof ErrorsNotFoundRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/errors'
     | '/pricing-tier'
     | '/sign-in'
+    | '/client-management/details'
     | '/client-management/onboarding'
     | '/errors/forbidden'
     | '/errors/not-found'
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/errors'
     | '/pricing-tier'
     | '/sign-in'
+    | '/client-management/details'
     | '/client-management/onboarding'
     | '/errors/forbidden'
     | '/errors/not-found'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/errors'
     | '/pricing-tier'
     | '/sign-in'
+    | '/client-management/details'
     | '/client-management/onboarding'
     | '/errors/forbidden'
     | '/errors/not-found'
@@ -276,6 +288,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClientManagementOnboardingRouteImport
       parentRoute: typeof ClientManagementRouteRoute
     }
+    '/client-management/details': {
+      id: '/client-management/details'
+      path: '/details'
+      fullPath: '/client-management/details'
+      preLoaderRoute: typeof ClientManagementDetailsRouteImport
+      parentRoute: typeof ClientManagementRouteRoute
+    }
     '/client-management/update/$id': {
       id: '/client-management/update/$id'
       path: '/update/$id'
@@ -287,12 +306,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface ClientManagementRouteRouteChildren {
+  ClientManagementDetailsRoute: typeof ClientManagementDetailsRoute
   ClientManagementOnboardingRoute: typeof ClientManagementOnboardingRoute
   ClientManagementIndexRoute: typeof ClientManagementIndexRoute
   ClientManagementUpdateIdRoute: typeof ClientManagementUpdateIdRoute
 }
 
 const ClientManagementRouteRouteChildren: ClientManagementRouteRouteChildren = {
+  ClientManagementDetailsRoute: ClientManagementDetailsRoute,
   ClientManagementOnboardingRoute: ClientManagementOnboardingRoute,
   ClientManagementIndexRoute: ClientManagementIndexRoute,
   ClientManagementUpdateIdRoute: ClientManagementUpdateIdRoute,

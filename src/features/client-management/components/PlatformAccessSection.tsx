@@ -8,21 +8,26 @@ import permissionConfig from "@/shared/config/permissions"
 import { getTierPermissions } from "@/features/tier-permissions/api/tier.api"
 import type { ClientDetailsForm } from "../schema/onboarding.schema"
 
-const COLS = "grid-cols-[1fr_130px_140px_130px]"
+const COLS_EDIT = "grid-cols-[1fr_130px_140px_130px]"
+const COLS_READONLY = "grid-cols-[1fr_140px]"
 
 interface PlatformAccessSectionProps {
   tierName?: string
   clientMap: Map<string, boolean>
-  setClientMap: Dispatch<SetStateAction<Map<string, boolean>>>
+  setClientMap?: Dispatch<SetStateAction<Map<string, boolean>>>
+  readonly?: boolean
 }
 
 export const PlatformAccessSection = ({
   tierName,
   clientMap,
   setClientMap,
+  readonly = false,
 }: PlatformAccessSectionProps) => {
   const form = useFormContext<ClientDetailsForm>()
   const tierId = form.watch("tierId")
+
+  const COLS = readonly ? COLS_READONLY : COLS_EDIT
 
   const [tierMap, setTierMap] = useState<Map<string, boolean>>(new Map())
   const [loading, setLoading] = useState(false)
@@ -35,7 +40,7 @@ export const PlatformAccessSection = ({
   useEffect(() => {
     if (!tierId) {
       setTierMap(new Map())
-      setClientMap(new Map())
+      setClientMap?.(new Map())
       return
     }
 
@@ -51,10 +56,10 @@ export const PlatformAccessSection = ({
         })
         setTierMap(tier)
         // If clientMap was pre-seeded (edit mode), keep those values
-        setClientMap(prev => prev.size > 0 ? prev : client)
+        setClientMap?.(prev => prev.size > 0 ? prev : client)
       } catch {
         setTierMap(new Map())
-        setClientMap(new Map())
+        setClientMap?.(new Map())
       } finally {
         setLoading(false)
       }
@@ -67,6 +72,7 @@ export const PlatformAccessSection = ({
      Toggle client access
   ------------------------------------------------------- */
   const toggleClient = (code: string) => {
+    if (!setClientMap) return
     setClientMap((prev) => {
       const next = new Map(prev)
       next.set(code, !prev.get(code))
@@ -85,19 +91,25 @@ export const PlatformAccessSection = ({
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           Permission
         </span>
-        <div className="text-center">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Default Access</p>
-          <p className="text-[10px] text-muted-foreground/60 normal-case tracking-normal mt-0.5">
-            {tierName ?? "Pricing Tier"}
-          </p>
-        </div>
+        {!readonly && (
+          <div className="text-center">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Default Access</p>
+            <p className="text-[10px] text-muted-foreground/60 normal-case tracking-normal mt-0.5">
+              {tierName ?? "Pricing Tier"}
+            </p>
+          </div>
+        )}
         <div className="text-center">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Client Access</p>
-          <p className="text-[10px] text-muted-foreground/60 normal-case tracking-normal mt-0.5">Override</p>
+          {!readonly && (
+            <p className="text-[10px] text-muted-foreground/60 normal-case tracking-normal mt-0.5">Override</p>
+          )}
         </div>
-        <div className="text-center">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Effective Access</p>
-        </div>
+        {!readonly && (
+          <div className="text-center">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Effective Access</p>
+          </div>
+        )}
       </div>
 
       {/* BODY */}
@@ -145,21 +157,29 @@ export const PlatformAccessSection = ({
                         )}
                       </div>
 
-                      {/* DEFAULT ACCESS — readonly */}
-                      <div className="flex justify-center">
-                        {!tierId ? (
-                          <span className="text-xs text-muted-foreground/30">—</span>
-                        ) : tierAllowed ? (
-                          <Check className="h-4 w-4 text-primary" />
-                        ) : (
-                          <Minus className="h-4 w-4 text-muted-foreground/30" />
-                        )}
-                      </div>
+                      {/* DEFAULT ACCESS — edit mode only */}
+                      {!readonly && (
+                        <div className="flex justify-center">
+                          {!tierId ? (
+                            <span className="text-xs text-muted-foreground/30">—</span>
+                          ) : tierAllowed ? (
+                            <Check className="h-4 w-4 text-primary" />
+                          ) : (
+                            <Minus className="h-4 w-4 text-muted-foreground/30" />
+                          )}
+                        </div>
+                      )}
 
-                      {/* CLIENT ACCESS — toggleable */}
+                      {/* CLIENT ACCESS */}
                       <div className="flex justify-center">
                         {!tierId ? (
                           <span className="text-xs text-muted-foreground/30">—</span>
+                        ) : readonly ? (
+                          clientAllowed ? (
+                            <Check className="h-4 w-4 text-primary" />
+                          ) : (
+                            <Minus className="h-4 w-4 text-muted-foreground/30" />
+                          )
                         ) : (
                           <Switch
                             checked={clientAllowed}
@@ -169,16 +189,18 @@ export const PlatformAccessSection = ({
                         )}
                       </div>
 
-                      {/* Override ACCESS — readonly, mirrors client */}
-                      <div className="flex justify-center">
-                        {!tierId ? (
-                          <span className="text-xs text-muted-foreground/30">—</span>
-                        ) : effectiveAllowed ? (
-                          <Check className="h-4 w-4 text-primary" />
-                        ) : (
-                          <Minus className="h-4 w-4 text-muted-foreground/30" />
-                        )}
-                      </div>
+                      {/* EFFECTIVE ACCESS — hidden in readonly */}
+                      {!readonly && (
+                        <div className="flex justify-center">
+                          {!tierId ? (
+                            <span className="text-xs text-muted-foreground/30">—</span>
+                          ) : effectiveAllowed ? (
+                            <Check className="h-4 w-4 text-primary" />
+                          ) : (
+                            <Minus className="h-4 w-4 text-muted-foreground/30" />
+                          )}
+                        </div>
+                      )}
                     </div>
                   )
                 })}

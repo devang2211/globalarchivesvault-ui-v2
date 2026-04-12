@@ -2,6 +2,7 @@ export type AuthData = {
   token: string
   expiresAt: string
   userId: number
+  clientId?: number
   name: string
   email: string
   userType: "SuperAdmin" | "ClientAdmin" | "ClientUser"

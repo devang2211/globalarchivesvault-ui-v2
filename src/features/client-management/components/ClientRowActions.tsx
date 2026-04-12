@@ -33,9 +33,10 @@ export const ClientRowActions = ({ row }: ClientRowActionsProps) => {
       <DropdownMenuContent align="end" className="w-[160px]">
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() =>
-            navigate({ to: "/client-management/onboarding", search: { id: row.id, view: true } as any })
-          }
+          onClick={() => {
+            sessionStorage.setItem("view-client-id", String(row.id))
+            navigate({ to: "/client-management/details" as any })
+          }}
         >
           View
           <DropdownMenuShortcut>
