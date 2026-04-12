@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useNavigate } from "@tanstack/react-router"
-import { Check } from "lucide-react"
+import { Check, X, ChevronLeft, ChevronRight, Save, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 import { Form } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
@@ -56,6 +57,11 @@ export const ClientOnboardingPage = () => {
   const navigate = useNavigate()
   const [activeStep, setActiveStep] = useState<StepId>("client-details")
   const [tiers, setTiers] = useState<{ id: number; name: string }[]>([])
+  const [submitting, setSubmitting] = useState(false)
+
+  /* Lifted permission state — needed at submit time */
+  const [clientMap, setClientMap] = useState<Map<string, boolean>>(new Map())
+  const [versionMap, setVersionMap] = useState<Map<string, number>>(new Map())
 
   const form = useForm<ClientDetailsForm>({
     resolver: zodResolver(clientDetailsSchema),
@@ -95,6 +101,41 @@ export const ClientOnboardingPage = () => {
 
   const goPrev = () => {
     if (!isFirst) setActiveStep(STEPS[activeIndex - 1].id)
+  }
+
+  /* Submit */
+  const onSave: SubmitHandler<ClientDetailsForm> = async (data) => {
+    const permissions = Array.from(versionMap.entries()).map(([permissionCode, version]) => ({
+      permissionCode,
+      isAllowed: clientMap.get(permissionCode) ?? false,
+      version,
+    }))
+
+    const payload = {
+      id: data.id === 0 ? null : data.id,
+      name: data.name,
+      tierId: data.tierId,
+      appTimeZoneId: data.appTimezoneId ?? null,
+      taxonomyLevel2Id: data.taxonomyLevel2Id,
+      location: data.location || null,
+      contactEmail: data.contactEmail || null,
+      contactPhone: data.contactPhone || null,
+      onBoardingDate: data.startDate,
+      isActive: data.isActive,
+      regulatoryFrameworks: data.regulatoryFrameworkIds,
+      permissions,
+    }
+
+    setSubmitting(true)
+    try {
+      await api.post("/api/Client/upsert", payload)
+      toast.success("Client saved successfully")
+      navigate({ to: "/client-management" })
+    } catch {
+      toast.error("Failed to save client. Please try again.")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   /* Validate current step fields before advancing */
@@ -245,7 +286,14 @@ export const ClientOnboardingPage = () => {
                 {activeStep === "client-details"  && <ClientDetailsSection />}
                 {activeStep === "compliance"       && <ComplianceSection />}
                 {activeStep === "subscription"     && <SubscriptionSection />}
-                {activeStep === "platform-access"  && <PlatformAccessSection tierName={selectedTierName} />}
+                {activeStep === "platform-access"  && (
+                  <PlatformAccessSection
+                    tierName={selectedTierName}
+                    clientMap={clientMap}
+                    setClientMap={setClientMap}
+                    setVersionMap={setVersionMap}
+                  />
+                )}
               </div>
 
             </div>
@@ -263,6 +311,7 @@ export const ClientOnboardingPage = () => {
                 onClick={() => navigate({ to: "/client-management" })}
                 className="cursor-pointer"
               >
+                <X className="h-4 w-4" />
                 Cancel
               </Button>
 
@@ -274,6 +323,7 @@ export const ClientOnboardingPage = () => {
                     onClick={goPrev}
                     className="cursor-pointer"
                   >
+                    <ChevronLeft className="h-4 w-4" />
                     Previous
                   </Button>
                 )}
@@ -285,10 +335,17 @@ export const ClientOnboardingPage = () => {
                     className="cursor-pointer"
                   >
                     Next
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 ) : (
-                  <Button type="submit" className="cursor-pointer">
-                    Save Client
+                  <Button
+                    type="button"
+                    disabled={submitting}
+                    onClick={() => form.handleSubmit(onSave as any)()}
+                    className="cursor-pointer"
+                  >
+                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {submitting ? "Saving..." : "Save Client"}
                   </Button>
                 )}
               </div>

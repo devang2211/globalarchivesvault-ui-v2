@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment } from "react"
+import { useEffect, useState, Fragment, type Dispatch, type SetStateAction } from "react"
 import { useFormContext } from "react-hook-form"
 import { Check, Minus } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -10,21 +10,33 @@ import type { ClientDetailsForm } from "../schema/onboarding.schema"
 
 const COLS = "grid-cols-[1fr_130px_140px_130px]"
 
-export const PlatformAccessSection = ({ tierName }: { tierName?: string }) => {
+interface PlatformAccessSectionProps {
+  tierName?: string
+  clientMap: Map<string, boolean>
+  setClientMap: Dispatch<SetStateAction<Map<string, boolean>>>
+  setVersionMap: Dispatch<SetStateAction<Map<string, number>>>
+}
+
+export const PlatformAccessSection = ({
+  tierName,
+  clientMap,
+  setClientMap,
+  setVersionMap,
+}: PlatformAccessSectionProps) => {
   const form = useFormContext<ClientDetailsForm>()
   const tierId = form.watch("tierId")
 
   const [tierMap, setTierMap] = useState<Map<string, boolean>>(new Map())
-  const [clientMap, setClientMap] = useState<Map<string, boolean>>(new Map())
   const [loading, setLoading] = useState(false)
 
   /* -------------------------------------------------------
-     Load tier permissions — reset both maps on tier change
+     Load tier permissions — reset all maps on tier change
   ------------------------------------------------------- */
   useEffect(() => {
     if (!tierId) {
       setTierMap(new Map())
       setClientMap(new Map())
+      setVersionMap(new Map())
       return
     }
 
@@ -32,15 +44,21 @@ export const PlatformAccessSection = ({ tierName }: { tierName?: string }) => {
       setLoading(true)
       try {
         const items = await getTierPermissions(tierId)
-        const map = new Map<string, boolean>()
-        items.forEach(({ permissionCode, isAllowed }) => {
-          map.set(permissionCode, isAllowed)
+        const tier = new Map<string, boolean>()
+        const client = new Map<string, boolean>()
+        const version = new Map<string, number>()
+        items.forEach(({ permissionCode, isAllowed, version: v }) => {
+          tier.set(permissionCode, isAllowed)
+          client.set(permissionCode, isAllowed)
+          version.set(permissionCode, v)
         })
-        setTierMap(map)
-        setClientMap(new Map(map)) // initialize client from tier
+        setTierMap(tier)
+        setClientMap(client)
+        setVersionMap(version)
       } catch {
         setTierMap(new Map())
         setClientMap(new Map())
+        setVersionMap(new Map())
       } finally {
         setLoading(false)
       }
