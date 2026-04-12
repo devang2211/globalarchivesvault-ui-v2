@@ -88,7 +88,7 @@ export const ComplianceSection = () => {
                         fieldState.invalid ? "border-destructive" : "border-border"
                       )}
                     >
-                      <span className="truncate text-left">
+                      <span className={cn("truncate text-left text-sm font-normal not-italic", !selectedChild && "text-muted-foreground")}>
                         {selectedChild
                           ? `${selectedParent?.name} / ${selectedChild.name}`
                           : "Select industry / institution"}
@@ -168,7 +168,7 @@ export const ComplianceSection = () => {
                       )}
                     >
                       {selected.length === 0 ? (
-                        <span className="text-muted-foreground">Select frameworks</span>
+                        <span className="text-muted-foreground font-normal">Select frameworks</span>
                       ) : (
                         selected.map((id) => {
                           const fw = frameworks.find((f) => f.id === id)
@@ -176,7 +176,7 @@ export const ComplianceSection = () => {
                           return (
                             <span
                               key={id}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-xs font-medium"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-xs font-normal"
                             >
                               {fw.name}
                               <X

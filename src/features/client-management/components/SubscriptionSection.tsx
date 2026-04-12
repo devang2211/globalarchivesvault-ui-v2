@@ -65,7 +65,7 @@ export const SubscriptionSection = () => {
                     type="button"
                     onClick={() => { field.onChange(tier.id); field.onBlur() }}
                     className={cn(
-                      "flex-1 px-3 py-2 text-sm font-medium transition cursor-pointer",
+                      "flex-1 px-3 py-2 text-sm font-normal transition cursor-pointer",
                       "border-r last:border-r-0 border-border",
                       field.value === tier.id
                         ? "bg-primary text-primary-foreground"
@@ -102,9 +102,9 @@ export const SubscriptionSection = () => {
                     )}
                   >
                     {field.value ? (
-                      <span>{format(new Date(field.value), "MM/dd/yyyy")}</span>
+                      <span className="font-normal">{format(new Date(field.value), "MM/dd/yyyy")}</span>
                     ) : (
-                      <span className="text-muted-foreground">MM/DD/YYYY</span>
+                      <span className="text-muted-foreground font-normal">MM/DD/YYYY</span>
                     )}
                     <CalendarIcon className="h-4 w-4 opacity-50" />
                   </button>

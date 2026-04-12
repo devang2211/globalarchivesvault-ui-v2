@@ -88,7 +88,7 @@ export const ClientDetailsSection = () => {
                       type="button"
                       className="h-9 w-full flex items-center justify-between rounded-md border border-border px-3 text-sm bg-background hover:bg-muted transition"
                     >
-                      <span className="truncate text-left">
+                      <span className={cn("truncate text-left font-normal", !selected && "text-muted-foreground")}>
                         {selected
                           ? selected.displayName
                           : loadingTz

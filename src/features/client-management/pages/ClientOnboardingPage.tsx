@@ -23,24 +23,24 @@ const STEPS = [
   {
     id: "client-details",
     title: "Client Details",
-    subtitle: "Basic organisation information",
+    subtitle: "Basic organization information",
     fields: ["name", "contactEmail", "contactPhone"] as (keyof ClientDetailsForm)[],
   },
   {
     id: "compliance",
     title: "Compliance",
-    subtitle: "Industry & regulatory frameworks",
+    subtitle: "Institution & regulatory frameworks",
     fields: ["taxonomyLevel2Id", "regulatoryFrameworkIds"] as (keyof ClientDetailsForm)[],
   },
   {
     id: "subscription",
     title: "Subscription",
-    subtitle: "Pricing tier & start date",
+    subtitle: "Pricing tier & onboard date",
     fields: ["tierId", "startDate"] as (keyof ClientDetailsForm)[],
   },
   {
     id: "platform-access",
-    title: "Platform Access Setup",
+    title: "Access Setup",
     subtitle: "Feature permissions for this client",
     fields: [] as (keyof ClientDetailsForm)[],
   },
@@ -143,7 +143,7 @@ export const ClientOnboardingPage = () => {
         <div className="space-y-1">
           <h1 className="text-xl font-semibold">Client Onboarding</h1>
           <p className="text-sm text-muted-foreground">
-            Set up a new client account across all required areas
+            Set up a new client account
           </p>
         </div>
       </div>
@@ -248,14 +248,12 @@ export const ClientOnboardingPage = () => {
                 {activeStep === "platform-access"  && <PlatformAccessSection tierName={selectedTierName} />}
               </div>
 
-              {/* Required note */}
-              <div className="px-6 pb-4">
-                <p className="text-xs text-muted-foreground">
-                  Fields marked <span className="text-destructive font-medium">*</span> are required
-                </p>
-              </div>
-
             </div>
+
+            {/* Required note */}
+            <p className="text-xs text-muted-foreground -mt-3">
+              Fields marked <span className="text-destructive font-medium">*</span> are required
+            </p>
 
             {/* Navigation */}
             <div className="flex items-center justify-between pt-2 border-t border-border/40">

@@ -113,6 +113,7 @@ export const PlatformAccessSection = ({ tierName }: { tierName?: string }) => {
                   const clientAllowed = clientMap.get(perm.code) ?? false
                   // Effective mirrors client state exactly
                   const effectiveAllowed = clientAllowed
+                  const isOverridden = tierId && clientAllowed !== tierAllowed
 
                   return (
                     <div
@@ -121,7 +122,14 @@ export const PlatformAccessSection = ({ tierName }: { tierName?: string }) => {
                     >
                       <span className="absolute left-0 inset-y-0 w-0.5 bg-primary scale-y-0 group-hover:scale-y-100 transition-transform origin-center rounded-r-full" />
 
-                      <span className="text-sm text-foreground/80 pl-10">{perm.label}</span>
+                      <div className="flex items-center gap-2 pl-10">
+                        <span className="text-sm text-foreground/80">{perm.label}</span>
+                        {isOverridden && (
+                          <span className="inline-flex items-center rounded-sm bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 ring-1 ring-inset ring-amber-500/20 dark:text-amber-400">
+                            overridden
+                          </span>
+                        )}
+                      </div>
 
                       {/* DEFAULT ACCESS — readonly */}
                       <div className="flex justify-center">
