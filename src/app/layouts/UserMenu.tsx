@@ -58,6 +58,7 @@ export const UserMenu = () => {
             signOutMutation.mutateAsync().catch(() => {})
             clearAuth()
             queryClient.clear()
+            sessionStorage.removeItem("active-client-id")
             navigate({ to: "/sign-in" })
             toast.success("You've been signed out!")
           }}

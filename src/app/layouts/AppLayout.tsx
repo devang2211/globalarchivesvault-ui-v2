@@ -4,6 +4,7 @@ import { Topbar } from "./Topbar"
 import { Footer } from "./Footer"
 import { useState, useEffect } from "react"
 import { usePreferences } from "@/app/providers/PreferencesProvider"
+import { ClientContextProvider } from "@/app/providers/ClientContextProvider"
 import { cn } from "@/lib/utils"
 
 const SIDEBAR_KEY = "sidebar-collapsed"
@@ -57,6 +58,7 @@ export const AppLayout = () => {
   }
 
   return (
+    <ClientContextProvider>
     <div className={cn(
       "min-h-screen",
       (isFloating || isInset) ? "bg-muted/40" : "bg-background"
@@ -109,5 +111,6 @@ export const AppLayout = () => {
         onClick={() => setIsSidebarOpen(false)}
       />
     </div>
+    </ClientContextProvider>
   )
 }
