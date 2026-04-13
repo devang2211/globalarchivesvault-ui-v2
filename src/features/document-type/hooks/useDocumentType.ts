@@ -2,10 +2,19 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import {
   getMetadataFieldLookup,
+  getRegulatoryFrameworks,
   getRecordTypeConfig,
   saveRecordTypeConfig,
   type SaveRecordTypeConfigPayload,
 } from "../api/document-type.api"
+
+export const useRegulatoryFrameworks = () => {
+  return useQuery({
+    queryKey: ["regulatory-frameworks"],
+    queryFn: getRegulatoryFrameworks,
+    staleTime: 10 * 60 * 1000,
+  })
+}
 
 export const useMetadataFieldLookup = () => {
   return useQuery({

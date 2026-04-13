@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { DndContext, closestCenter } from "@dnd-kit/core"
 import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable"
-import { Plus, Trash2, FolderOpen, Settings2, Clock, ChevronRight } from "lucide-react"
+import { Plus, Trash2, FolderOpen, Settings2, Clock, ChevronRight, Building2 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -21,7 +21,7 @@ import { useClientContext } from "@/shared/hooks/useClientContext"
 import { isSuperAdmin } from "@/shared/lib/auth"
 import { getClient } from "@/features/client-management/api/client.api"
 import { useTaxonomyLevel3s, useTaxonomyLevel4s } from "@/features/role-management/hooks/useRoles"
-import { useMetadataFieldLookup, useSaveRecordTypeConfig } from "../hooks/useDocumentType"
+import { useMetadataFieldLookup, useRegulatoryFrameworks, useSaveRecordTypeConfig } from "../hooks/useDocumentType"
 import { getRecordTypeConfig } from "../api/document-type.api"
 import { MetadataBlock } from "../components/MetadataBlock"
 import { EmptyCell } from "../components/EmptyCell"
@@ -51,8 +51,13 @@ export default function DocumentTypePage() {
     }, []),
   })
 
-  const [taxonomyLevel2Id, setTaxonomyLevel2Id] = useState<number | null>(null)
-  const [frameworks, setFrameworks]             = useState<{ id: number; name: string }[]>([])
+  const [taxonomyLevel2Id, setTaxonomyLevel2Id]   = useState<number | null>(null)
+  const [allowedFrameworkIds, setAllowedFrameworkIds] = useState<number[]>([])
+
+  const { data: allFrameworks = [] } = useRegulatoryFrameworks()
+
+  // Only frameworks that are enabled for the selected client
+  const frameworks = allFrameworks.filter(f => allowedFrameworkIds.includes(f.id))
 
   async function loadClientDetail(clientId: number) {
     try {
@@ -60,8 +65,8 @@ export default function DocumentTypePage() {
       setTaxonomyLevel2Id(detail.taxonomyLevel2Id ?? null)
       const allowed = (detail.regulatoryFrameworks ?? [])
         .filter(f => f.isAllowed)
-        .map(f => ({ id: f.regulatoryFrameworkId, name: `Framework ${f.regulatoryFrameworkId}` }))
-      setFrameworks(allowed)
+        .map(f => f.regulatoryFrameworkId)
+      setAllowedFrameworkIds(allowed)
     } catch { /* silent */ }
   }
 
@@ -91,7 +96,7 @@ export default function DocumentTypePage() {
   function resetAll() {
     setTaxonomyLevel2Id(null); setSelectedL3Id(null); setSelectedL4Id(null)
     setGroups([]); setItems([]); setRules([])
-    setPermanentRetention(false); setFrameworks([])
+    setPermanentRetention(false); setAllowedFrameworkIds([])
   }
 
   function resetConfig() {
@@ -290,36 +295,43 @@ export default function DocumentTypePage() {
           </div>
         </CardHeader>
 
-        <CardContent className="pt-3 pb-3">
+        <CardContent className="pt-2 pb-3">
           {selectedClient ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">{selectedClient.name}</span>
-              {selectedClient.taxonomyLevel1Name && (
-                <>
-                  <span className="text-border">·</span>
-                  <span>{selectedClient.taxonomyLevel1Name}</span>
-                </>
+            <div className="flex items-stretch text-sm rounded-lg border border-border/50 overflow-hidden divide-x divide-border/50">
+
+              {/* ── Client section ── */}
+              <div className="flex items-center gap-2 px-3 py-2.5 bg-muted/30 flex-wrap min-w-0">
+                <Building2 className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                <span className="font-semibold text-foreground">{selectedClient.name}</span>
+                {selectedClient.taxonomyLevel1Name && (
+                  <>
+                    <ChevronRight className="h-3 w-3 text-muted-foreground/30 shrink-0" />
+                    <span className="text-muted-foreground">{selectedClient.taxonomyLevel1Name}</span>
+                  </>
+                )}
+                {selectedClient.taxonomyLevel2Name && (
+                  <>
+                    <ChevronRight className="h-3 w-3 text-muted-foreground/30 shrink-0" />
+                    <span className="text-muted-foreground">{selectedClient.taxonomyLevel2Name}</span>
+                  </>
+                )}
+              </div>
+
+              {/* ── Record type section (only when configured) ── */}
+              {isConfigured ? (
+                <div className="flex items-center gap-2 px-3 py-2.5 bg-primary/5">
+                  <FolderOpen className="h-3.5 w-3.5 text-primary/40 shrink-0" />
+                  <span className="text-muted-foreground">{selectedL3Name}</span>
+                  <ChevronRight className="h-3 w-3 text-muted-foreground/30 shrink-0" />
+                  <span className="font-semibold text-foreground">{selectedL4Name}</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 px-3 py-2.5 text-muted-foreground/40 select-none">
+                  <FolderOpen className="h-3.5 w-3.5 shrink-0" />
+                  <span className="text-xs italic">No record type selected</span>
+                </div>
               )}
-              {selectedClient.taxonomyLevel2Name && (
-                <>
-                  <span className="text-border">/</span>
-                  <span>{selectedClient.taxonomyLevel2Name}</span>
-                </>
-              )}
-              <Badge
-                variant={selectedClient.isActive ? "default" : "secondary"}
-                className="text-[10px] h-4 px-1.5 ml-1"
-              >
-                {selectedClient.isActive ? "Active" : "Inactive"}
-              </Badge>
-              {isConfigured && (
-                <>
-                  <Separator orientation="vertical" className="h-4 mx-1" />
-                  <span className="text-muted-foreground/60">{selectedL3Name}</span>
-                  <ChevronRight className="h-3 w-3 text-muted-foreground/40" />
-                  <span className="font-medium text-foreground">{selectedL4Name}</span>
-                </>
-              )}
+
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
@@ -369,7 +381,7 @@ export default function DocumentTypePage() {
                   onChange={e => setFieldSearch(e.target.value)}
                   className="h-7 text-xs"
                 />
-                <div className="space-y-0.5 max-h-[420px] overflow-y-auto pr-0.5">
+                <div className="space-y-0.5 max-h-105 overflow-y-auto pr-0.5">
                   {fieldsLoading ? (
                     Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full rounded" />)
                   ) : filteredFields.length === 0 ? (
@@ -377,12 +389,12 @@ export default function DocumentTypePage() {
                   ) : (
                     filteredFields.map(field => {
                       const alreadyAdded = items.some(i => i.field.id === field.id)
-                      const typeColors: Record<string, string> = {
-                        text:    "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-                        number:  "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-                        date:    "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-                        lookup:  "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-                        boolean: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400",
+                      const typeConfig: Record<string, { label: string; color: string }> = {
+                        text:    { label: "Text",    color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
+                        number:  { label: "Number",  color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" },
+                        date:    { label: "Date",    color: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" },
+                        lookup:  { label: "Lookup",  color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
+                        boolean: { label: "Boolean", color: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400" },
                       }
                       return (
                         <div
@@ -399,8 +411,8 @@ export default function DocumentTypePage() {
                             </p>
                             {/* Type badge + attribute dots */}
                             <div className="flex items-center gap-1 flex-wrap">
-                              <span className={cn("text-[10px] font-semibold px-1 py-0 rounded leading-4", typeColors[field.type] ?? typeColors.text)}>
-                                {field.type}
+                              <span className={cn("text-[10px] font-semibold px-1 py-0 rounded leading-4", (typeConfig[field.type] ?? typeConfig.text).color)}>
+                                {(typeConfig[field.type] ?? typeConfig.text).label}
                               </span>
                               {field.searchable && (
                                 <span className="text-[10px] text-muted-foreground/70 leading-tight">Search</span>
@@ -572,9 +584,18 @@ export default function DocumentTypePage() {
                       <TableRow key={rule.id} className="hover:bg-muted/30 border-border/40">
                         <TableCell className="py-1.5">
                           <Select value={rule.frameworkId ? String(rule.frameworkId) : ""} onValueChange={v => updateRule(rule.id, "frameworkId", Number(v))}>
-                            <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select" /></SelectTrigger>
+                            <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select framework" /></SelectTrigger>
                             <SelectContent>
-                              {frameworks.map(f => <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>)}
+                              {frameworks.length === 0 ? (
+                                <SelectItem value="__none" disabled>No frameworks assigned</SelectItem>
+                              ) : (
+                                frameworks.map(f => (
+                                  <SelectItem key={f.id} value={String(f.id)}>
+                                    <span>{f.name}</span>
+                                    {f.code && <span className="ml-1.5 text-muted-foreground">({f.code})</span>}
+                                  </SelectItem>
+                                ))
+                              )}
                             </SelectContent>
                           </Select>
                         </TableCell>

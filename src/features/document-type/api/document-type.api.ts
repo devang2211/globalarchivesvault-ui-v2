@@ -19,6 +19,36 @@ export type MetadataFieldLookupDto = {
   masked?: boolean
 }
 
+// Raw shape returned by /api/MetadataField/lookup
+type RawMetadataFieldLookupDto = {
+  id: number
+  name: string
+  dataType: string
+  isSearchable: boolean
+  isEncrypted: boolean
+  isMasked: boolean
+}
+
+function mapRawToMetadataField(raw: RawMetadataFieldLookupDto): MetadataFieldLookupDto {
+  const typeMap: Record<string, FieldType> = {
+    text: "text", Text: "text",
+    number: "number", Number: "number",
+    date: "date", Date: "date",
+    lookup: "lookup", Lookup: "lookup",
+    boolean: "boolean", Boolean: "boolean",
+  }
+  return {
+    id: String(raw.id),
+    name: raw.name,
+    displayName: raw.name,
+    type: typeMap[raw.dataType] ?? "text",
+    searchable: raw.isSearchable,
+    encrypted: raw.isEncrypted,
+    masked: raw.isMasked,
+    options: [],
+  }
+}
+
 export type LayoutItem = {
   id: string
   groupId: string
@@ -59,13 +89,25 @@ export type SaveRecordTypeConfigPayload = {
   retentionRules: RetentionRule[]
 }
 
+export type RegulatoryFrameworkDto = {
+  id: number
+  name: string
+  code: string
+}
+
 /* ---------------------------------- */
 /* API FUNCTIONS                       */
 /* ---------------------------------- */
 
-export const getMetadataFieldLookup = async (): Promise<MetadataFieldLookupDto[]> => {
-  const res = await api.get<ApiResponse<MetadataFieldLookupDto[]>>("/api/MetadataField/lookup")
+export const getRegulatoryFrameworks = async (): Promise<RegulatoryFrameworkDto[]> => {
+  const res = await api.get<ApiResponse<RegulatoryFrameworkDto[]>>("/api/Lookups/regulatory-frameworks")
   return unwrap(res) ?? []
+}
+
+export const getMetadataFieldLookup = async (): Promise<MetadataFieldLookupDto[]> => {
+  const res = await api.get<ApiResponse<RawMetadataFieldLookupDto[]>>("/api/MetadataField/lookup")
+  const raw = unwrap(res) ?? []
+  return raw.map(mapRawToMetadataField)
 }
 
 export const getRecordTypeConfig = async (level4Id: number): Promise<RecordTypeConfigDto | null> => {
