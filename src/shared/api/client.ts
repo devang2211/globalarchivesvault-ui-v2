@@ -5,7 +5,7 @@ import { toast } from "sonner"
 import { routerRef } from "./routerRef"
 
 const api = axios.create({
-  baseURL: "https://localhost:64318/",
+  baseURL: "", //https://localhost:64318/
   headers: {
     "Content-Type": "application/json",
   },
