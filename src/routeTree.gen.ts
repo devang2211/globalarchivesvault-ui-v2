@@ -14,6 +14,7 @@ import { Route as UsersRouteRouteImport } from './routes/users/route'
 import { Route as TaxonomyRouteRouteImport } from './routes/taxonomy/route'
 import { Route as RolesRouteRouteImport } from './routes/roles/route'
 import { Route as PricingTierRouteRouteImport } from './routes/pricing-tier/route'
+import { Route as MetadataRouteRouteImport } from './routes/metadata/route'
 import { Route as ErrorsRouteRouteImport } from './routes/errors/route'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as ClientManagementRouteRouteImport } from './routes/client-management/route'
@@ -21,6 +22,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as TaxonomyIndexRouteImport } from './routes/taxonomy/index'
 import { Route as RolesIndexRouteImport } from './routes/roles/index'
+import { Route as MetadataIndexRouteImport } from './routes/metadata/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as ClientManagementIndexRouteImport } from './routes/client-management/index'
 import { Route as PricingTierConfigureRouteImport } from './routes/pricing-tier/configure'
@@ -53,6 +55,11 @@ const RolesRouteRoute = RolesRouteRouteImport.update({
 const PricingTierRouteRoute = PricingTierRouteRouteImport.update({
   id: '/pricing-tier',
   path: '/pricing-tier',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MetadataRouteRoute = MetadataRouteRouteImport.update({
+  id: '/metadata',
+  path: '/metadata',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ErrorsRouteRoute = ErrorsRouteRouteImport.update({
@@ -89,6 +96,11 @@ const RolesIndexRoute = RolesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => RolesRouteRoute,
+} as any)
+const MetadataIndexRoute = MetadataIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MetadataRouteRoute,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
@@ -138,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/client-management': typeof ClientManagementRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/errors': typeof ErrorsRouteRouteWithChildren
+  '/metadata': typeof MetadataRouteRouteWithChildren
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/roles': typeof RolesRouteRouteWithChildren
   '/taxonomy': typeof TaxonomyRouteRouteWithChildren
@@ -150,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/pricing-tier/configure': typeof PricingTierConfigureRoute
   '/client-management/': typeof ClientManagementIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/metadata/': typeof MetadataIndexRoute
   '/roles/': typeof RolesIndexRoute
   '/taxonomy/': typeof TaxonomyIndexRoute
   '/users/': typeof UsersIndexRoute
@@ -167,6 +181,7 @@ export interface FileRoutesByTo {
   '/pricing-tier/configure': typeof PricingTierConfigureRoute
   '/client-management': typeof ClientManagementIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/metadata': typeof MetadataIndexRoute
   '/roles': typeof RolesIndexRoute
   '/taxonomy': typeof TaxonomyIndexRoute
   '/users': typeof UsersIndexRoute
@@ -178,6 +193,7 @@ export interface FileRoutesById {
   '/client-management': typeof ClientManagementRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/errors': typeof ErrorsRouteRouteWithChildren
+  '/metadata': typeof MetadataRouteRouteWithChildren
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
   '/roles': typeof RolesRouteRouteWithChildren
   '/taxonomy': typeof TaxonomyRouteRouteWithChildren
@@ -190,6 +206,7 @@ export interface FileRoutesById {
   '/pricing-tier/configure': typeof PricingTierConfigureRoute
   '/client-management/': typeof ClientManagementIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/metadata/': typeof MetadataIndexRoute
   '/roles/': typeof RolesIndexRoute
   '/taxonomy/': typeof TaxonomyIndexRoute
   '/users/': typeof UsersIndexRoute
@@ -202,6 +219,7 @@ export interface FileRouteTypes {
     | '/client-management'
     | '/dashboard'
     | '/errors'
+    | '/metadata'
     | '/pricing-tier'
     | '/roles'
     | '/taxonomy'
@@ -214,6 +232,7 @@ export interface FileRouteTypes {
     | '/pricing-tier/configure'
     | '/client-management/'
     | '/dashboard/'
+    | '/metadata/'
     | '/roles/'
     | '/taxonomy/'
     | '/users/'
@@ -231,6 +250,7 @@ export interface FileRouteTypes {
     | '/pricing-tier/configure'
     | '/client-management'
     | '/dashboard'
+    | '/metadata'
     | '/roles'
     | '/taxonomy'
     | '/users'
@@ -241,6 +261,7 @@ export interface FileRouteTypes {
     | '/client-management'
     | '/dashboard'
     | '/errors'
+    | '/metadata'
     | '/pricing-tier'
     | '/roles'
     | '/taxonomy'
@@ -253,6 +274,7 @@ export interface FileRouteTypes {
     | '/pricing-tier/configure'
     | '/client-management/'
     | '/dashboard/'
+    | '/metadata/'
     | '/roles/'
     | '/taxonomy/'
     | '/users/'
@@ -264,6 +286,7 @@ export interface RootRouteChildren {
   ClientManagementRouteRoute: typeof ClientManagementRouteRouteWithChildren
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   ErrorsRouteRoute: typeof ErrorsRouteRouteWithChildren
+  MetadataRouteRoute: typeof MetadataRouteRouteWithChildren
   PricingTierRouteRoute: typeof PricingTierRouteRouteWithChildren
   RolesRouteRoute: typeof RolesRouteRouteWithChildren
   TaxonomyRouteRoute: typeof TaxonomyRouteRouteWithChildren
@@ -306,6 +329,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing-tier'
       fullPath: '/pricing-tier'
       preLoaderRoute: typeof PricingTierRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/metadata': {
+      id: '/metadata'
+      path: '/metadata'
+      fullPath: '/metadata'
+      preLoaderRoute: typeof MetadataRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/errors': {
@@ -356,6 +386,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/roles/'
       preLoaderRoute: typeof RolesIndexRouteImport
       parentRoute: typeof RolesRouteRoute
+    }
+    '/metadata/': {
+      id: '/metadata/'
+      path: '/'
+      fullPath: '/metadata/'
+      preLoaderRoute: typeof MetadataIndexRouteImport
+      parentRoute: typeof MetadataRouteRoute
     }
     '/dashboard/': {
       id: '/dashboard/'
@@ -461,6 +498,18 @@ const ErrorsRouteRouteWithChildren = ErrorsRouteRoute._addFileChildren(
   ErrorsRouteRouteChildren,
 )
 
+interface MetadataRouteRouteChildren {
+  MetadataIndexRoute: typeof MetadataIndexRoute
+}
+
+const MetadataRouteRouteChildren: MetadataRouteRouteChildren = {
+  MetadataIndexRoute: MetadataIndexRoute,
+}
+
+const MetadataRouteRouteWithChildren = MetadataRouteRoute._addFileChildren(
+  MetadataRouteRouteChildren,
+)
+
 interface PricingTierRouteRouteChildren {
   PricingTierConfigureRoute: typeof PricingTierConfigureRoute
 }
@@ -513,6 +562,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClientManagementRouteRoute: ClientManagementRouteRouteWithChildren,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   ErrorsRouteRoute: ErrorsRouteRouteWithChildren,
+  MetadataRouteRoute: MetadataRouteRouteWithChildren,
   PricingTierRouteRoute: PricingTierRouteRouteWithChildren,
   RolesRouteRoute: RolesRouteRouteWithChildren,
   TaxonomyRouteRoute: TaxonomyRouteRouteWithChildren,
