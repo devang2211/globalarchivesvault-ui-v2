@@ -48,35 +48,52 @@ export const ClientContextSelector = () => {
     setOpen(false)
   }
 
+  // Longest label among all options (including placeholder) — used to size the trigger
+  const longestLabel = [
+    "Select client…",
+    ...sorted.map(c => c.name + (c.isActive ? "" : " (Inactive)")),
+  ].reduce((a, b) => (a.length >= b.length ? a : b), "")
+
   return (
     <Popover.Root open={open} onOpenChange={(v) => !selectorDisabled && setOpen(v)}>
       <Popover.Trigger asChild>
+        {/* Outer wrapper sizes itself to the longest option via the hidden ghost row */}
         <button
           type="button"
           disabled={selectorDisabled}
           className={cn(
-            "h-8 inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 text-sm transition",
+            "relative h-8 inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 text-sm transition",
             "hover:bg-muted focus:outline-none",
             selectorDisabled && "opacity-60 cursor-not-allowed pointer-events-none"
           )}
         >
-          {selectedClient ? (
-            <>
-              <ClientDot isActive={selectedClient.isActive} />
-              <span className="max-w-[160px] truncate">{selectedClient.name}</span>
-            </>
-          ) : (
-            <span className="text-muted-foreground">Select client…</span>
-          )}
-          <ChevronsUpDown className="h-3.5 w-3.5 opacity-50 shrink-0" />
+          {/* Hidden ghost — forces button width to fit the longest option */}
+          <span aria-hidden className="invisible flex items-center gap-2 whitespace-nowrap">
+            <span className="inline-block h-2 w-2 rounded-full shrink-0" />
+            <span>{longestLabel}</span>
+            <ChevronsUpDown className="h-3.5 w-3.5 shrink-0" />
+          </span>
+
+          {/* Visible content — absolutely overlaid on the ghost */}
+          <span className="absolute inset-0 flex items-center gap-2 px-3">
+            {selectedClient ? (
+              <>
+                <ClientDot isActive={selectedClient.isActive} />
+                <span className="flex-1 truncate text-left">{selectedClient.name}</span>
+              </>
+            ) : (
+              <span className="flex-1 text-muted-foreground">Select client…</span>
+            )}
+            <ChevronsUpDown className="h-3.5 w-3.5 opacity-50 shrink-0" />
+          </span>
         </button>
       </Popover.Trigger>
 
       <Popover.Portal>
         <Popover.Content
           sideOffset={6}
-          align="center"
-          className="z-50 w-64 rounded-md border border-border bg-background shadow-md p-0"
+          align="end"
+          className="z-50 w-[--radix-popover-trigger-width] rounded-md border border-border bg-background shadow-md p-0"
         >
           <Command>
             <CommandInput placeholder="Search clients…" />

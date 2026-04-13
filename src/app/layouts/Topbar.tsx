@@ -56,13 +56,13 @@ export const Topbar = ({ isCollapsed, onMenuClick, onCollapseToggle }: Props) =>
           </Tooltip.Provider>
         </div>
 
-        {/* CENTRE — client context selector */}
-        <div className="flex-1 flex items-center justify-center">
-          <ClientContextSelector />
-        </div>
+        {/* CENTRE — spacer */}
+        <div className="flex-1" />
 
-        {/* RIGHT — settings + user menu */}
+        {/* RIGHT — client selector + settings + user menu */}
         <div className="flex items-center gap-3 shrink-0">
+          <ClientContextSelector />
+
           <button
             onClick={() => setOpenSettings(true)}
             className="h-8 w-8 flex items-center justify-center rounded-md hover:bg-muted cursor-pointer transition"

@@ -16,6 +16,7 @@ import { Route as RolesRouteRouteImport } from './routes/roles/route'
 import { Route as PricingTierRouteRouteImport } from './routes/pricing-tier/route'
 import { Route as MetadataRouteRouteImport } from './routes/metadata/route'
 import { Route as ErrorsRouteRouteImport } from './routes/errors/route'
+import { Route as DocumentTypesRouteRouteImport } from './routes/document-types/route'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as ClientManagementRouteRouteImport } from './routes/client-management/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +24,7 @@ import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as TaxonomyIndexRouteImport } from './routes/taxonomy/index'
 import { Route as RolesIndexRouteImport } from './routes/roles/index'
 import { Route as MetadataIndexRouteImport } from './routes/metadata/index'
+import { Route as DocumentTypesIndexRouteImport } from './routes/document-types/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as ClientManagementIndexRouteImport } from './routes/client-management/index'
 import { Route as PricingTierConfigureRouteImport } from './routes/pricing-tier/configure'
@@ -67,6 +69,11 @@ const ErrorsRouteRoute = ErrorsRouteRouteImport.update({
   path: '/errors',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DocumentTypesRouteRoute = DocumentTypesRouteRouteImport.update({
+  id: '/document-types',
+  path: '/document-types',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -101,6 +108,11 @@ const MetadataIndexRoute = MetadataIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => MetadataRouteRoute,
+} as any)
+const DocumentTypesIndexRoute = DocumentTypesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DocumentTypesRouteRoute,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
@@ -149,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/client-management': typeof ClientManagementRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/document-types': typeof DocumentTypesRouteRouteWithChildren
   '/errors': typeof ErrorsRouteRouteWithChildren
   '/metadata': typeof MetadataRouteRouteWithChildren
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
@@ -164,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/client-management/': typeof ClientManagementIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/metadata/': typeof MetadataIndexRoute
+  '/document-types/': typeof DocumentTypesIndexRoute
   '/roles/': typeof RolesIndexRoute
   '/taxonomy/': typeof TaxonomyIndexRoute
   '/users/': typeof UsersIndexRoute
@@ -182,6 +196,7 @@ export interface FileRoutesByTo {
   '/client-management': typeof ClientManagementIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/metadata': typeof MetadataIndexRoute
+  '/document-types': typeof DocumentTypesIndexRoute
   '/roles': typeof RolesIndexRoute
   '/taxonomy': typeof TaxonomyIndexRoute
   '/users': typeof UsersIndexRoute
@@ -192,6 +207,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/client-management': typeof ClientManagementRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/document-types': typeof DocumentTypesRouteRouteWithChildren
   '/errors': typeof ErrorsRouteRouteWithChildren
   '/metadata': typeof MetadataRouteRouteWithChildren
   '/pricing-tier': typeof PricingTierRouteRouteWithChildren
@@ -207,6 +223,7 @@ export interface FileRoutesById {
   '/client-management/': typeof ClientManagementIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/metadata/': typeof MetadataIndexRoute
+  '/document-types/': typeof DocumentTypesIndexRoute
   '/roles/': typeof RolesIndexRoute
   '/taxonomy/': typeof TaxonomyIndexRoute
   '/users/': typeof UsersIndexRoute
@@ -218,6 +235,7 @@ export interface FileRouteTypes {
     | '/'
     | '/client-management'
     | '/dashboard'
+    | '/document-types'
     | '/errors'
     | '/metadata'
     | '/pricing-tier'
@@ -233,6 +251,7 @@ export interface FileRouteTypes {
     | '/client-management/'
     | '/dashboard/'
     | '/metadata/'
+    | '/document-types/'
     | '/roles/'
     | '/taxonomy/'
     | '/users/'
@@ -251,6 +270,7 @@ export interface FileRouteTypes {
     | '/client-management'
     | '/dashboard'
     | '/metadata'
+    | '/document-types'
     | '/roles'
     | '/taxonomy'
     | '/users'
@@ -260,6 +280,7 @@ export interface FileRouteTypes {
     | '/'
     | '/client-management'
     | '/dashboard'
+    | '/document-types'
     | '/errors'
     | '/metadata'
     | '/pricing-tier'
@@ -275,6 +296,7 @@ export interface FileRouteTypes {
     | '/client-management/'
     | '/dashboard/'
     | '/metadata/'
+    | '/document-types/'
     | '/roles/'
     | '/taxonomy/'
     | '/users/'
@@ -285,6 +307,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ClientManagementRouteRoute: typeof ClientManagementRouteRouteWithChildren
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  DocumentTypesRouteRoute: typeof DocumentTypesRouteRouteWithChildren
   ErrorsRouteRoute: typeof ErrorsRouteRouteWithChildren
   MetadataRouteRoute: typeof MetadataRouteRouteWithChildren
   PricingTierRouteRoute: typeof PricingTierRouteRouteWithChildren
@@ -345,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ErrorsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/document-types': {
+      id: '/document-types'
+      path: '/document-types'
+      fullPath: '/document-types'
+      preLoaderRoute: typeof DocumentTypesRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -393,6 +423,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/metadata/'
       preLoaderRoute: typeof MetadataIndexRouteImport
       parentRoute: typeof MetadataRouteRoute
+    }
+    '/document-types/': {
+      id: '/document-types/'
+      path: '/'
+      fullPath: '/document-types/'
+      preLoaderRoute: typeof DocumentTypesIndexRouteImport
+      parentRoute: typeof DocumentTypesRouteRoute
     }
     '/dashboard/': {
       id: '/dashboard/'
@@ -484,6 +521,17 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
   DashboardRouteRouteChildren,
 )
 
+interface DocumentTypesRouteRouteChildren {
+  DocumentTypesIndexRoute: typeof DocumentTypesIndexRoute
+}
+
+const DocumentTypesRouteRouteChildren: DocumentTypesRouteRouteChildren = {
+  DocumentTypesIndexRoute: DocumentTypesIndexRoute,
+}
+
+const DocumentTypesRouteRouteWithChildren =
+  DocumentTypesRouteRoute._addFileChildren(DocumentTypesRouteRouteChildren)
+
 interface ErrorsRouteRouteChildren {
   ErrorsForbiddenRoute: typeof ErrorsForbiddenRoute
   ErrorsNotFoundRoute: typeof ErrorsNotFoundRoute
@@ -561,6 +609,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ClientManagementRouteRoute: ClientManagementRouteRouteWithChildren,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  DocumentTypesRouteRoute: DocumentTypesRouteRouteWithChildren,
   ErrorsRouteRoute: ErrorsRouteRouteWithChildren,
   MetadataRouteRoute: MetadataRouteRouteWithChildren,
   PricingTierRouteRoute: PricingTierRouteRouteWithChildren,
